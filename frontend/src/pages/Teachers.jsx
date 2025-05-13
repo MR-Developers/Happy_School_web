@@ -2,10 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faUserCircle } from "@fortawesome/free-solid-svg-icons";
-
-function Divider() {
-  return <div className="w-full h-px bg-gray-500 my-8" />;
-}
+import Divider from "../components/Divider";
 
 function Teachers() {
   const [teachers, setTeachers] = useState([]);
