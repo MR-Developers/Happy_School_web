@@ -9,7 +9,7 @@ const loginUser = async (req, res) => {
 
   try {
     const firebaseAPIKey = process.env.firebaseAPIKey; // Keep this in .env for security
-console.log(firebaseAPIKey);
+
     // Sign in using Firebase Auth REST API
     const response = await axios.post(
       `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${firebaseAPIKey}`,
