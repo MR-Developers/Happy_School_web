@@ -6,6 +6,7 @@ const app = express();
 const authRoutes = require("./routes/LoginRoute");
 const teacherRoutes = require("./routes/TeacherRoute");
 const ticketRoute = require("./routes/TicketRoute");
+const RaiseTicketRoute = require("./routes/RaiseTicketRoute");
 
 const db = admin.firestore(); // ✅ Use admin from shared file
 
@@ -20,6 +21,7 @@ app.use(cors({
 app.use("/auth", authRoutes);
 app.use("/get",teacherRoutes);
 app.use("/getTickets",ticketRoute);
+app.use("/postTicket",RaiseTicketRoute);
 
 app.get('/', async (req, res) => {
   const snapshot = await db

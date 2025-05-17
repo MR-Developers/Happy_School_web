@@ -13,10 +13,11 @@ import Tickets from "./pages/Tickets";
 import Teacher from "./pages/Teachers";
 import Notification from "./pages/Notification";
 import AddTicket from "./pages/AddTicket";
+import ShowTicket from "./pages/ShowTicket";
 
 function LayoutWrapper() {
   const location = useLocation();
-  const hideNavOnRoutes = ["/", "/addticket"];
+  const hideNavOnRoutes = ["/", "/addticket", "/showticket"];
 
   function ProtectedRoute({ element }) {
     const isAuthenticated = localStorage.getItem("authToken");
@@ -52,6 +53,11 @@ function LayoutWrapper() {
           <Route
             path="/addticket"
             element={<ProtectedRoute element={<AddTicket />} />}
+          />
+          \
+          <Route
+            path="/showticket"
+            element={<ProtectedRoute element={<ShowTicket />} />}
           />
         </Routes>
       </div>
