@@ -14,6 +14,7 @@ import Teacher from "./pages/Teachers";
 import Notification from "./pages/Notification";
 import AddTicket from "./pages/AddTicket";
 import ShowTicket from "./pages/ShowTicket";
+import YourTickets from "./pages/YourTickets";
 
 function LayoutWrapper() {
   const location = useLocation();
@@ -54,10 +55,15 @@ function LayoutWrapper() {
             path="/addticket"
             element={<ProtectedRoute element={<AddTicket />} />}
           />
-          \
+
           <Route
             path="/showticket"
             element={<ProtectedRoute element={<ShowTicket />} />}
+          />
+
+          <Route
+            path="/yourtickets"
+            element={<ProtectedRoute element={<YourTickets />} />}
           />
         </Routes>
       </div>

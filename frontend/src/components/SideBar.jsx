@@ -5,6 +5,7 @@ import {
   faChalkboardTeacher,
   faBell,
   faTicketAlt,
+  faSignOutAlt, // ✅ Logout icon
 } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -20,8 +21,19 @@ function SideBar() {
     { name: "Dashboard", icon: faUser, path: "/dashboard" },
     { name: "Tickets", icon: faTicketAlt, path: "/tickets" },
     { name: "Teachers", icon: faChalkboardTeacher, path: "/teacher" },
+    { name: "Your Tickets", icon: faTicketAlt, path: "/yourtickets" },
     { name: "Notifications", icon: faBell, path: "/notification" },
+    { name: "Logout", icon: faSignOutAlt, isLogout: true }, // ✅ use flag
   ];
+
+  const handleLogout = () => {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("UserName");
+    localStorage.removeItem("email");
+    localStorage.removeItem("role");
+    localStorage.removeItem("firebaseToken");
+    navigate("/");
+  };
 
   return (
     <div className="w-[20%] h-screen bg-[#454545] p-4">
@@ -53,7 +65,9 @@ function SideBar() {
         {menuItems.map((item) => (
           <li
             key={item.name}
-            onClick={() => navigate(item.path)}
+            onClick={() =>
+              item.isLogout ? handleLogout() : navigate(item.path)
+            }
             className={`flex items-center h-10 pl-4 pr-2 rounded-2xl cursor-pointer ${
               pathname === item.path ? "bg-black" : "bg-[#454545]"
             } text-white hover:bg-black transition-all duration-150`}

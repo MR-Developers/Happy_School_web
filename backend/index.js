@@ -7,6 +7,7 @@ const authRoutes = require("./routes/LoginRoute");
 const teacherRoutes = require("./routes/TeacherRoute");
 const ticketRoute = require("./routes/TicketRoute");
 const RaiseTicketRoute = require("./routes/RaiseTicketRoute");
+const YourTicketRoute = require("./routes/YourTicketRoute");
 
 const db = admin.firestore(); // ✅ Use admin from shared file
 
@@ -22,6 +23,7 @@ app.use("/auth", authRoutes);
 app.use("/get",teacherRoutes);
 app.use("/getTickets",ticketRoute);
 app.use("/postTicket",RaiseTicketRoute);
+app.use("/user",YourTicketRoute);
 
 app.get('/', async (req, res) => {
   const snapshot = await db
