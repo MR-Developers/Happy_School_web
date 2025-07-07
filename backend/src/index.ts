@@ -1,5 +1,7 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
+import dotenv from 'dotenv';
+dotenv.config();
 import admin from "./config/firebaseAdmin";
 
 import authRoutes from './routes/LoginRoute';
@@ -8,6 +10,7 @@ import ticketRoute from './routes/TicketRoute';
 import raiseTicketRoute from './routes/RaiseTicketRoute';
 import yourTicketRoute from './routes/YourTicketRoute';
 import dashboard from './routes/DashboardRoute';
+
 
 const app = express();
 const db = admin.firestore();

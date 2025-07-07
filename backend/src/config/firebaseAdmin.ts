@@ -1,11 +1,19 @@
 import admin from 'firebase-admin';
-import firebaseServiceAccount from '../../serviceAccountKey.json'; // Adjust the path as needed
+
 
 if (!admin.apps.length) {
+  const serviceAccountEnv = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+
+  if (!serviceAccountEnv) {
+    throw new Error('FIREBASE_SERVICE_ACCOUNT_KEY environment variable is not set');
+  }
+
+  // Parse the JSON string from environment variable
+  const serviceAccount = JSON.parse(serviceAccountEnv);
+
   admin.initializeApp({
-    credential: admin.credential.cert(firebaseServiceAccount as admin.ServiceAccount),
-    // Optionally include databaseURL if you're using Realtime DB
-    databaseURL: 'https://your-project-id.firebaseio.com',
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: 'https://your-project-id.firebaseio.com', // Replace with your actual project URL
   });
 }
 
