@@ -16,14 +16,11 @@ function Tickets() {
     const fetchTickets = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/getTickets/alltickets/${email}`
+          `https://api-rim6ljimuq-uc.a.run.app/tickets/${email}`
         );
         setTickets(response.data.tickets || []);
       } catch (error) {
-        console.error(
-          "Error fetching tickets:",
-          error.response?.data || error.message
-        );
+        console.error("Error fetching tickets:", error);
       } finally {
         setLoading(false);
       }

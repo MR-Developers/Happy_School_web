@@ -26,7 +26,7 @@ function Teachers() {
     if (!email) return;
 
     axios
-      .get(`http://localhost:5000/get/teachers/${email}`)
+      .get(`https://api-rim6ljimuq-uc.a.run.app/teachers/${email}`)
       .then((res) => {
         const fetched = res.data.teachers || [];
         const sorted = fetched.sort(

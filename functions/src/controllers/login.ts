@@ -1,35 +1,26 @@
-import axios from 'axios';
-import jwt from 'jsonwebtoken';
-import admin from '../config/firebase'; // Firebase Admin initialized
+import { Request, Response } from "express";
+import axios from "axios";
+import jwt from "jsonwebtoken";
+import admin from "../config/firebase"; // your initialized Firebase Admin SDK
+import { defineSecret } from "firebase-functions/params";
 
-const db = admin.firestore(); // Firestore instance
+// ✅ Define secrets
+export const WEB_API_KEY = defineSecret("WEB_API_KEY");
+export const JWT_SECRET = defineSecret("JWT_SECRET");
 
-interface LoginResult {
-  success: boolean;
-  message?: string;
-  firebaseToken?: string;
-  jwtToken?: string;
-  name?: string;
-  role?: string;
-  email?: string;
-  error?: string;
-}
+const db = admin.firestore();
 
-export const login = async (
-  email: string,
-  password: string
-): Promise<LoginResult> => {
+export const loginuser = async (req: Request, res: Response): Promise<void> => {
+  const { email, password } = req.body;
+
   if (!email || !password) {
-    return { success: false, error: 'Email and password are required' };
+    res.status(400).json({ error: "Email and password are required" });
+    return;
   }
 
   try {
-    const firebaseAPIKey = process.env.FIREBASE_API_KEY;
-    const jwtSecret = process.env.JWT_SECRET;
-
-    if (!firebaseAPIKey || !jwtSecret) {
-      throw new Error('Environment variables not set');
-    }
+    const firebaseAPIKey = WEB_API_KEY.value();
+    const jwtSecret = JWT_SECRET.value();
 
     // Firebase Auth REST API login
     const response = await axios.post(
@@ -45,34 +36,35 @@ export const login = async (
 
     // Get Firestore user info
     const snapshot = await db
-      .collection('Users')
+      .collection("Users")
       .doc(email)
-      .collection('userinfo')
-      .doc('userinfo')
+      .collection("userinfo")
+      .doc("userinfo")
       .get();
 
     if (!snapshot.exists) {
-      return { success: false, error: 'User info not found in Firestore' };
+      res.status(404).json({ error: "User info not found in Firestore" });
+      return;
     }
 
     const userData = snapshot.data();
-    const userName = userData?.Name || 'Unknown';
-    const role = userData?.role || 'User';
+    const userName = userData?.Name || "Unknown";
+    const role = userData?.role || "User";
 
     // Create JWT token
-    const token = jwt.sign({ email, role }, jwtSecret, { expiresIn: '1h' });
+    const token = jwt.sign({ email, role }, jwtSecret, { expiresIn: "1h" });
 
-    return {
+    res.status(200).json({
       success: true,
-      message: 'Login successful',
+      message: "Login successful",
       firebaseToken: idToken,
       jwtToken: token,
       name: userName,
       role,
       email,
-    };
-  } catch (error: any) {
-    console.error('Login error:', error.message);
-    return { success: false, error: 'Invalid credentials' };
+    });
+  } catch (error: unknown) {
+    console.error("Login error:", error);
+    res.status(401).json({ error: "Invalid credentials" });
   }
 };

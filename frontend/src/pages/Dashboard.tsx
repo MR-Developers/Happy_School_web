@@ -32,7 +32,7 @@ const months = [
 ];
 
 function Dashboard() {
-  const [tickets, setTickets] = useState<any[]>([]);
+  const [tickets, setTickets] = useState<unknown[]>([]);
   const dashboardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -40,7 +40,7 @@ function Dashboard() {
     if (!email) return;
 
     axios
-      .get(`http://localhost:5000/user/yourtickets/${email}`)
+      .get(`https://api-rim6ljimuq-uc.a.run.app/tickets/${email}`)
       .then((res) => setTickets(res.data.tickets || []))
       .catch((err) => console.error("Error fetching tickets:", err));
   }, []);

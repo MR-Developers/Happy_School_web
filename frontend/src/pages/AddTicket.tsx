@@ -77,7 +77,7 @@ function AddTicket() {
   useEffect(() => {
     if (!email) return;
     axios
-      .get(`http://localhost:5000/get/teachers/${email}`)
+      .get(`https://api-rim6ljimuq-uc.a.run.app/teachers/${email}`)
       .then((res) => {
         const teacherList = (res.data.teachers || [])
           .filter((t: any) => t.Name && t.email)
@@ -116,11 +116,10 @@ function AddTicket() {
     console.log("Form Submitted With:", values); // ✅ Debugging
     try {
       await axios.post(
-        `http://localhost:5000/postTicket/raiseTicket/${email}`,
+        `https://api-rim6ljimuq-uc.a.run.app/raiseticket/${email}`,
         {
           ticketText: values.ticketText,
           contributors: values.contributors,
-          selectedTeacher: values.selectedTeacher,
         }
       );
       alert("✅ Ticket submitted successfully!");
