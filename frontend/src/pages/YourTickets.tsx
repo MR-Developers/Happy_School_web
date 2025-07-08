@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Table, Tag, Typography, Spin, Space, Badge } from "antd";
+import { useNavigate } from "react-router-dom";
 
 const { Title } = Typography;
 
@@ -16,11 +17,14 @@ type Ticket = {
   tocken?: number;
   timestamp?: string;
   contributors?: Contributor[];
+  userName?: string;
+  email?: string;
 };
 
 function YourTickets() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
   const email = localStorage.getItem("email");
 
   useEffect(() => {
@@ -116,8 +120,14 @@ function YourTickets() {
           columns={columns}
           dataSource={tickets}
           rowKey="id"
-          pagination={{ pageSize: 5 }}
+          pagination={{ pageSize: 8 }}
           bordered
+          onRow={(record) => ({
+            onClick: () => {
+              navigate("/showticket", { state: { ticket: record } });
+            },
+          })}
+          className="cursor-pointer"
         />
       )}
     </div>

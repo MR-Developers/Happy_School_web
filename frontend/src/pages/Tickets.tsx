@@ -1,12 +1,22 @@
 import { useEffect, useState } from "react";
-import Divider from "../components/Divider";
+// import Divider from "../components/Divider";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faUserCircle } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+type Ticket = {
+  id: string;
+  userName?: string;
+  email?: string;
+  ticketText?: string;
+  status?: string;
+  timestamp?: string;
+  tocken?: string;
+};
+
 function Tickets() {
-  const [tickets, setTickets] = useState([]);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const email = localStorage.getItem("email");
@@ -33,7 +43,7 @@ function Tickets() {
     ticket.userName?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleTicketClick = (ticket) => {
+  const handleTicketClick = (ticket: Ticket) => {
     navigate("/showticket", { state: { ticket } });
   };
 
@@ -49,7 +59,7 @@ function Tickets() {
         </button>
       </div>
 
-      <Divider />
+      <div className="w-full h-px bg-gray-500 my-8" />
 
       <div className="relative mt-6 ml-7">
         <FontAwesomeIcon
@@ -65,7 +75,7 @@ function Tickets() {
         />
       </div>
 
-      <Divider />
+      <div className="w-full h-px bg-gray-500 my-8" />
 
       {loading ? (
         <div className="text-center text-gray-500 mt-10 text-lg">
@@ -101,7 +111,7 @@ function Tickets() {
               </div>
               <div className="text-sm break-words">{ticket.email || "NaN"}</div>
               <div className="text-sm break-words">
-                {ticket.ticketText?.length > 20
+                {ticket.ticketText && ticket.ticketText.length > 20
                   ? `${ticket.ticketText.slice(0, 10)}...`
                   : ticket.ticketText || "NaN"}
               </div>
