@@ -25,7 +25,7 @@ app.use("/auth", loginRoutes);
 app.use("/dashboard", dashboardroute);
 app.use("/tickets", ticketroutes);
 app.use("/teachers", teacherroutes); 
-app.use("raiseticket", raiseticketroutes);
+app.use("/raiseticket", raiseticketroutes);
 
 // Optional test endpoint
 export const helloWorld = onRequest((req, res) => {

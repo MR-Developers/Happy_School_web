@@ -47,7 +47,7 @@ function Dashboard() {
 
   const createdTickets = tickets.length;
   const solvedTickets = tickets.filter(
-    (t) => t.status?.toLowerCase() === "resolved"
+    (t: any) => t.status?.toLowerCase() === "resolved"
   ).length;
   const unsolvedTickets = createdTickets - solvedTickets;
 
@@ -56,14 +56,20 @@ function Dashboard() {
   const monthData = Array.from({ length: currentMonthIndex + 1 }, (_, i) => {
     const monthName = months[i];
 
-    const created = tickets.filter((t) => {
-      const ticketMonth = dayjs(t.timestamp, "DD/MM/YYYY, hh:mm a").month();
-      return ticketMonth === i;
+    const created = tickets.filter((t: any) => {
+      const date = t.timestamp?.toDate
+        ? t.timestamp.toDate()
+        : new Date(t.timestamp);
+      return dayjs(date).month() === i;
     }).length;
 
-    const solved = tickets.filter((t) => {
-      const ticketMonth = dayjs(t.timestamp, "DD/MM/YYYY, hh:mm a").month();
-      return ticketMonth === i && t.status?.toLowerCase() === "resolved";
+    const solved = tickets.filter((t: any) => {
+      const date = t.timestamp?.toDate
+        ? t.timestamp.toDate()
+        : new Date(t.timestamp);
+      return (
+        dayjs(date).month() === i && t.status?.toLowerCase() === "resolved"
+      );
     }).length;
 
     return created > 0
@@ -137,7 +143,7 @@ function Dashboard() {
 
       <Title level={4}>Tickets Overview (Month-wise)</Title>
       <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={monthData}>
+        <BarChart data={monthData as any[]}>
           <XAxis dataKey="name" />
           <YAxis />
           <Tooltip />
