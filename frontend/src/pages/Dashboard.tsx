@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// Updated Dashboard.tsx to handle both string and Firestore Timestamp formats
+
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import {
@@ -32,7 +35,7 @@ const months = [
 ];
 
 function Dashboard() {
-  const [tickets, setTickets] = useState<unknown[]>([]);
+  const [tickets, setTickets] = useState<any[]>([]);
   const dashboardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -41,36 +44,50 @@ function Dashboard() {
 
     axios
       .get(`https://api-rim6ljimuq-uc.a.run.app/tickets/${email}`)
-      .then((res) => setTickets(res.data.tickets || []))
+      .then((res) => {
+        console.log("Fetched tickets:", res.data.tickets);
+        setTickets(res.data.tickets || []);
+      })
       .catch((err) => console.error("Error fetching tickets:", err));
   }, []);
 
   const createdTickets = tickets.length;
   const solvedTickets = tickets.filter(
-    (t: any) => t.status?.toLowerCase() === "resolved"
+    (t) => t.status?.toLowerCase() === "resolved"
   ).length;
   const unsolvedTickets = createdTickets - solvedTickets;
 
   const currentMonthIndex = new Date().getMonth();
 
+  const getMonthFromTimestamp = (t: any): number | null => {
+    try {
+      if (!t.timestamp) return null;
+      let parsed;
+      if (typeof t.timestamp === "string") {
+        parsed = dayjs(t.timestamp, "DD/MM/YYYY, hh:mm A");
+      } else if (t.timestamp.toDate) {
+        parsed = dayjs(t.timestamp.toDate());
+      } else {
+        parsed = dayjs(t.timestamp);
+      }
+      return parsed.isValid() ? parsed.month() : null;
+    } catch (err) {
+      console.error("Invalid timestamp format", t.timestamp);
+      return null;
+    }
+  };
+
   const monthData = Array.from({ length: currentMonthIndex + 1 }, (_, i) => {
     const monthName = months[i];
 
-    const created = tickets.filter((t: any) => {
-      const date = t.timestamp?.toDate
-        ? t.timestamp.toDate()
-        : new Date(t.timestamp);
-      return dayjs(date).month() === i;
-    }).length;
+    const created = tickets.filter(
+      (t) => getMonthFromTimestamp(t) === i
+    ).length;
 
-    const solved = tickets.filter((t: any) => {
-      const date = t.timestamp?.toDate
-        ? t.timestamp.toDate()
-        : new Date(t.timestamp);
-      return (
-        dayjs(date).month() === i && t.status?.toLowerCase() === "resolved"
-      );
-    }).length;
+    const solved = tickets.filter(
+      (t) =>
+        getMonthFromTimestamp(t) === i && t.status?.toLowerCase() === "resolved"
+    ).length;
 
     return created > 0
       ? { name: monthName, Created: created, Solved: solved }
@@ -143,7 +160,7 @@ function Dashboard() {
 
       <Title level={4}>Tickets Overview (Month-wise)</Title>
       <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={monthData as any[]}>
+        <BarChart data={monthData}>
           <XAxis dataKey="name" />
           <YAxis />
           <Tooltip />

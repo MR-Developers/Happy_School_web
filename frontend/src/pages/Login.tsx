@@ -1,8 +1,11 @@
 import React from "react";
 import { useFormik } from "formik";
 import { useNavigate } from "react-router-dom";
+import appIcon from "../assets/Images/appicon2.png"; // Adjust path if needed
+
 function Login() {
   const nav = useNavigate();
+
   const formik = useFormik({
     initialValues: {
       email: "",
@@ -42,53 +45,74 @@ function Login() {
   });
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center text-gray-800">
-          Login
-        </h1>
-        <form onSubmit={formik.handleSubmit} className="space-y-4">
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
+    <div className="min-h-screen grid grid-cols-1 md:grid-cols-2">
+      {/* Left Section with Background Color and Image */}
+      <div className="bg-[#345069] flex items-center justify-center p-8">
+        <img
+          src={appIcon}
+          alt="Happy School Culture"
+          className="w-2/3 max-w-sm mx-auto"
+        />
+      </div>
+
+      {/* Right Section with Form */}
+      <div className="bg-[#f9f9f9] flex items-center justify-center p-8">
+        <div className="bg-white rounded-xl shadow-lg p-10 w-full max-w-md">
+          <h2 className="text-2xl font-bold text-center text-[#2D4557] mb-1">
+            Welcome to
+          </h2>
+          <h1 className="text-3xl font-extrabold text-center text-orange-500 mb-8">
+            Happy School Culture
+          </h1>
+
+          <form onSubmit={formik.handleSubmit} className="space-y-5">
+            {/* Email Field */}
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Email
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                value={formik.values.email}
+                onChange={formik.handleChange}
+                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                required
+              />
+            </div>
+
+            {/* Password Field */}
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Password
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                value={formik.values.password}
+                onChange={formik.handleChange}
+                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                required
+              />
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              className="w-full py-2 px-4 bg-orange-500 text-white font-semibold rounded-md hover:bg-orange-600 transition duration-200"
             >
-              Email
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              value={formik.values.email}
-              onChange={formik.handleChange}
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              required
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              value={formik.values.password}
-              onChange={formik.handleChange}
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition duration-200"
-          >
-            Login
-          </button>
-        </form>
+              Login
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );
