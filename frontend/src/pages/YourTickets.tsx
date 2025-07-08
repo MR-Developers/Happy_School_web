@@ -27,7 +27,7 @@ function YourTickets() {
     const fetchTickets = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/user/yourtickets/${email}`
+          `https://api-rim6ljimuq-uc.a.run.app/tickets/${email}`
         );
         setTickets(response.data.tickets || []);
       } catch (err) {
