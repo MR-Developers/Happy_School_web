@@ -1,35 +1,83 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+  Navigate,
+} from "react-router-dom";
 
-function App() {
-  const [count, setCount] = useState(0)
+import SideBar from "./components/SideBar";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import Tickets from "./pages/Tickets";
+import Teacher from "./pages/Teachers";
+
+import AddTicket from "./pages/AddTicket";
+import ShowTicket from "./pages/ShowTicket";
+import YourTickets from "./pages/YourTickets";
+import type { JSX } from "react";
+
+function LayoutWrapper() {
+  const location = useLocation();
+  const hideNavOnRoutes = ["/", "/addticket", "/showticket"];
+
+  function ProtectedRoute({ element }: { element: JSX.Element }) {
+    const isAuthenticated = localStorage.getItem("authToken");
+    return isAuthenticated ? element : <Navigate to="/" />;
+  }
+
+  const showSidebar = !hideNavOnRoutes.includes(
+    location.pathname.toLowerCase()
+  );
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="flex h-screen">
+      {showSidebar && <SideBar />}
+      <div className="flex-1 bg-white  overflow-auto">
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route
+            path="/dashboard"
+            element={<ProtectedRoute element={<Dashboard />} />}
+          />
+          <Route
+            path="/tickets"
+            element={<ProtectedRoute element={<Tickets />} />}
+          />
+          <Route
+            path="/teacher"
+            element={<ProtectedRoute element={<Teacher />} />}
+          />
+          {/* <Route
+            path="/notification"
+            element={<ProtectedRoute element={<Notification />} />}
+          /> */}
+          <Route
+            path="/addticket"
+            element={<ProtectedRoute element={<AddTicket />} />}
+          />
+
+          <Route
+            path="/showticket"
+            element={<ProtectedRoute element={<ShowTicket />} />}
+          />
+
+          <Route
+            path="/yourtickets"
+            element={<ProtectedRoute element={<YourTickets />} />}
+          />
+        </Routes>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+function App() {
+  return (
+    <Router>
+      <LayoutWrapper />
+    </Router>
+  );
+}
+
+export default App;
