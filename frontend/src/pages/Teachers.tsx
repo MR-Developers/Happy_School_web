@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Table, Input, Typography, Avatar, Spin, Badge, Card } from "antd";
 import { UserOutlined, SearchOutlined } from "@ant-design/icons";
-import "./table.css";
 
 const { Title } = Typography;
 

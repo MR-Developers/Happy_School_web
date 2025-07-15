@@ -11,7 +11,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Tickets from "./pages/Tickets";
 import Teacher from "./pages/Teachers";
-import Notification from "./pages/Notification";
+
 import AddTicket from "./pages/AddTicket";
 import ShowTicket from "./pages/ShowTicket";
 import YourTickets from "./pages/YourTickets";
@@ -48,10 +48,10 @@ function LayoutWrapper() {
             path="/teacher"
             element={<ProtectedRoute element={<Teacher />} />}
           />
-          <Route
+          {/* <Route
             path="/notification"
             element={<ProtectedRoute element={<Notification />} />}
-          />
+          /> */}
           <Route
             path="/addticket"
             element={<ProtectedRoute element={<AddTicket />} />}
