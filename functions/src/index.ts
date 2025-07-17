@@ -14,17 +14,19 @@ setGlobalOptions({ maxInstances: 10 });
 
 const app = express();
 
-app.use(cors({
-  origin: ["http://localhost:5173", "https://happyschool-99f85.web.app"],
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "https://happyschool-99f85.web.app"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 app.use("/auth", loginRoutes);
 app.use("/dashboard", dashboardroute);
 app.use("/tickets", ticketroutes);
-app.use("/teachers", teacherroutes); 
+app.use("/teachers", teacherroutes);
 app.use("/raiseticket", raiseticketroutes);
 
 // Optional test endpoint

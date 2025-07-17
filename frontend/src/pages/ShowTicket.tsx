@@ -70,15 +70,12 @@ function ShowTicket() {
           <div>
             <strong>Created At:</strong> {ticket.timestamp}
           </div>
-          <div>
-            <strong>Token:</strong> {ticket.tocken ?? "N/A"}
-          </div>
         </div>
 
         {/* Contributors */}
         <div>
           <h2 className="text-lg font-semibold text-orange-600 mb-2">
-            Contributors
+            Collaborators
           </h2>
           {ticket.contributors && ticket.contributors.length > 0 ? (
             <ul className="list-disc list-inside space-y-1 text-sm text-gray-800">
@@ -92,7 +89,7 @@ function ShowTicket() {
               ))}
             </ul>
           ) : (
-            <p className="text-gray-500 text-sm">No contributors listed.</p>
+            <p className="text-gray-500 text-sm">No Collaborators Listed.</p>
           )}
         </div>
       </div>

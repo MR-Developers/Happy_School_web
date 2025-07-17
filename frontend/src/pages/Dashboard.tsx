@@ -12,6 +12,9 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
+  PieChart,
+  Pie,
+  Cell,
 } from "recharts";
 import { Button, Card, Typography } from "antd";
 import jsPDF from "jspdf";
@@ -37,7 +40,24 @@ const months = [
 
 function Dashboard() {
   const [tickets, setTickets] = useState<any[]>([]);
+  const [summary, setSummary] = useState<{
+    post: number;
+    announcement: number;
+    challenge: number;
+  } | null>(null);
+
   const dashboardRef = useRef<HTMLDivElement>(null);
+  const donutData = summary
+    ? [
+        { name: "Posts", value: summary.post, color: "#6366f1" }, // Indigo
+        {
+          name: "Announcements",
+          value: summary.announcement,
+          color: "#10b981",
+        }, // Green
+        { name: "Challenges", value: summary.challenge, color: "#f97316" }, // Orange
+      ]
+    : [];
 
   useEffect(() => {
     const email = localStorage.getItem("email");
@@ -50,6 +70,23 @@ function Dashboard() {
         setTickets(res.data.tickets || []);
       })
       .catch((err) => console.error("Error fetching tickets:", err));
+  }, []);
+  useEffect(() => {
+    const email = localStorage.getItem("email");
+    if (!email) return;
+    axios
+      .get(`https://api-rim6ljimuq-uc.a.run.app/dashboard/summary/${email}`)
+      .then((res) => {
+        const { postCount, announcementCount, challengeCount } = res.data;
+        setSummary({
+          post: postCount,
+          announcement: announcementCount,
+          challenge: challengeCount,
+        });
+      })
+      .catch((err) => {
+        console.error("Error fetching dashboard summary:", err);
+      });
   }, []);
 
   const createdTickets = tickets.length;
@@ -170,6 +207,33 @@ function Dashboard() {
           <Bar dataKey="Solved" stackId="a" fill="#7c3aed" name="SOLVED" />
         </BarChart>
       </ResponsiveContainer>
+      {summary && (
+        <>
+          <Title level={4} className="mt-10">
+            Content Summary
+          </Title>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Tooltip />
+              <Legend />
+              <Pie
+                data={donutData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                innerRadius={60}
+                outerRadius={100}
+                label
+              >
+                {donutData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Pie>
+            </PieChart>
+          </ResponsiveContainer>
+        </>
+      )}
     </div>
   );
 }
