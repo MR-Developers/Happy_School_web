@@ -205,11 +205,51 @@ function AddTicket() {
             </div>
 
             {/* Contributor Multiselect */}
-            <MultiSelectByName
-              name="contributors"
-              label="Select Contributors"
-              options={teachers}
-            />
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Select Contributors
+              </label>
+              <Select
+                isMulti
+                options={teacherOptions}
+                placeholder="Search & select contributors"
+                onChange={(selectedOptions: any) => {
+                  const contributors = selectedOptions.map((opt: any) => ({
+                    name: opt.label,
+                    email: opt.value,
+                  }));
+                  setFieldValue("contributors", contributors);
+                }}
+                onBlur={() => setFieldTouched("contributors", true)}
+                styles={{
+                  control: (base, state) => ({
+                    ...base,
+                    borderColor: state.isFocused ? "#f97316" : "#f97316",
+                    boxShadow: "none",
+                    "&:hover": {
+                      borderColor: "#f97316",
+                    },
+                  }),
+                  multiValue: (base) => ({
+                    ...base,
+                    backgroundColor: "#fef3c7",
+                  }),
+                  multiValueLabel: (base) => ({
+                    ...base,
+                    color: "#c2410c",
+                  }),
+                  placeholder: (base) => ({
+                    ...base,
+                    color: "#6b7280",
+                  }),
+                }}
+              />
+              <ErrorMessage
+                name="contributors"
+                component="div"
+                className="text-red-500 text-sm mt-1"
+              />
+            </div>
 
             {/* Submit Button */}
             <button

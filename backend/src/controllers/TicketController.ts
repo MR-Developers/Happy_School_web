@@ -3,11 +3,14 @@ import admin from "../config/firebaseAdmin";
 import dotenv from "dotenv";
 
 dotenv.config();
-
 const db = admin.firestore();
 
-export const TicketController = async (req: Request, res: Response): Promise<void> => {
+export const TicketController = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const email: string = req.params.email;
+  const { userEmail, status, fromDate, toDate, category } = req.query;
 
   try {
     // 1) Get the requesting user's school
@@ -27,20 +30,56 @@ export const TicketController = async (req: Request, res: Response): Promise<voi
     const school = userData?.school;
 
     if (!school) {
-      console.error("School not found");
       res.status(404).json({ error: "School not found" });
       return;
     }
 
-    // 2) Access the Tickets/<school>/... subcollection
-    const ticketSubColRef = db.collection(`Tickets`).doc(school).collection(school);
-
+    // 2) Get the tickets
+    const ticketSubColRef = db
+      .collection("Tickets")
+      .doc(school)
+      .collection(school);
     const ticketsSnap = await ticketSubColRef.get();
 
-    const tickets = ticketsSnap.docs.map((doc) => ({
+    let tickets = ticketsSnap.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     }));
+
+    // 3) Filter logic
+    if (userEmail) {
+      tickets = tickets.filter(
+        (t) =>
+          (t as any).email?.toLowerCase() === String(userEmail).toLowerCase()
+      );
+    }
+
+    if (status) {
+      tickets = tickets.filter(
+        (t) => (t as any).status?.toLowerCase() === String(status).toLowerCase()
+      );
+    }
+
+    if (category) {
+      tickets = tickets.filter(
+        (t) =>
+          (t as any).category?.toLowerCase() === String(category).toLowerCase()
+      );
+    }
+
+    if (fromDate || toDate) {
+      tickets = tickets.filter((t) => {
+        const timeStr = (t as any).timestamp;
+        const time = new Date(timeStr).getTime();
+
+        const from = fromDate
+          ? new Date(String(fromDate)).getTime()
+          : -Infinity;
+        const to = toDate ? new Date(String(toDate)).getTime() : Infinity;
+
+        return time >= from && time <= to;
+      });
+    }
 
     res.status(200).json({
       message: "Tickets fetched successfully",

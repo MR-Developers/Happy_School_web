@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import { useNavigate } from "react-router-dom";
 import appIcon from "../assets/Images/appicon2.png"; // Adjust path if needed
+import axios from "axios";
 
 function Login() {
   const nav = useNavigate();
+  const [loading, SetLoading] = React.useState(false);
 
   const formik = useFormik({
     initialValues: {
@@ -13,6 +15,7 @@ function Login() {
     },
     onSubmit: async (values) => {
       try {
+        SetLoading(true);
         const response = await fetch(
           "https://api-rim6ljimuq-uc.a.run.app/auth/login",
           {
@@ -41,6 +44,7 @@ function Login() {
         console.error("Login error:", error);
         alert("Something went wrong");
       }
+      SetLoading(false);
     },
   });
 
@@ -109,7 +113,7 @@ function Login() {
               type="submit"
               className="w-full py-2 px-4 bg-orange-500 text-white font-semibold rounded-md hover:bg-orange-600 transition duration-200"
             >
-              Login
+              {loading ? "Logging in..." : "Login"}
             </button>
           </form>
         </div>
