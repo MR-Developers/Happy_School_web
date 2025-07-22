@@ -10,10 +10,9 @@ export const TicketController = async (
   res: Response
 ): Promise<void> => {
   const email: string = req.params.email;
-  const { userEmail, status, fromDate, toDate, category } = req.query;
-
+  const { teacher, status, fromDate, toDate, category } = req.query;
+  console.log(req.query);
   try {
-    // 1) Get the requesting user's school
     const userInfoSnap = await db
       .collection("Users")
       .doc(email)
@@ -46,11 +45,9 @@ export const TicketController = async (
       ...doc.data(),
     }));
 
-    // 3) Filter logic
-    if (userEmail) {
+    if (teacher) {
       tickets = tickets.filter(
-        (t) =>
-          (t as any).email?.toLowerCase() === String(userEmail).toLowerCase()
+        (t) => (t as any).email?.toLowerCase() === String(teacher).toLowerCase()
       );
     }
 

@@ -52,6 +52,7 @@ function YourTickets() {
   const [toDate, setToDate] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedTeacher, setSelectedTeacher] = useState("");
+  const [selectedTeacherEmail, setSelectedTeacherEmail] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
 
   const toggleFilters = () => setShowFilters((prev) => !prev);
@@ -63,7 +64,7 @@ function YourTickets() {
       try {
         const params = {
           status: selectedStatus || undefined,
-          teacher: selectedTeacher || undefined,
+          teacher: selectedTeacherEmail || undefined,
           fromDate: fromDate || undefined,
           toDate: toDate || undefined,
           category: selectedCategory || undefined,
@@ -82,7 +83,6 @@ function YourTickets() {
             new Date(a.timestamp ?? "").getTime()
         );
         setTickets(sorted); // ✅ Correct
-        setTeachers(sorted);
       } catch (err) {
         console.error("Error fetching teachers:", err);
       } finally {
@@ -177,29 +177,27 @@ function YourTickets() {
 
   return (
     <div className="min-h-screen p-6">
-      <Tooltip title="Add Ticket" placement="left">
-        <button
-          className="fixed bottom-6 right-6 z-50 bg-orange-500 hover:bg-orange-600 text-white px-5 py-4 rounded-full shadow-lg text-xl transition-transform hover:scale-105 flex items-center gap-2"
-          onClick={() => (window.location.href = "/addticket")}
-        >
-          <PlusOutlined />
-          Add Ticket
-        </button>
-      </Tooltip>
-
       {/* Title + Filter Row */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center mb-4">
         <Title level={2} className="text-orange-600 m-0">
           School Tickets{" "}
           <span className="text-gray-500 text-lg">({tickets.length})</span>
         </Title>
-
+        <div className="flex-1" />
         <button
-          className="flex items-center gap-2 bg-white hover:bg-orange-100 text-orange-600 border border-orange-300 px-4 py-2 rounded-lg shadow-sm transition-all duration-200 font-medium"
+          className="flex items-center gap-2 bg-white hover:bg-orange-100 text-orange-600 border border-orange-300 px-4 mr-2 py-2 rounded-lg shadow-sm transition-all duration-200 font-medium"
           onClick={toggleFilters}
         >
           <FilterOutlined />
           Filter
+        </button>
+
+        <button
+          className="flex items-center gap-2 bg-orange-500 hover:bg-orange-400 text-white border border-orange-600 px-4 py-2 rounded-lg shadow-sm transition-all duration-200 font-medium"
+          onClick={() => (window.location.href = "/addticket")}
+        >
+          <PlusOutlined />
+          Add Ticket
         </button>
 
         {showFilters && (
@@ -237,7 +235,12 @@ function YourTickets() {
                     .includes(input.toLowerCase())
                 }
                 value={selectedTeacher}
-                onChange={(value) => setSelectedTeacher(value)}
+                onChange={(value) => {
+                  setSelectedTeacher(value);
+                  setSelectedTeacherEmail(
+                    teachers.find((t) => t.email === value)?.email || ""
+                  );
+                }}
               >
                 {teachers.map((teacher) => (
                   <Select.Option key={teacher.email} value={teacher.email}>

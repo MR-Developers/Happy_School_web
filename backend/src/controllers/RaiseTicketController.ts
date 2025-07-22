@@ -3,9 +3,22 @@ import admin from "../config/firebaseAdmin"; // Adjust path if needed
 
 const db = admin.firestore();
 
-export const RaiseTicketController = async (req: Request, res: Response): Promise<void> => {
+export const RaiseTicketController = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const email: string = req.params.email;
-  const { ticketText, contributors }: { ticketText: string; contributors: { name: string; email: string }[] } = req.body;
+  const {
+    ticketText,
+    teacher,
+    contributors,
+    category,
+  }: {
+    ticketText: string;
+    teacher: string;
+    contributors: { name: string; email: string }[];
+    category: string;
+  } = req.body;
 
   try {
     // Get user info
@@ -52,7 +65,7 @@ export const RaiseTicketController = async (req: Request, res: Response): Promis
 
     const uid = userTicketRef.id;
 
-    const ticketData = {
+    const ticketData: any = {
       ticketText: ticketText || "",
       userName: userName || "",
       email,
@@ -63,7 +76,13 @@ export const RaiseTicketController = async (req: Request, res: Response): Promis
       uid,
       school,
       contributors: contributors || [],
+      category, // assuming you're sending this too
     };
+
+    // Conditionally add 'teacher' only if category is 'Teacher'
+    if (category === "Teacher") {
+      ticketData.teacher = teacher || "";
+    }
 
     // Save under user
     await userTicketRef.set(ticketData);

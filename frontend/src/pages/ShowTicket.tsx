@@ -91,6 +91,18 @@ function ShowTicket() {
           ) : (
             <p className="text-gray-500 text-sm">No Collaborators Listed.</p>
           )}
+          {/* Teacher Section */}
+          {ticket.teacher && (
+            <div>
+              <h2 className="text-lg font-semibold text-orange-600 mt-2 mb-1">
+                Regarding
+              </h2>
+              <p className="text-sm text-gray-800">
+                <strong>{ticket.teacher}</strong>
+                <span className="text-gray-500">&lt;{ticket.teacher}&gt;</span>
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </section>
