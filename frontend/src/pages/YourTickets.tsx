@@ -113,7 +113,7 @@ function YourTickets() {
         setTeachers(sorted);
       })
       .catch((err) => console.error("Error fetching teachers:", err))
-      .finally(() => setLoading(false));
+      .finally(() => null);
   }, []);
   const columns = [
     {
