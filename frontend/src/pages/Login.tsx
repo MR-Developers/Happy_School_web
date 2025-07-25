@@ -16,16 +16,13 @@ function Login() {
     onSubmit: async (values) => {
       try {
         SetLoading(true);
-        const response = await fetch(
-          "https://api-rim6ljimuq-uc.a.run.app/auth/login",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(values),
-          }
-        );
+        const response = await fetch("http://localhost:5000/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(values),
+        });
 
         const data = await response.json();
 
@@ -36,6 +33,7 @@ function Login() {
           localStorage.setItem("UserName", data.name);
           localStorage.setItem("role", data.role);
           localStorage.setItem("email", data.email);
+          localStorage.setItem("school", data.school);
           nav("/dashboard");
         } else {
           alert(data.error || "Invalid credentials");

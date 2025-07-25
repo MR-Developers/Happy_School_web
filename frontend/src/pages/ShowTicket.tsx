@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useLocation } from "react-router-dom";
-
+import { useLocation, useNavigate } from "react-router-dom";
+import { MessageCircle } from "lucide-react";
 function ShowTicket() {
   const { state } = useLocation();
   const ticket = state?.ticket;
-
+  const navigate = useNavigate();
   if (!ticket) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-gray-50">
@@ -17,7 +17,7 @@ function ShowTicket() {
     <section className="min-h-screen bg-gray-50 py-10 px-4 flex justify-center">
       <div className="w-full max-w-4xl bg-white shadow-xl rounded-2xl overflow-hidden">
         {/* Header */}
-        <div className="bg-orange-600 text-white px-6 py-5">
+        <div className="bg-orange-400 text-white px-6 py-5">
           <h1 className="text-2xl font-bold">Support Ticket Details</h1>
           <p className="text-sm text-orange-100 mt-1">
             Ticket submitted by <strong>{ticket.userName}</strong>
@@ -42,8 +42,8 @@ function ShowTicket() {
                   ticket.status === "Open"
                     ? "bg-green-100 text-green-800"
                     : ticket.status === "Pending"
-                    ? "bg-yellow-100 text-yellow-800"
-                    : "bg-red-100 text-red-800"
+                      ? "bg-yellow-100 text-yellow-800"
+                      : "bg-red-100 text-red-800"
                 }`}
               >
                 {ticket.status}
@@ -114,14 +114,16 @@ function ShowTicket() {
           )}
         </div>
       </div>
-      {ticket.status?.toLowerCase() === "chat" && (
+      {["chat", "meeting", "resolved"].includes(
+        ticket.status?.toLowerCase() || ""
+      ) && (
         <div className="fixed bottom-8 right-8 z-50">
           <button
-            onClick={() => console.log("Start chat or redirect")}
-            className="flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white rounded-full px-5 py-3 shadow-lg transition-all duration-200"
+            onClick={() => navigate(`/chat/${ticket.id}`)}
+            className="flex items-center gap-2 bg-orange-400 hover:bg-orange-200 text-white rounded-full px-5 py-3 shadow-lg transition-all duration-200"
             title="Open Chat"
           >
-            <span className="text-xl">💬</span>
+            <MessageCircle className="w-5 h-5" />
             <span className="text-sm font-medium">Open Chat</span>
           </button>
         </div>
