@@ -5,7 +5,10 @@ import dotenv from "dotenv";
 dotenv.config();
 const db = admin.firestore();
 
-export const getDashboardSummary = async (req: Request, res: Response): Promise<void> => {
+export const getDashboardSummary = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const email = req.params.email;
 
   try {
@@ -30,15 +33,15 @@ export const getDashboardSummary = async (req: Request, res: Response): Promise<
       return;
     }
 
-    // Step 2: Count Posts (/Posts/{school}/...)
-    const postsSnap = await db.collection("Posts").doc(school).collection("Posts").get();
+    // Step 2: Count Posts
+    const postsSnap = await db
+      .collection("Posts")
+      .doc(school)
+      .collection("Posts")
+      .get();
     const postCount = postsSnap.size;
 
-    // Step 3: Count Announcements (/Announcements/{school}/...)
-    const announcementsSnap = await db.collection("Announcements").doc(school).collection("Announcements").get();
-    const announcementCount = announcementsSnap.size;
-
-    // Step 4: Count Challenges (/Content/Content/{school}/{school}/ChallengeNames)
+    // Step 4: Count Challenges
     const challengeSnap = await db
       .collection("Content")
       .doc("Content")
@@ -48,12 +51,28 @@ export const getDashboardSummary = async (req: Request, res: Response): Promise<
       .get();
     const challengeCount = challengeSnap.size;
 
-    // Step 5: Respond with all counts
+    // Step 5: Count Tickets with Status == "Meeting"
+    const ticketsSnap = await db
+      .collection("Tickets")
+      .doc(school)
+      .collection(school)
+      .where("status", "==", "Meeting")
+      .get();
+    const meetingTicketCount = ticketsSnap.size;
+    const EarlyAdopterSnap = await db
+      .collection("Tickets")
+      .doc(school)
+      .collection(school)
+      .where("category", "==", "Early Adopter")
+      .get();
+    const earlyAdopterCount = EarlyAdopterSnap.size;
+    // Final Response
     res.status(200).json({
       school,
       postCount,
-      announcementCount,
       challengeCount,
+      meetingTicketCount,
+      earlyAdopterCount,
     });
   } catch (error: any) {
     console.error("Error in getDashboardSummary:", error.message || error);

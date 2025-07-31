@@ -6,9 +6,11 @@ import {
   faTicket,
   faSignOutAlt,
   faClipboardList,
+  faVideoCamera,
 } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { icon } from "@fortawesome/fontawesome-svg-core";
 
 function SideBar() {
   const username = useState(localStorage.getItem("UserName"))[0];
@@ -22,6 +24,11 @@ function SideBar() {
     { name: "Teachers", icon: faChalkboardTeacher, path: "/teacher" },
     { name: "Your Tickets", icon: faTicket, path: "/yourtickets" },
     { name: "Challenges", icon: faClipboardList, path: "/challenges" },
+    {
+      name: "One-One Sessions",
+      icon: faVideoCamera,
+      path: "/one-one-sessions",
+    },
     { name: "Logout", icon: faSignOutAlt, isLogout: true },
   ];
 
@@ -46,20 +53,6 @@ function SideBar() {
           <p className="text-white text-sm">{role}</p>
         </div>
       </div>
-
-      {/* Search */}
-      <div className="relative mt-6 shrink-0">
-        <FontAwesomeIcon
-          icon={faSearch}
-          className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-        />
-        <input
-          type="text"
-          className="bg-white rounded-3xl w-full h-9 pl-10 pr-4 text-sm focus:outline-none"
-          placeholder="Search"
-        />
-      </div>
-
       {/* Menu List (Scrollable) */}
       <ul className="mt-6 space-y-2 flex-1 overflow-y-auto pr-2">
         {menuItems.map((item) => (

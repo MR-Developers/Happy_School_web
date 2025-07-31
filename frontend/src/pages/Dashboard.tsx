@@ -42,20 +42,26 @@ function Dashboard() {
   const [tickets, setTickets] = useState<any[]>([]);
   const [summary, setSummary] = useState<{
     post: number;
-    announcement: number;
     challenge: number;
+    meetingTicketCount: number;
+    earlyAdopterCount: number;
   } | null>(null);
 
   const dashboardRef = useRef<HTMLDivElement>(null);
   const donutData = summary
     ? [
-        { name: "Posts", value: summary.post, color: "#6366f1" }, // Indigo
-        {
-          name: "Announcements",
-          value: summary.announcement,
-          color: "#10b981",
-        }, // Green
+        { name: "Posts", value: summary.post, color: "#6366f1" }, // Indigo // Green
         { name: "Challenges", value: summary.challenge, color: "#f97316" }, // Orange
+        {
+          name: "One on One Sessions",
+          value: summary.meetingTicketCount,
+          color: "#ffbb33",
+        },
+        {
+          name: "Early Adopters",
+          value: summary.earlyAdopterCount,
+          color: "#ff0000ff",
+        }, // Yellow
       ]
     : [];
 
@@ -75,13 +81,14 @@ function Dashboard() {
     const email = localStorage.getItem("email");
     if (!email) return;
     axios
-      .get(`https://api-rim6ljimuq-uc.a.run.app/dashboard/summary/${email}`)
+      .get(`http://localhost:5000/api/dashboard/${email}`)
       .then((res) => {
-        const { postCount, announcementCount, challengeCount } = res.data;
+        const { postCount, challengeCount } = res.data;
         setSummary({
           post: postCount,
-          announcement: announcementCount,
           challenge: challengeCount,
+          meetingTicketCount: res.data.meetingTicketCount,
+          earlyAdopterCount: res.data.earlyAdopterCount,
         });
       })
       .catch((err) => {
@@ -197,16 +204,18 @@ function Dashboard() {
       </div>
 
       <Title level={4}>Tickets Overview (Month-wise)</Title>
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={monthData}>
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip />
-          <Legend />
-          <Bar dataKey="Created" stackId="a" fill="#c4b5fd" name="CREATE" />
-          <Bar dataKey="Solved" stackId="a" fill="#7c3aed" name="SOLVED" />
-        </BarChart>
-      </ResponsiveContainer>
+      <center>
+        <ResponsiveContainer width="50%" height={300}>
+          <BarChart data={monthData}>
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Bar dataKey="Created" stackId="a" fill="#c4b5fd" name="CREATE" />
+            <Bar dataKey="Solved" stackId="a" fill="#7c3aed" name="SOLVED" />
+          </BarChart>
+        </ResponsiveContainer>
+      </center>
       {summary && (
         <>
           <Title level={4} className="mt-10">
@@ -214,14 +223,12 @@ function Dashboard() {
           </Title>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
-              <Tooltip />
-              <Legend />
               <Pie
                 data={donutData}
                 dataKey="value"
                 nameKey="name"
                 cx="50%"
-                cy="50%"
+                cy="40%"
                 innerRadius={60}
                 outerRadius={100}
                 label
@@ -230,6 +237,18 @@ function Dashboard() {
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
+              <Legend
+                layout="horizontal"
+                verticalAlign="bottom"
+                align="center"
+                wrapperStyle={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  justifyContent: "center",
+                  marginTop: 20,
+                  rowGap: 10,
+                }}
+              />
             </PieChart>
           </ResponsiveContainer>
         </>

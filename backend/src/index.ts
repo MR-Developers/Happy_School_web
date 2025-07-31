@@ -13,6 +13,7 @@ import dashboard from "./routes/DashboardRoute";
 import chat from "./routes/Chat";
 import challenges from "./routes/ChallengeRoutes";
 import tasks from "./routes/TaskRoutes";
+import UserAnswerRoutes from "./routes/UserAnswers";
 const app = express();
 const db = admin.firestore();
 
@@ -35,6 +36,7 @@ app.use("/api", dashboard);
 app.use("/chat", chat);
 app.use("/challenges", challenges);
 app.use("/tasks", tasks);
+app.use("/answers", UserAnswerRoutes);
 
 app.get("/", async (req: Request, res: Response) => {
   try {

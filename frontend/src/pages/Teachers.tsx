@@ -7,7 +7,6 @@ import {
   Avatar,
   Spin,
   Badge,
-  Card,
   Tooltip,
   Tag,
 } from "antd";
@@ -31,6 +30,8 @@ function Teachers() {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 8;
 
   useEffect(() => {
     const email = localStorage.getItem("email");
@@ -58,19 +59,22 @@ function Teachers() {
       title: "Rank",
       key: "rank",
       width: 80,
-      render: (_: unknown, __: Teacher, index: number) => (
-        <Tooltip title={`Rank ${index + 1}`}>
-          <Badge
-            count={index + 1}
-            style={{
-              backgroundColor: rankColors[index] || "#722ed1",
-              color: "#fff",
-              fontWeight: "bold",
-              boxShadow: "0 0 6px rgba(0,0,0,0.1)",
-            }}
-          />
-        </Tooltip>
-      ),
+      render: (_: unknown, __: Teacher, index: number) => {
+        const absoluteIndex = (currentPage - 1) * pageSize + index;
+        return (
+          <Tooltip title={`Rank ${absoluteIndex + 1}`}>
+            <Badge
+              count={absoluteIndex + 1}
+              style={{
+                backgroundColor: rankColors[absoluteIndex] || "#722ed1",
+                color: "#fff",
+                fontWeight: "bold",
+                boxShadow: "0 0 6px rgba(0,0,0,0.1)",
+              }}
+            />
+          </Tooltip>
+        );
+      },
     },
     {
       title: "Name",
@@ -165,7 +169,11 @@ function Teachers() {
           rowKey={(record) =>
             record.email || record.id || Math.random().toString()
           }
-          pagination={{ pageSize: 8 }}
+          pagination={{
+            pageSize,
+            current: currentPage,
+            onChange: (page) => setCurrentPage(page),
+          }}
           bordered
           className="rounded-lg bg-white shadow-md overflow-hidden"
         />

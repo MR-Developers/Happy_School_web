@@ -147,6 +147,14 @@ function YourTickets() {
       ),
     },
     {
+      title: "Category",
+      dataIndex: "category",
+      key: "category",
+      render: (category: string) => (
+        <Tag color="blue">{category || "Student"}</Tag>
+      ),
+    },
+    {
       title: "Collaborators",
       dataIndex: "contributors",
       key: "contributors",
@@ -307,6 +315,20 @@ function YourTickets() {
                 onClick={() => setShowFilters(false)}
               >
                 Cancel
+              </button>
+              <button
+                className="px-4 py-2 text-sm text-red-600 border border-red-400 rounded-md hover:bg-red-100"
+                onClick={() => {
+                  setSelectedStatus("");
+                  setSelectedTeacher("");
+                  setSelectedTeacherEmail("");
+                  setFromDate("");
+                  setToDate("");
+                  setSelectedCategory("");
+                  setShowFilters(false);
+                }}
+              >
+                Clear Filters
               </button>
               <button
                 className="px-4 py-2 text-sm bg-orange-500 text-white rounded-md hover:bg-orange-600"

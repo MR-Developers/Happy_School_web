@@ -95,14 +95,12 @@ function AddTicket() {
     ticketText: Yup.string()
       .required("Ticket description is required")
       .min(10, "Minimum 10 characters"),
-    contributors: Yup.array()
-      .of(
-        Yup.object().shape({
-          name: Yup.string().required(),
-          email: Yup.string().email().required(),
-        })
-      )
-      .min(1, "Select at least one contributor"),
+    contributors: Yup.array().of(
+      Yup.object().shape({
+        name: Yup.string().required(),
+        email: Yup.string().email().required(),
+      })
+    ),
     category: Yup.string().required("Please select a category"),
     selectedTeacher: isStudent
       ? Yup.string().optional()
@@ -188,6 +186,7 @@ function AddTicket() {
                 options={[
                   { label: "Student", value: "Student" },
                   { label: "Teacher", value: "Teacher" },
+                  { label: "Early Adopter", value: "Early Adopter" },
                 ]}
                 placeholder="-- Select category --"
                 onChange={(option: any) => {
@@ -223,7 +222,8 @@ function AddTicket() {
             </div>
 
             {/* Select Teacher */}
-            {values.category === "Teacher" && (
+            {(values.category === "Teacher" ||
+              values.category === "Early Adopter") && (
               <div className="mt-4">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Select Teacher

@@ -20,6 +20,7 @@ import ChatPage from "./pages/ChatPage";
 import ChallengePage from "./pages/Challenges";
 import TaskPage from "./pages/Tasks";
 import UserAnswersPage from "./pages/UserAnswer";
+import OneOnOneSessions from "./pages/OneOnOneSessions";
 
 function LayoutWrapper() {
   const location = useLocation();
@@ -82,6 +83,10 @@ function LayoutWrapper() {
           <Route
             path="/useranswers/:challengeId/:taskName"
             element={<UserAnswersPage />}
+          />
+          <Route
+            path="/one-one-sessions"
+            element={<ProtectedRoute element={<OneOnOneSessions />} />}
           />
         </Routes>
       </div>
