@@ -16,6 +16,11 @@ import AddTicket from "./pages/AddTicket";
 import ShowTicket from "./pages/ShowTicket";
 import YourTickets from "./pages/YourTickets";
 import type { JSX } from "react";
+import ChatPage from "./pages/ChatPage";
+import ChallengePage from "./pages/Challenges";
+import TaskPage from "./pages/Tasks";
+import UserAnswersPage from "./pages/UserAnswer";
+import OneOnOneSessions from "./pages/OneOnOneSessions";
 
 function LayoutWrapper() {
   const location = useLocation();
@@ -65,6 +70,23 @@ function LayoutWrapper() {
           <Route
             path="/yourtickets"
             element={<ProtectedRoute element={<YourTickets />} />}
+          />
+          <Route path="/chat/:ticketId" element={<ChatPage />} />
+          <Route
+            path="/challenges"
+            element={<ProtectedRoute element={<ChallengePage />} />}
+          />
+          <Route
+            path="/tasks/:challengeName/:challengeId"
+            element={<ProtectedRoute element={<TaskPage />} />}
+          />
+          <Route
+            path="/useranswers/:challengeId/:taskName"
+            element={<UserAnswersPage />}
+          />
+          <Route
+            path="/one-one-sessions"
+            element={<ProtectedRoute element={<OneOnOneSessions />} />}
           />
         </Routes>
       </div>

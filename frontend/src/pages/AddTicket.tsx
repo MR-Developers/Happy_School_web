@@ -73,6 +73,7 @@ const MultiSelectByName = ({
 function AddTicket() {
   const email = localStorage.getItem("email");
   const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [isStudent, setIsStudent] = useState(true);
 
   useEffect(() => {
     if (!email) return;
@@ -94,15 +95,16 @@ function AddTicket() {
     ticketText: Yup.string()
       .required("Ticket description is required")
       .min(10, "Minimum 10 characters"),
-    contributors: Yup.array()
-      .of(
-        Yup.object().shape({
-          name: Yup.string().required(),
-          email: Yup.string().email().required(),
-        })
-      )
-      .min(1, "Select at least one contributor"),
-    selectedTeacher: Yup.string().required("Please select a teacher"),
+    contributors: Yup.array().of(
+      Yup.object().shape({
+        name: Yup.string().required(),
+        email: Yup.string().email().required(),
+      })
+    ),
+    category: Yup.string().required("Please select a category"),
+    selectedTeacher: isStudent
+      ? Yup.string().optional()
+      : Yup.string().required("Please select a teacher"),
   });
 
   const handleSubmit = async (
@@ -110,18 +112,27 @@ function AddTicket() {
       ticketText: string;
       contributors: Contributor[];
       selectedTeacher: string;
+      category: string;
     },
     { resetForm, setSubmitting }: any
   ) => {
-    console.log("Form Submitted With:", values); // ✅ Debugging
+    console.log("Form Submitted With:", values);
     try {
+      const payload: any = {
+        ticketText: values.ticketText,
+        contributors: values.contributors,
+        category: values.category,
+      };
+
+      if (values.category === "Teacher") {
+        payload.teacher = values.selectedTeacher;
+      }
+
       await axios.post(
-        `https://api-rim6ljimuq-uc.a.run.app/raiseticket/${email}`,
-        {
-          ticketText: values.ticketText,
-          contributors: values.contributors,
-        }
+        `http://localhost:5000/postTicket/raiseticket/${email}`,
+        payload
       );
+
       alert("✅ Ticket submitted successfully!");
       resetForm();
     } catch (err) {
@@ -147,6 +158,7 @@ function AddTicket() {
           ticketText: "",
           contributors: [],
           selectedTeacher: "",
+          category: "",
         }}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
@@ -165,19 +177,24 @@ function AddTicket() {
               component="div"
               className="text-red-500 text-sm mt-1"
             />
-
-            {/* Select Teacher */}
+            {/* Category Select */}
             <div className="mt-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Select Teacher
+                Category
               </label>
               <Select
-                options={teacherOptions}
-                placeholder="-- Select a teacher --"
-                onChange={(option: any) =>
-                  setFieldValue("selectedTeacher", option?.value)
-                }
-                onBlur={() => setFieldTouched("selectedTeacher", true)}
+                options={[
+                  { label: "Student", value: "Student" },
+                  { label: "Teacher", value: "Teacher" },
+                  { label: "Early Adopter", value: "Early Adopter" },
+                ]}
+                placeholder="-- Select category --"
+                onChange={(option: any) => {
+                  setFieldValue("category", option?.value);
+                  setFieldValue("selectedTeacher", "");
+                  setIsStudent(option?.value === "Student");
+                }}
+                onBlur={() => setFieldTouched("category", true)}
                 styles={{
                   control: (base, state) => ({
                     ...base,
@@ -198,18 +215,102 @@ function AddTicket() {
                 }}
               />
               <ErrorMessage
-                name="selectedTeacher"
+                name="category"
                 component="div"
                 className="text-red-500 text-sm mt-1"
               />
             </div>
 
+            {/* Select Teacher */}
+            {(values.category === "Teacher" ||
+              values.category === "Early Adopter") && (
+              <div className="mt-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Select Teacher
+                </label>
+                <Select
+                  options={teacherOptions}
+                  placeholder="-- Select a teacher --"
+                  onChange={(option: any) =>
+                    setFieldValue("selectedTeacher", option?.value)
+                  }
+                  onBlur={() => setFieldTouched("selectedTeacher", true)}
+                  styles={{
+                    control: (base, state) => ({
+                      ...base,
+                      borderColor: state.isFocused ? "#f97316" : "#f97316",
+                      boxShadow: "none",
+                      "&:hover": {
+                        borderColor: "#f97316",
+                      },
+                    }),
+                    placeholder: (base) => ({
+                      ...base,
+                      color: "#6b7280",
+                    }),
+                    singleValue: (base) => ({
+                      ...base,
+                      color: "#000000",
+                    }),
+                  }}
+                />
+                <ErrorMessage
+                  name="selectedTeacher"
+                  component="div"
+                  className="text-red-500 text-sm mt-1"
+                />
+              </div>
+            )}
+
             {/* Contributor Multiselect */}
-            <MultiSelectByName
-              name="contributors"
-              label="Select Contributors"
-              options={teachers}
-            />
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Select Contributors
+              </label>
+              <Select
+                isMulti
+                options={teacherOptions.filter(
+                  (t) => t.value !== values.selectedTeacher
+                )}
+                placeholder="Search & select contributors"
+                onChange={(selectedOptions: any) => {
+                  const contributors = selectedOptions.map((opt: any) => ({
+                    name: opt.label,
+                    email: opt.value,
+                  }));
+                  setFieldValue("contributors", contributors);
+                }}
+                onBlur={() => setFieldTouched("contributors", true)}
+                styles={{
+                  control: (base, state) => ({
+                    ...base,
+                    borderColor: state.isFocused ? "#f97316" : "#f97316",
+                    boxShadow: "none",
+                    "&:hover": {
+                      borderColor: "#f97316",
+                    },
+                  }),
+                  multiValue: (base) => ({
+                    ...base,
+                    backgroundColor: "#fef3c7",
+                  }),
+                  multiValueLabel: (base) => ({
+                    ...base,
+                    color: "#c2410c",
+                  }),
+                  placeholder: (base) => ({
+                    ...base,
+                    color: "#6b7280",
+                  }),
+                }}
+              />
+
+              <ErrorMessage
+                name="contributors"
+                component="div"
+                className="text-red-500 text-sm mt-1"
+              />
+            </div>
 
             {/* Submit Button */}
             <button

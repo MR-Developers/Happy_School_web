@@ -12,6 +12,9 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
+  PieChart,
+  Pie,
+  Cell,
 } from "recharts";
 import { Button, Card, Typography } from "antd";
 import jsPDF from "jspdf";
@@ -37,7 +40,30 @@ const months = [
 
 function Dashboard() {
   const [tickets, setTickets] = useState<any[]>([]);
+  const [summary, setSummary] = useState<{
+    post: number;
+    challenge: number;
+    meetingTicketCount: number;
+    earlyAdopterCount: number;
+  } | null>(null);
+
   const dashboardRef = useRef<HTMLDivElement>(null);
+  const donutData = summary
+    ? [
+        { name: "Posts", value: summary.post, color: "#6366f1" }, // Indigo // Green
+        { name: "Challenges", value: summary.challenge, color: "#f97316" }, // Orange
+        {
+          name: "One on One Sessions",
+          value: summary.meetingTicketCount,
+          color: "#ffbb33",
+        },
+        {
+          name: "Early Adopters",
+          value: summary.earlyAdopterCount,
+          color: "#ff0000ff",
+        }, // Yellow
+      ]
+    : [];
 
   useEffect(() => {
     const email = localStorage.getItem("email");
@@ -50,6 +76,24 @@ function Dashboard() {
         setTickets(res.data.tickets || []);
       })
       .catch((err) => console.error("Error fetching tickets:", err));
+  }, []);
+  useEffect(() => {
+    const email = localStorage.getItem("email");
+    if (!email) return;
+    axios
+      .get(`http://localhost:5000/api/dashboard/${email}`)
+      .then((res) => {
+        const { postCount, challengeCount } = res.data;
+        setSummary({
+          post: postCount,
+          challenge: challengeCount,
+          meetingTicketCount: res.data.meetingTicketCount,
+          earlyAdopterCount: res.data.earlyAdopterCount,
+        });
+      })
+      .catch((err) => {
+        console.error("Error fetching dashboard summary:", err);
+      });
   }, []);
 
   const createdTickets = tickets.length;
@@ -160,16 +204,55 @@ function Dashboard() {
       </div>
 
       <Title level={4}>Tickets Overview (Month-wise)</Title>
-      <ResponsiveContainer width="100%" height={300}>
-        <BarChart data={monthData}>
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip />
-          <Legend />
-          <Bar dataKey="Created" stackId="a" fill="#c4b5fd" name="CREATE" />
-          <Bar dataKey="Solved" stackId="a" fill="#7c3aed" name="SOLVED" />
-        </BarChart>
-      </ResponsiveContainer>
+      <center>
+        <ResponsiveContainer width="50%" height={300}>
+          <BarChart data={monthData}>
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Bar dataKey="Created" stackId="a" fill="#c4b5fd" name="CREATE" />
+            <Bar dataKey="Solved" stackId="a" fill="#7c3aed" name="SOLVED" />
+          </BarChart>
+        </ResponsiveContainer>
+      </center>
+      {summary && (
+        <>
+          <Title level={4} className="mt-10">
+            Content Summary
+          </Title>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={donutData}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="40%"
+                innerRadius={60}
+                outerRadius={100}
+                label
+              >
+                {donutData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Pie>
+              <Legend
+                layout="horizontal"
+                verticalAlign="bottom"
+                align="center"
+                wrapperStyle={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  justifyContent: "center",
+                  marginTop: 20,
+                  rowGap: 10,
+                }}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        </>
+      )}
     </div>
   );
 }

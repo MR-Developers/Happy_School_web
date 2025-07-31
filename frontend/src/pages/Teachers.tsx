@@ -1,6 +1,15 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Table, Input, Typography, Avatar, Spin, Badge, Card } from "antd";
+import {
+  Table,
+  Input,
+  Typography,
+  Avatar,
+  Spin,
+  Badge,
+  Tooltip,
+  Tag,
+} from "antd";
 import { UserOutlined, SearchOutlined } from "@ant-design/icons";
 
 const { Title } = Typography;
@@ -15,10 +24,14 @@ interface Teacher {
   profileImage?: string;
 }
 
+const rankColors = ["#FFD700", "#C0C0C0", "#CD7F32"];
+
 function Teachers() {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 8;
 
   useEffect(() => {
     const email = localStorage.getItem("email");
@@ -46,9 +59,22 @@ function Teachers() {
       title: "Rank",
       key: "rank",
       width: 80,
-      render: (_: unknown, __: Teacher, index: number) => (
-        <Badge count={index + 1} style={{ backgroundColor: "#722ed1" }} />
-      ),
+      render: (_: unknown, __: Teacher, index: number) => {
+        const absoluteIndex = (currentPage - 1) * pageSize + index;
+        return (
+          <Tooltip title={`Rank ${absoluteIndex + 1}`}>
+            <Badge
+              count={absoluteIndex + 1}
+              style={{
+                backgroundColor: rankColors[absoluteIndex] || "#722ed1",
+                color: "#fff",
+                fontWeight: "bold",
+                boxShadow: "0 0 6px rgba(0,0,0,0.1)",
+              }}
+            />
+          </Tooltip>
+        );
+      },
     },
     {
       title: "Name",
@@ -56,9 +82,14 @@ function Teachers() {
       key: "Name",
       render: (_: unknown, record: Teacher) => (
         <div className="flex items-center gap-3">
-          <Avatar src={record.profileImage} icon={<UserOutlined />} />
-          <span className="font-medium text-gray-800">
-            {record.Name || "NaN"}
+          <Avatar
+            src={record.profileImage}
+            icon={<UserOutlined />}
+            size="large"
+            style={{ backgroundColor: "#f0f0f0" }}
+          />
+          <span className="font-semibold text-gray-800">
+            {record.Name || "-"}
           </span>
         </div>
       ),
@@ -67,51 +98,58 @@ function Teachers() {
       title: "Email",
       dataIndex: "email",
       key: "email",
-      render: (text: string) => text || "NaN",
+      render: (text: string) =>
+        text ? (
+          <span className="text-gray-700">{text}</span>
+        ) : (
+          <div className="text-center text-gray-400 font-medium">-</div>
+        ),
     },
     {
       title: "Phone",
       dataIndex: "phone",
       key: "phone",
-      render: (text: string) => text || "NaN",
+      render: (text: string) =>
+        text ? (
+          <span className="text-gray-600">{text}</span>
+        ) : (
+          <div className="text-center text-gray-400 font-medium">-</div>
+        ),
     },
     {
       title: "Designation",
       dataIndex: "role",
       key: "role",
-      render: (text: string) => (
-        <span className="capitalize text-blue-600 font-medium">
-          {text || "NaN"}
-        </span>
-      ),
+      render: (text: string) =>
+        text ? (
+          <Tag color="geekblue" className="capitalize font-medium">
+            {text}
+          </Tag>
+        ) : (
+          <div className="text-center text-gray-400 font-medium">-</div>
+        ),
     },
     {
       title: "Coins",
       dataIndex: "coins",
       key: "coins",
       render: (coins: number) => (
-        <span className="font-semibold text-green-600">{coins ?? "NaN"}</span>
+        <span className="font-semibold text-green-600">{coins ?? "0"}</span>
       ),
     },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-yellow-50 p-6">
-      <Card
-        bordered={false}
-        style={{ background: "linear-gradient(to right, #ffedd5, #fff7ed)" }}
-        className="shadow-md mb-6"
-      >
-        <Title level={2} className="text-orange-600 m-0">
-          👩‍🏫 Teachers{" "}
-          <span className="text-gray-500 text-lg">({teachers.length})</span>
-        </Title>
-      </Card>
+    <div className="min-h-screen p-6">
+      <Title className="text-orange-600 m-0">
+        Teachers{" "}
+        <span className="text-gray-500 text-lg">({teachers.length})</span>
+      </Title>
 
       <Input
         placeholder="Search by name..."
         prefix={<SearchOutlined />}
-        className="max-w-md mb-6"
+        className="max-w-md mb-6 bg-white shadow-sm rounded-lg"
         size="large"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
@@ -131,9 +169,13 @@ function Teachers() {
           rowKey={(record) =>
             record.email || record.id || Math.random().toString()
           }
-          pagination={{ pageSize: 8 }}
+          pagination={{
+            pageSize,
+            current: currentPage,
+            onChange: (page) => setCurrentPage(page),
+          }}
           bordered
-          className="rounded-md bg-white shadow-sm"
+          className="rounded-lg bg-white shadow-md overflow-hidden"
         />
       )}
     </div>
