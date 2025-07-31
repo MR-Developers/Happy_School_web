@@ -21,7 +21,9 @@ const TaskPage: React.FC = () => {
     }
 
     axios
-      .get(`http://localhost:5000/tasks/${school}/${decodedChallengeName}`)
+      .get(
+        `https://api-rim6ljimuq-uc.a.run.app/tasks/${school}/${decodedChallengeName}`
+      )
       .then((res) => {
         setTasks(res.data.tasks || []);
         setLoading(false);

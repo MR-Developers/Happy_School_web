@@ -81,7 +81,7 @@ function Dashboard() {
     const email = localStorage.getItem("email");
     if (!email) return;
     axios
-      .get(`http://localhost:5000/api/dashboard/${email}`)
+      .get(`https://api-rim6ljimuq-uc.a.run.app/dashboard/summary/${email}`)
       .then((res) => {
         const { postCount, challengeCount } = res.data;
         setSummary({

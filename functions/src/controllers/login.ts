@@ -1,8 +1,11 @@
-import { Request, Response } from "express";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable max-len */
+
+import {Request, Response} from "express";
 import axios from "axios";
 import jwt from "jsonwebtoken";
 import admin from "../config/firebase"; // your initialized Firebase Admin SDK
-import { defineSecret } from "firebase-functions/params";
+import {defineSecret} from "firebase-functions/params";
 
 // ✅ Define secrets
 export const WEB_API_KEY = defineSecret("WEB_API_KEY");
@@ -11,10 +14,10 @@ export const JWT_SECRET = defineSecret("JWT_SECRET");
 const db = admin.firestore();
 
 export const loginuser = async (req: Request, res: Response): Promise<void> => {
-  const { email, password } = req.body;
+  const {email, password} = req.body;
 
   if (!email || !password) {
-    res.status(400).json({ error: "Email and password are required" });
+    res.status(400).json({error: "Email and password are required"});
     return;
   }
 
@@ -43,7 +46,7 @@ export const loginuser = async (req: Request, res: Response): Promise<void> => {
       .get();
 
     if (!snapshot.exists) {
-      res.status(404).json({ error: "User info not found in Firestore" });
+      res.status(404).json({error: "User info not found in Firestore"});
       return;
     }
 
@@ -52,7 +55,7 @@ export const loginuser = async (req: Request, res: Response): Promise<void> => {
     const role = userData?.role || "User";
 
     // Create JWT token
-    const token = jwt.sign({ email, role }, jwtSecret, { expiresIn: "1h" });
+    const token = jwt.sign({email, role}, jwtSecret, {expiresIn: "1h"});
 
     res.status(200).json({
       success: true,
@@ -65,6 +68,6 @@ export const loginuser = async (req: Request, res: Response): Promise<void> => {
     });
   } catch (error: unknown) {
     console.error("Login error:", error);
-    res.status(401).json({ error: "Invalid credentials" });
+    res.status(401).json({error: "Invalid credentials"});
   }
 };

@@ -1,6 +1,8 @@
 // functions/src/controllers/teacherController.ts
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable max-len */
 
-import { Request, Response } from "express";
+import {Request, Response} from "express";
 import admin from "../config/firebase";
 
 const db = admin.firestore();
@@ -17,7 +19,7 @@ export const teacher = async (req: Request, res: Response): Promise<void> => {
       .get();
 
     if (!snapshot.exists) {
-      res.status(404).json({ error: "User info not found in Firestore" });
+      res.status(404).json({error: "User info not found in Firestore"});
       return;
     }
 
@@ -26,7 +28,7 @@ export const teacher = async (req: Request, res: Response): Promise<void> => {
 
     if (!school) {
       console.error("school not found");
-      res.status(404).json({ error: "school not found" });
+      res.status(404).json({error: "school not found"});
       return;
     }
 
@@ -36,10 +38,10 @@ export const teacher = async (req: Request, res: Response): Promise<void> => {
       .collection("Users")
       .get();
 
-    const teacherIds: string[] = techSnapshot.docs.map(doc => doc.id);
+    const teacherIds: string[] = techSnapshot.docs.map((doc) => doc.id);
 
     if (teacherIds.length === 0) {
-      res.status(404).json({ error: "No teachers found" });
+      res.status(404).json({error: "No teachers found"});
       return;
     }
 
@@ -53,7 +55,7 @@ export const teacher = async (req: Request, res: Response): Promise<void> => {
 
         const docSnap = await docRef.get();
 
-        return docSnap.exists ? { id, ...docSnap.data() } : null;
+        return docSnap.exists ? {id, ...docSnap.data()} : null;
       })
     );
 
@@ -64,9 +66,8 @@ export const teacher = async (req: Request, res: Response): Promise<void> => {
       teachers: filteredTeacherData,
       noOfTechers: filteredTeacherData.length,
     });
-
   } catch (e: any) {
     console.error("Error in fetching teachers:", e.message);
-    res.status(500).json({ error: "Server error" });
+    res.status(500).json({error: "Server error"});
   }
 };

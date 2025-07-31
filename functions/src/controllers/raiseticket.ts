@@ -1,6 +1,8 @@
 // functions/src/controllers/raiseTicketController.ts
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable max-len */
 
-import { Request, Response } from "express";
+import {Request, Response} from "express";
 import admin from "../config/firebase"; // Adjust path if needed
 
 const db = admin.firestore();
@@ -10,7 +12,7 @@ export const raiseticket = async (req: Request, res: Response): Promise<void> =>
   const {
     ticketText,
     contributors,
-     // Accept this but do not store unless needed
+    // Accept this but do not store unless needed
   }: {
     ticketText: string;
     contributors: { name: string; email: string }[];
@@ -26,7 +28,7 @@ export const raiseticket = async (req: Request, res: Response): Promise<void> =>
       .get();
 
     if (!snapshot.exists) {
-      res.status(404).json({ error: "User info not found in Firestore" });
+      res.status(404).json({error: "User info not found in Firestore"});
       return;
     }
 
@@ -35,7 +37,7 @@ export const raiseticket = async (req: Request, res: Response): Promise<void> =>
     const userName = userData.Name;
 
     if (!school) {
-      res.status(400).json({ error: "School not found for the user" });
+      res.status(400).json({error: "School not found for the user"});
       return;
     }
 
@@ -90,6 +92,6 @@ export const raiseticket = async (req: Request, res: Response): Promise<void> =>
     });
   } catch (e) {
     console.error("Error in RaiseTicketController:", e);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({error: "Internal server error"});
   }
 };

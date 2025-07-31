@@ -1,4 +1,6 @@
 // routers/login.ts
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable max-len */
 import express from "express";
 import {loginuser} from "../controllers/login";
 
