@@ -35,7 +35,7 @@ const UserAnswersPage: React.FC = () => {
 
         // Fetch document names (emails who answered)
         const docRes = await axios.get(
-          `http://localhost:5000/answers/${challengeId}/${trimmedTaskName}`
+          `https://api-rim6ljimuq-uc.a.run.app/task-ans/${challengeId}/${trimmedTaskName}`
         );
         const answeredEmails: string[] = docRes.data.documentNames || [];
 

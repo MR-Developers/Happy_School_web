@@ -1,5 +1,7 @@
-import { Request, Response } from "express";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import {Request, Response} from "express";
 import admin from "../config/firebase";
+/* eslint-disable max-len */
 
 
 const db = admin.firestore();
@@ -17,7 +19,7 @@ export const getdashboardsummary = async (req: Request, res: Response): Promise<
       .get();
 
     if (!userInfoSnap.exists) {
-      res.status(404).json({ error: "User info not found in Firestore" });
+      res.status(404).json({error: "User info not found in Firestore"});
       return;
     }
 
@@ -25,21 +27,17 @@ export const getdashboardsummary = async (req: Request, res: Response): Promise<
     const school = userData?.school;
 
     if (!school) {
-      res.status(404).json({ error: "School not found" });
+      res.status(404).json({error: "School not found"});
       return;
     }
 
     // Step 2: Count Posts
-    const postsSnap = await db.collection("Posts").doc(school).collection("Posts").get();
-    const postCount = postsSnap.size;
-
-    // Step 3: Count Announcements
-    const announcementsSnap = await db
-      .collection("Announcements")
+    const postsSnap = await db
+      .collection("Posts")
       .doc(school)
-      .collection("Announcements")
+      .collection("Posts")
       .get();
-    const announcementCount = announcementsSnap.size;
+    const postCount = postsSnap.size;
 
     // Step 4: Count Challenges
     const challengeSnap = await db
@@ -51,15 +49,31 @@ export const getdashboardsummary = async (req: Request, res: Response): Promise<
       .get();
     const challengeCount = challengeSnap.size;
 
-    // Respond
+    // Step 5: Count Tickets with Status == "Meeting"
+    const ticketsSnap = await db
+      .collection("Tickets")
+      .doc(school)
+      .collection(school)
+      .where("status", "==", "Meeting")
+      .get();
+    const meetingTicketCount = ticketsSnap.size;
+    const EarlyAdopterSnap = await db
+      .collection("Tickets")
+      .doc(school)
+      .collection(school)
+      .where("category", "==", "Early Adopter")
+      .get();
+    const earlyAdopterCount = EarlyAdopterSnap.size;
+    // Final Response
     res.status(200).json({
       school,
       postCount,
-      announcementCount,
       challengeCount,
+      meetingTicketCount,
+      earlyAdopterCount,
     });
   } catch (error: any) {
     console.error("Error in getDashboardSummary:", error.message || error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({error: "Internal server error"});
   }
 };

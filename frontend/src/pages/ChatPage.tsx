@@ -34,7 +34,9 @@ function ChatPage() {
 
     const fetchChat = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/chat/${ticketId}`);
+        const res = await axios.get(
+          ` https://api-rim6ljimuq-uc.a.run.app/chat/${ticketId}`
+        );
         setChatData(res.data.data);
       } catch (err) {
         console.error("Error fetching chat:", err);

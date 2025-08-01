@@ -21,7 +21,7 @@ const ChallengePage: React.FC = () => {
     }
 
     axios
-      .get(`http://localhost:5000/challenges/${school}`)
+      .get(`https://api-rim6ljimuq-uc.a.run.app/get/challenges/${school}`)
       .then((res) => {
         setChallenges(res.data.challenges || {});
         setLoading(false);
