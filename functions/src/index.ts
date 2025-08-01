@@ -16,6 +16,7 @@ import alltickets from "./controllers/sessionTickets";
 import challenge from "./controllers/challenges";
 import task from "./controllers/task";
 import taskans from "./controllers/taskAns";
+import chart from "./controllers/chat";
 
 setGlobalOptions({maxInstances: 10});
 
@@ -39,6 +40,7 @@ app.use("/sesson", alltickets);
 app.use("/get", challenge);
 app.use("/tasks", task);
 app.use("/task-ans", taskans);
+app.use("/chat", chart);
 // Optional test endpoint
 export const helloWorld = onRequest((req, res) => {
   logger.info("Hello logs!", {structuredData: true});

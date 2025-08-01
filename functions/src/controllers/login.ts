@@ -53,6 +53,7 @@ export const loginuser = async (req: Request, res: Response): Promise<void> => {
     const userData = snapshot.data();
     const userName = userData?.Name || "Unknown";
     const role = userData?.role || "User";
+    const school = userData?.school || "Unknown";
 
     // Create JWT token
     const token = jwt.sign({email, role}, jwtSecret, {expiresIn: "1h"});
@@ -65,6 +66,7 @@ export const loginuser = async (req: Request, res: Response): Promise<void> => {
       name: userName,
       role,
       email,
+      school,
     });
   } catch (error: unknown) {
     console.error("Login error:", error);
