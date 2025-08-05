@@ -1,16 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
-import {
-  Table,
-  Tag,
-  Typography,
-  Spin,
-  Space,
-  Badge,
-  Card,
-  Tooltip,
-  Select,
-} from "antd";
+import { Table, Tag, Typography, Spin, Space, Select } from "antd";
 import { useNavigate } from "react-router-dom";
 import { FilterOutlined, PlusOutlined } from "@ant-design/icons";
 
@@ -47,7 +37,7 @@ function YourTickets() {
   const navigate = useNavigate();
   const email = localStorage.getItem("email");
   const [showFilters, setShowFilters] = useState(false);
-  const buttonRef = useRef(null);
+
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
@@ -71,7 +61,7 @@ function YourTickets() {
         };
 
         const response = await axios.get(
-          `http://localhost:5000/getTickets/alltickets/${email}`,
+          `https://api-rim6ljimuq-uc.a.run.app/sesson/all-tickets/${email}`,
           { params }
         );
 
@@ -98,6 +88,7 @@ function YourTickets() {
     fromDate,
     toDate,
     selectedCategory,
+    selectedTeacherEmail,
   ]);
   useEffect(() => {
     const email = localStorage.getItem("email");

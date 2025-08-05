@@ -129,7 +129,7 @@ function AddTicket() {
       }
 
       await axios.post(
-        `http://localhost:5000/postTicket/raiseticket/${email}`,
+        `https://api-rim6ljimuq-uc.a.run.app/raiseticket/${email}`,
         payload
       );
 

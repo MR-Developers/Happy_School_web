@@ -42,26 +42,26 @@ function Dashboard() {
   const [tickets, setTickets] = useState<any[]>([]);
   const [summary, setSummary] = useState<{
     post: number;
-    challenge: number;
     meetingTicketCount: number;
     earlyAdopterCount: number;
+    taskscount?: number;
   } | null>(null);
 
   const dashboardRef = useRef<HTMLDivElement>(null);
   const donutData = summary
     ? [
-        { name: "Posts", value: summary.post, color: "#6366f1" }, // Indigo // Green
-        { name: "Challenges", value: summary.challenge, color: "#f97316" }, // Orange
+        { name: "Posts", value: summary.post || 0, color: "#6366f1" }, // Indigo // Green// Orange
         {
           name: "One on One Sessions",
           value: summary.meetingTicketCount,
           color: "#ffbb33",
-        },
+        }, // Yellow
         {
           name: "Early Adopters",
           value: summary.earlyAdopterCount,
           color: "#ff0000ff",
-        }, // Yellow
+        },
+        { name: "Tasks", value: summary.taskscount || 0, color: "#f97316" }, // Green
       ]
     : [];
 
@@ -86,9 +86,9 @@ function Dashboard() {
         const { postCount, challengeCount } = res.data;
         setSummary({
           post: postCount,
-          challenge: challengeCount,
           meetingTicketCount: res.data.meetingTicketCount,
           earlyAdopterCount: res.data.earlyAdopterCount,
+          taskscount: res.data.taskscount,
         });
       })
       .catch((err) => {
@@ -221,17 +221,18 @@ function Dashboard() {
           <Title level={4} className="mt-10">
             Content Summary
           </Title>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={350}>
             <PieChart>
               <Pie
                 data={donutData}
                 dataKey="value"
                 nameKey="name"
                 cx="50%"
-                cy="40%"
+                cy="50%"
                 innerRadius={60}
                 outerRadius={100}
                 label
+                labelLine={false}
               >
                 {donutData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />

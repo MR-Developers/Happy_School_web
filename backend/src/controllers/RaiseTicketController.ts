@@ -95,7 +95,24 @@ export const RaiseTicketController = async (
       .doc(uid);
 
     await schoolTicketRef.set(ticketData);
+    const schoolTicketCountRef = await db
+      .collection("Schools")
+      .where("SchoolName", "==", school)
+      .limit(1)
+      .get();
 
+    if (schoolTicketCountRef.empty) {
+      res.status(404).json({ error: "School not found" });
+      return;
+    }
+    const doc = schoolTicketCountRef.docs[0];
+
+    await db
+      .collection("Schools")
+      .doc(doc.id)
+      .update({
+        ticketsraised: admin.firestore.FieldValue.increment(1),
+      });
     res.status(200).json({
       message: "Ticket raised successfully",
       ticketData,

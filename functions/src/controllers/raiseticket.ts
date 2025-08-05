@@ -78,6 +78,7 @@ export const raiseticket = async (req: Request, res: Response): Promise<void> =>
 
     await userTicketRef.set(ticketData);
 
+
     const schoolTicketRef = db
       .collection("Tickets")
       .doc(school)
@@ -85,6 +86,25 @@ export const raiseticket = async (req: Request, res: Response): Promise<void> =>
       .doc(uid);
 
     await schoolTicketRef.set(ticketData);
+
+    const schoolTicketCountRef = await db
+      .collection("Schools")
+      .where("SchoolName", "==", school)
+      .limit(1)
+      .get();
+
+    if (schoolTicketCountRef.empty) {
+      res.status(404).json({error: "School not found"});
+      return;
+    }
+    const doc = schoolTicketCountRef.docs[0];
+
+    await db
+      .collection("Schools")
+      .doc(doc.id)
+      .update({
+        ticketsraised: admin.firestore.FieldValue.increment(1),
+      });
 
     res.status(200).json({
       message: "Ticket raised successfully",
