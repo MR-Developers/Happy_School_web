@@ -54,17 +54,6 @@ export const RaiseTicketController = async (
       hour12: true,
     });
 
-    // 1. Ticket under user path
-    const userTicketRef = db
-      .collection("SchoolUsers")
-      .doc(school)
-      .collection("Users")
-      .doc(email)
-      .collection("Tickets")
-      .doc();
-
-    const uid = userTicketRef.id;
-
     const ticketData: any = {
       ticketText: ticketText || "",
       userName: userName || "",
@@ -73,26 +62,19 @@ export const RaiseTicketController = async (
       reply: "",
       status: "Ticket Raised",
       tocken: 0,
-      uid,
       school,
       contributors: contributors || [],
-      category, // assuming you're sending this too
+      category,
     };
 
-    // Conditionally add 'teacher' only if category is 'Teacher'
     if (category === "Teacher") {
       ticketData.teacher = teacher || "";
     }
-
-    // Save under user
-    await userTicketRef.set(ticketData);
-
-    // 2. Ticket under global "Tickets/{school}/{uid}"
     const schoolTicketRef = db
       .collection("Tickets")
       .doc(school)
       .collection(school)
-      .doc(uid);
+      .doc();
 
     await schoolTicketRef.set(ticketData);
     const schoolTicketCountRef = await db
