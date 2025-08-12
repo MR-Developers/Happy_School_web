@@ -43,22 +43,11 @@ export const RaiseTicketController = async (
       return;
     }
 
-    // Format timestamp
-    const timestamp = new Date();
-    const formattedTimestamp = timestamp.toLocaleString("en-GB", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
-
     const ticketData: any = {
       ticketText: ticketText || "",
       userName: userName || "",
       email,
-      timestamp: formattedTimestamp,
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
       reply: "",
       status: "Ticket Raised",
       tocken: 0,
