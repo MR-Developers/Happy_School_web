@@ -119,9 +119,21 @@ function OneOnOneSessions() {
       title: "Created At",
       dataIndex: "timestamp",
       key: "timestamp",
-      render: (time: string) => (
-        <span className="text-gray-600">{time || "N/A"}</span>
-      ),
+      render: (time: any) => {
+        if (!time) return <span className="text-gray-600">N/A</span>;
+
+        // If it's a Firestore Timestamp object
+        if (time._seconds) {
+          const date = new Date(time._seconds * 1000);
+          return <span className="text-gray-600">{date.toLocaleString()}</span>;
+        }
+
+        // If it's already a Date or string
+        const dateObj = typeof time === "string" ? new Date(time) : time;
+        return (
+          <span className="text-gray-600">{dateObj.toLocaleString()}</span>
+        );
+      },
     },
     {
       title: "Category",

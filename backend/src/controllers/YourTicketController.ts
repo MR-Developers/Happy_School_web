@@ -6,8 +6,11 @@ dotenv.config();
 
 const db = admin.firestore();
 
-export const YourTicketController = async (req: Request, res: Response): Promise<void> => {
-   const email: string = req.params.email;
+export const YourTicketController = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const email: string = req.params.email;
 
   try {
     // 1) Get the requesting user's school
@@ -33,9 +36,14 @@ export const YourTicketController = async (req: Request, res: Response): Promise
     }
 
     // 2) Access the Tickets/<school>/... subcollection
-    const ticketSubColRef = db.collection(`Tickets`).doc(school).collection(school);
+    const ticketSubColRef = db
+      .collection(`Tickets`)
+      .doc(school)
+      .collection(school);
 
-    const ticketsSnap = await ticketSubColRef.get();
+    const ticketsSnap = await ticketSubColRef
+      .orderBy("timestamp", "desc")
+      .get();
 
     const tickets = ticketsSnap.docs.map((doc) => ({
       id: doc.id,

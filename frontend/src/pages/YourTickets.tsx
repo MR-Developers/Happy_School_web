@@ -67,12 +67,7 @@ function YourTickets() {
 
         const fetched = response.data.tickets || [];
         console.log("Fetched tickets:", fetched);
-        const sorted = fetched.sort(
-          (a: Ticket, b: Ticket) =>
-            new Date(b.timestamp ?? "").getTime() -
-            new Date(a.timestamp ?? "").getTime()
-        );
-        setTickets(sorted); // ✅ Correct
+        setTickets(fetched); // ✅ Correct
       } catch (err) {
         console.error("Error fetching teachers:", err);
       } finally {
@@ -133,9 +128,21 @@ function YourTickets() {
       title: "Created At",
       dataIndex: "timestamp",
       key: "timestamp",
-      render: (time: string) => (
-        <span className="text-gray-600">{time || "N/A"}</span>
-      ),
+      render: (time: any) => {
+        if (!time) return <span className="text-gray-600">N/A</span>;
+
+        // If it's a Firestore Timestamp object
+        if (time._seconds) {
+          const date = new Date(time._seconds * 1000);
+          return <span className="text-gray-600">{date.toLocaleString()}</span>;
+        }
+
+        // If it's already a Date or string
+        const dateObj = typeof time === "string" ? new Date(time) : time;
+        return (
+          <span className="text-gray-600">{dateObj.toLocaleString()}</span>
+        );
+      },
     },
     {
       title: "Category",
