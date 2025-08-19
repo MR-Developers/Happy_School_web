@@ -7,16 +7,21 @@ import admin from "../config/firebase"; // Adjust path if needed
 
 const db = admin.firestore();
 
-export const raiseticket = async (req: Request, res: Response): Promise<void> => {
+export const raiseticket = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const email: string = req.params.email;
   const {
     ticketText,
+    teacher,
     contributors,
-    // Accept this but do not store unless needed
+    category,
   }: {
     ticketText: string;
+    teacher: string;
     contributors: { name: string; email: string }[];
-    selectedTeacher?: any;
+    category: string;
   } = req.body;
 
   try {
@@ -41,52 +46,29 @@ export const raiseticket = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
-    const timestamp = new Date();
-    const formattedTimestamp = timestamp.toLocaleString("en-GB", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
-
-    const userTicketRef = db
-      .collection("SchoolUsers")
-      .doc(school)
-      .collection("Users")
-      .doc(email)
-      .collection("Tickets")
-      .doc();
-
-    const uid = userTicketRef.id;
-
-    const ticketData = {
+    const ticketData: any = {
       ticketText: ticketText || "",
       userName: userName || "",
       email,
-      timestamp: formattedTimestamp,
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
       reply: "",
       status: "Ticket Raised",
       tocken: 0,
-      uid,
       school,
       contributors: contributors || [],
-      // If you later want to store selectedTeacher, you can uncomment this:
-      // selectedTeacher: selectedTeacher || null,
+      category,
     };
 
-    await userTicketRef.set(ticketData);
-
-
+    if (category === "Teacher") {
+      ticketData.teacher = teacher || "";
+    }
     const schoolTicketRef = db
       .collection("Tickets")
       .doc(school)
       .collection(school)
-      .doc(uid);
+      .doc();
 
     await schoolTicketRef.set(ticketData);
-
     const schoolTicketCountRef = await db
       .collection("Schools")
       .where("SchoolName", "==", school)
@@ -105,7 +87,6 @@ export const raiseticket = async (req: Request, res: Response): Promise<void> =>
       .update({
         ticketsraised: admin.firestore.FieldValue.increment(1),
       });
-
     res.status(200).json({
       message: "Ticket raised successfully",
       ticketData,
