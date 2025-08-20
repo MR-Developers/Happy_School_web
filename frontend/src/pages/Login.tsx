@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useFormik } from "formik";
 import { useNavigate } from "react-router-dom";
-import appIcon from "../assets/Images/appicon2.png"; // Adjust path if needed
-import axios from "axios";
+import appIcon from "../assets/Images/appicon2.png";
+import toast, { Toaster } from "react-hot-toast";
 
 function Login() {
   const nav = useNavigate();
-  const [loading, SetLoading] = React.useState(false);
+  const [loading, setLoading] = useState(false);
 
   const formik = useFormik({
     initialValues: {
@@ -15,8 +15,7 @@ function Login() {
     },
     onSubmit: async (values) => {
       try {
-        SetLoading(true);
-        //https://api-rim6ljimuq-uc.a.run.app/auth/login
+        setLoading(true);
         const response = await fetch(
           "https://api-rim6ljimuq-uc.a.run.app/auth/login",
           {
@@ -31,28 +30,34 @@ function Login() {
         const data = await response.json();
 
         if (response.ok) {
-          alert("Login successful");
+          toast.success("Login successful 🎉");
           localStorage.setItem("authToken", data.jwtToken);
           localStorage.setItem("firebaseToken", data.firebaseToken);
           localStorage.setItem("UserName", data.name);
           localStorage.setItem("role", data.role);
           localStorage.setItem("email", data.email);
           localStorage.setItem("school", data.school);
-          nav("/dashboard");
+
+          setTimeout(() => {
+            nav("/dashboard");
+          }, 1200); // delay so user can see success toast
         } else {
-          alert(data.error || "Invalid credentials");
+          toast.error(data.error || "Invalid credentials ❌");
         }
       } catch (error) {
         console.error("Login error:", error);
-        alert("Something went wrong");
+        toast.error("Something went wrong 😔");
       }
-      SetLoading(false);
+      setLoading(false);
     },
   });
 
   return (
     <div className="min-h-screen grid grid-cols-1 md:grid-cols-2">
-      {/* Left Section with Background Color and Image */}
+      {/* Toast container */}
+      <Toaster position="top-right" reverseOrder={false} />
+
+      {/* Left Section */}
       <div className="bg-[#345069] flex items-center justify-center p-8">
         <img
           src={appIcon}
@@ -61,7 +66,7 @@ function Login() {
         />
       </div>
 
-      {/* Right Section with Form */}
+      {/* Right Section */}
       <div className="bg-[#f9f9f9] flex items-center justify-center p-8">
         <div className="bg-white rounded-xl shadow-lg p-10 w-full max-w-md">
           <h2 className="text-2xl font-bold text-center text-[#2D4557] mb-1">
@@ -72,7 +77,7 @@ function Login() {
           </h1>
 
           <form onSubmit={formik.handleSubmit} className="space-y-5">
-            {/* Email Field */}
+            {/* Email */}
             <div>
               <label
                 htmlFor="email"
@@ -91,7 +96,7 @@ function Login() {
               />
             </div>
 
-            {/* Password Field */}
+            {/* Password */}
             <div>
               <label
                 htmlFor="password"
@@ -110,7 +115,7 @@ function Login() {
               />
             </div>
 
-            {/* Submit Button */}
+            {/* Button */}
             <button
               type="submit"
               className="w-full py-2 px-4 bg-orange-500 text-white font-semibold rounded-md hover:bg-orange-600 transition duration-200"
