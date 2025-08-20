@@ -107,17 +107,28 @@ function Dashboard() {
   const getMonthFromTimestamp = (t: any): number | null => {
     try {
       if (!t.timestamp) return null;
+
       let parsed;
+
       if (typeof t.timestamp === "string") {
+        // Parse string date (requires customParseFormat plugin if not ISO)
         parsed = dayjs(t.timestamp, "DD/MM/YYYY, hh:mm A");
-      } else if (t.timestamp.toDate) {
+      } else if (typeof t.timestamp.toDate === "function") {
+        // Firestore Timestamp object
         parsed = dayjs(t.timestamp.toDate());
+      } else if (t.timestamp._seconds) {
+        // Firestore serialized timestamp
+        parsed = dayjs.unix(t.timestamp._seconds);
+      } else if (t.timestamp.seconds) {
+        // In case it comes with `seconds` (some APIs do this)
+        parsed = dayjs.unix(t.timestamp.seconds);
       } else {
         parsed = dayjs(t.timestamp);
       }
+
       return parsed.isValid() ? parsed.month() : null;
     } catch (err) {
-      console.error("Invalid timestamp format", t.timestamp);
+      console.error("Invalid timestamp format:", t.timestamp, err);
       return null;
     }
   };
