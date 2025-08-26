@@ -30,23 +30,27 @@ function Login() {
         const data = await response.json();
 
         if (response.ok) {
-          toast.success("Login successful 🎉");
-          localStorage.setItem("authToken", data.jwtToken);
-          localStorage.setItem("firebaseToken", data.firebaseToken);
-          localStorage.setItem("UserName", data.name);
-          localStorage.setItem("role", data.role);
-          localStorage.setItem("email", data.email);
-          localStorage.setItem("school", data.school);
+          if (data.role.toString().toLowerCase() === "principal") {
+            toast.success("Login successful");
+            localStorage.setItem("authToken", data.jwtToken);
+            localStorage.setItem("firebaseToken", data.firebaseToken);
+            localStorage.setItem("UserName", data.name);
+            localStorage.setItem("role", data.role);
+            localStorage.setItem("email", data.email);
+            localStorage.setItem("school", data.school);
 
-          setTimeout(() => {
-            nav("/dashboard");
-          }, 1200); // delay so user can see success toast
+            setTimeout(() => {
+              nav("/dashboard");
+            }, 1200); // delay so user can see success toast
+          } else {
+            toast.error("Access denied. Only principals can log in.");
+          }
         } else {
-          toast.error(data.error || "Invalid credentials ❌");
+          toast.error(data.error || "Invalid credentials ");
         }
       } catch (error) {
         console.error("Login error:", error);
-        toast.error("Something went wrong 😔");
+        toast.error("Something went wrong ");
       }
       setLoading(false);
     },
