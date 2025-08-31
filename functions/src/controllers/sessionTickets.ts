@@ -7,7 +7,6 @@ import {db} from "../config/firebase";
 // eslint-disable-next-line new-cap
 const router = Router();
 
-
 router.get("/all-tickets/:email", async (req: Request, res: Response) => {
   const email: string = req.params.email;
   const {teacher, status, fromDate, toDate, category} = req.query;
@@ -38,13 +37,17 @@ router.get("/all-tickets/:email", async (req: Request, res: Response) => {
       .doc(school)
       .collection(school);
 
-    const ticketsSnap = await ticketSubColRef.get();
+    // Add ordering by timestamp in descending order (newest first)
+    const ticketsSnap = await ticketSubColRef
+      .orderBy("timestamp", "desc")
+      .get();
 
     let tickets = ticketsSnap.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     }));
 
+    // Apply filters after fetching
     if (teacher) {
       tickets = tickets.filter(
         (t) =>
@@ -69,13 +72,24 @@ router.get("/all-tickets/:email", async (req: Request, res: Response) => {
 
     if (fromDate || toDate) {
       tickets = tickets.filter((t) => {
-        const timeStr = (t as any).timestamp;
-        const time = new Date(timeStr).getTime();
+        const ticketTimestamp = (t as any).timestamp;
+        let time: number;
+
+        // Handle Firestore Timestamp objects
+        if (ticketTimestamp && typeof ticketTimestamp === "object" && ticketTimestamp._seconds) {
+          time = ticketTimestamp._seconds * 1000;
+        } else if (ticketTimestamp) {
+          time = new Date(ticketTimestamp).getTime();
+        } else {
+          return false; // Skip tickets without timestamp
+        }
 
         const from = fromDate ?
           new Date(String(fromDate)).getTime() :
           -Infinity;
-        const to = toDate ? new Date(String(toDate)).getTime() : Infinity;
+        const to = toDate ?
+          new Date(String(toDate)).setHours(23, 59, 59, 999) : // End of day for toDate
+          Infinity;
 
         return time >= from && time <= to;
       });
@@ -88,8 +102,22 @@ router.get("/all-tickets/:email", async (req: Request, res: Response) => {
     });
   } catch (e: any) {
     console.error("Error in TicketController:", e.message || e);
+
+    // If the error is due to missing index, provide helpful information
+    if (e.code === 9 || e.message?.includes("index")) {
+      console.error("Firestore index required for timestamp ordering. Create a composite index for the collection with timestamp field.");
+      res.status(500).json({
+        error: "Database index required for sorting. Please contact administrator.",
+        details: "Firestore composite index needed for timestamp ordering",
+      });
+      return;
+    }
+
     res.status(500).json({error: "Internal server error"});
   }
 });
+
+// Add a route to get a single ticket by ID (useful for the ShowTicket component)
+
 
 export default router;

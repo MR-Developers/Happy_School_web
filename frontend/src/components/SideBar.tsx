@@ -22,7 +22,7 @@ function SideBar() {
   const menuItems = [
     { name: "Dashboard", icon: faUser, path: "/dashboard" },
     { name: "Teachers", icon: faChalkboardTeacher, path: "/teacher" },
-    { name: "Your Tickets", icon: faTicket, path: "/yourtickets" },
+    { name: "Raised Tickets", icon: faTicket, path: "/yourtickets" },
     { name: "Challenges", icon: faClipboardList, path: "/challenges" },
     {
       name: "One-One Sessions",

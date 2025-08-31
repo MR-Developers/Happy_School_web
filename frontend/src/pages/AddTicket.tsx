@@ -16,6 +16,11 @@ interface Contributor {
   email: string;
 }
 
+interface TeacherMap {
+  name: string;
+  email: string;
+}
+
 const MultiSelectByName = ({
   name,
   label,
@@ -103,15 +108,20 @@ function AddTicket() {
     ),
     category: Yup.string().required("Please select a category"),
     selectedTeacher: isStudent
-      ? Yup.string().optional()
-      : Yup.string().required("Please select a teacher"),
+      ? Yup.object().optional()
+      : Yup.object()
+          .shape({
+            name: Yup.string().required(),
+            email: Yup.string().email().required(),
+          })
+          .required("Please select a teacher"),
   });
 
   const handleSubmit = async (
     values: {
       ticketText: string;
       contributors: Contributor[];
-      selectedTeacher: string;
+      selectedTeacher: TeacherMap | null;
       category: string;
     },
     { resetForm, setSubmitting }: any
@@ -124,9 +134,16 @@ function AddTicket() {
         category: values.category,
       };
 
-      if (values.category === "Teacher") {
-        payload.teacher = values.selectedTeacher;
+      // If category is Teacher, send teacher as a map with name and email
+      if (values.category === "Teacher" && values.selectedTeacher) {
+        payload.teacher = {
+          name: values.selectedTeacher.name,
+          email: values.selectedTeacher.email,
+        };
+        console.log("Sending teacher data:", payload.teacher);
       }
+
+      console.log("Final payload:", payload);
 
       await axios.post(
         `https://api-rim6ljimuq-uc.a.run.app/raiseticket/${email}`,
@@ -146,6 +163,7 @@ function AddTicket() {
   const teacherOptions = teachers.map((t) => ({
     label: t.name,
     value: t.email,
+    name: t.name, // Keep name for easy access
   }));
 
   return (
@@ -157,7 +175,7 @@ function AddTicket() {
         initialValues={{
           ticketText: "",
           contributors: [],
-          selectedTeacher: "",
+          selectedTeacher: null as TeacherMap | null,
           category: "",
         }}
         validationSchema={validationSchema}
@@ -177,6 +195,7 @@ function AddTicket() {
               component="div"
               className="text-red-500 text-sm mt-1"
             />
+
             {/* Category Select */}
             <div className="mt-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -191,7 +210,7 @@ function AddTicket() {
                 placeholder="-- Select category --"
                 onChange={(option: any) => {
                   setFieldValue("category", option?.value);
-                  setFieldValue("selectedTeacher", "");
+                  setFieldValue("selectedTeacher", null); // Reset teacher selection
                   setIsStudent(option?.value === "Student");
                 }}
                 onBlur={() => setFieldTouched("category", true)}
@@ -221,7 +240,7 @@ function AddTicket() {
               />
             </div>
 
-            {/* Select Teacher */}
+            {/* Select Teacher - Only show for Teacher and Early Adopter categories */}
             {(values.category === "Teacher" ||
               values.category === "Early Adopter") && (
               <div className="mt-4">
@@ -231,10 +250,28 @@ function AddTicket() {
                 <Select
                   options={teacherOptions}
                   placeholder="-- Select a teacher --"
-                  onChange={(option: any) =>
-                    setFieldValue("selectedTeacher", option?.value)
-                  }
+                  onChange={(option: any) => {
+                    if (option) {
+                      // Set teacher as an object with name and email
+                      setFieldValue("selectedTeacher", {
+                        name: option.name,
+                        email: option.value,
+                      });
+                    } else {
+                      setFieldValue("selectedTeacher", null);
+                    }
+                  }}
                   onBlur={() => setFieldTouched("selectedTeacher", true)}
+                  value={
+                    values.selectedTeacher
+                      ? {
+                          label: values.selectedTeacher.name,
+                          value: values.selectedTeacher.email,
+                          name: values.selectedTeacher.name,
+                        }
+                      : null
+                  }
+                  isClearable
                   styles={{
                     control: (base, state) => ({
                       ...base,
@@ -270,12 +307,12 @@ function AddTicket() {
               <Select
                 isMulti
                 options={teacherOptions.filter(
-                  (t) => t.value !== values.selectedTeacher
+                  (t) => t.value !== values.selectedTeacher?.email
                 )}
                 placeholder="Search & select contributors"
                 onChange={(selectedOptions: any) => {
                   const contributors = selectedOptions.map((opt: any) => ({
-                    name: opt.label,
+                    name: opt.name || opt.label,
                     email: opt.value,
                   }));
                   setFieldValue("contributors", contributors);
@@ -316,10 +353,12 @@ function AddTicket() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="mt-6 w-full bg-orange-500 text-white py-2 px-4 rounded-lg shadow hover:bg-orange-600 transition duration-200"
+              className="mt-6 w-full bg-orange-500 text-white py-2 px-4 rounded-lg shadow hover:bg-orange-600 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? "Submitting..." : "Submit Ticket"}
             </button>
+
+            {/* Debug Info (remove in production) */}
           </Form>
         )}
       </Formik>

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable max-len */
 
-import { Request, Response } from "express";
+import {Request, Response} from "express";
 import admin from "../config/firebase";
 
 const db = admin.firestore();
@@ -18,7 +18,7 @@ export const ticket = async (req: Request, res: Response): Promise<void> => {
       .get();
 
     if (!userInfoSnap.exists) {
-      res.status(404).json({ error: "User info not found in Firestore" });
+      res.status(404).json({error: "User info not found in Firestore"});
       return;
     }
 
@@ -27,13 +27,13 @@ export const ticket = async (req: Request, res: Response): Promise<void> => {
 
     if (!school) {
       console.error("School not found");
-      res.status(404).json({ error: "School not found" });
+      res.status(404).json({error: "School not found"});
       return;
     }
 
     // 2) Access the Tickets/<school>/... subcollection
     const ticketSubColRef = db
-      .collection(`Tickets`)
+      .collection("Tickets")
       .doc(school)
       .collection(school);
 
@@ -53,6 +53,6 @@ export const ticket = async (req: Request, res: Response): Promise<void> => {
     });
   } catch (e: any) {
     console.error("Error in TicketController:", e.message || e);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({error: "Internal server error"});
   }
 };
