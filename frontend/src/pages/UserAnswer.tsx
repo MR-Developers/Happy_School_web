@@ -1,12 +1,24 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 interface Teacher {
   Name: string;
   email: string;
   coins?: number;
 }
+
+const COLORS = ["#22c55e", "#ef4444"]; // green for answered, red for unanswered
 
 const UserAnswersPage: React.FC = () => {
   const { challengeId, taskName } = useParams<{
@@ -27,13 +39,11 @@ const UserAnswersPage: React.FC = () => {
 
     const fetchData = async () => {
       try {
-        // Fetch all teachers
         const teacherRes = await axios.get(
           `https://api-rim6ljimuq-uc.a.run.app/teachers/${email}`
         );
         const allTeachers: Teacher[] = teacherRes.data.teachers || [];
 
-        // Fetch document names (emails who answered)
         const docRes = await axios.get(
           `https://api-rim6ljimuq-uc.a.run.app/task-ans/${challengeId}/${trimmedTaskName}`
         );
@@ -67,6 +77,41 @@ const UserAnswersPage: React.FC = () => {
 
     fetchData();
   }, [challengeId, taskName]);
+  const handleDownloadPDF = () => {
+    const doc = new jsPDF();
+
+    doc.setFontSize(18);
+    doc.text(`Task Report: ${taskName}`, 14, 20);
+
+    // Title for answered section
+    doc.setFontSize(14);
+    doc.text("Answered Teachers", 14, 30);
+
+    // Answered teachers table
+    autoTable(doc, {
+      startY: 35,
+      head: [["Name", "Email", "Coins"]],
+      body: answeredTeachers.map((t) => [t.Name, t.email, t.coins ?? "-"]),
+      headStyles: { fillColor: [34, 197, 94] }, // green
+      styles: { halign: "left" },
+    });
+
+    // Title for unanswered section
+    const nextY = (doc as any).lastAutoTable.finalY + 10;
+    doc.setFontSize(14);
+    doc.text("Unanswered Teachers", 14, nextY);
+
+    // Unanswered teachers table
+    autoTable(doc, {
+      startY: nextY + 5,
+      head: [["Name", "Email", "Coins"]],
+      body: unansweredTeachers.map((t) => [t.Name, t.email, t.coins ?? "-"]),
+      headStyles: { fillColor: [239, 68, 68] }, // red
+      styles: { halign: "left" },
+    });
+
+    doc.save(`Task_Report_${taskName}.pdf`);
+  };
 
   const renderTeacherList = (teachers: Teacher[]) => (
     <ul className="space-y-3">
@@ -85,6 +130,11 @@ const UserAnswersPage: React.FC = () => {
     </ul>
   );
 
+  const chartData = [
+    { name: "Answered", value: answeredTeachers.length },
+    { name: "Unanswered", value: unansweredTeachers.length },
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">
@@ -98,36 +148,81 @@ const UserAnswersPage: React.FC = () => {
       ) : error ? (
         <p className="text-red-600 text-center">{error}</p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Answered */}
-          <div className="bg-white p-6 rounded-xl shadow-lg">
-            <h3 className="text-xl font-semibold text-green-700 mb-4 border-b pb-2">
-              Teachers Who Completed The Task ({answeredTeachers.length})
+        <>
+          {/* Pie Chart Section */}
+          <div className="bg-white p-6 rounded-xl shadow-lg mb-8 max-w-xl mx-auto">
+            <h3 className="text-xl font-semibold text-center mb-4">
+              Completion Overview
             </h3>
-            {answeredTeachers.length > 0 ? (
-              renderTeacherList(answeredTeachers)
-            ) : (
-              <p className="text-gray-500 italic">
-                No teachers have answered yet.
-              </p>
-            )}
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={chartData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  dataKey="value"
+                  label={({ name, value }) =>
+                    `${name}: ${(
+                      ((value ?? 0) /
+                        (answeredTeachers.length + unansweredTeachers.length)) *
+                      100
+                    ).toFixed(1)}%`
+                  }
+                >
+                  {chartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
           </div>
 
-          {/* Not Answered */}
-          <div className="bg-white p-6 rounded-xl shadow-lg">
-            <h3 className="text-xl font-semibold text-red-700 mb-4 border-b pb-2">
-              Teachers Who Haven't Completed The Task (
-              {unansweredTeachers.length})
-            </h3>
-            {unansweredTeachers.length > 0 ? (
-              renderTeacherList(unansweredTeachers)
-            ) : (
-              <p className="text-gray-500 italic">
-                All teachers have answered.
-              </p>
-            )}
+          <div className="flex justify-end mb-6">
+            <button
+              onClick={handleDownloadPDF}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-md transition"
+            >
+              Download PDF
+            </button>
           </div>
-        </div>
+
+          {/* Answered and Unanswered Lists */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white p-6 rounded-xl shadow-lg flex flex-col">
+              <h3 className="text-xl font-semibold text-green-700 mb-4 border-b pb-2">
+                Teachers Who Completed The Task ({answeredTeachers.length})
+              </h3>
+              <div className="flex-1 overflow-y-auto max-h-96 pr-2">
+                {answeredTeachers.length > 0 ? (
+                  renderTeacherList(answeredTeachers)
+                ) : (
+                  <p className="text-gray-500 italic">
+                    No teachers have answered yet.
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-xl shadow-lg flex flex-col">
+              <h3 className="text-xl font-semibold text-red-700 mb-4 border-b pb-2">
+                Teachers Who Haven't Completed The Task (
+                {unansweredTeachers.length})
+              </h3>
+              <div className="flex-1 overflow-y-auto max-h-96 pr-2">
+                {unansweredTeachers.length > 0 ? (
+                  renderTeacherList(unansweredTeachers)
+                ) : (
+                  <p className="text-gray-500 italic">
+                    All teachers have answered.
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );

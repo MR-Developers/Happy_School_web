@@ -191,35 +191,59 @@ function Dashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <Card style={cardStyle}>
-          <Text className="text-gray-500 font-bold text-2xl">
+          <Text className="text-gray-500 font-bold !text-xl">
             Created Tickets
           </Text>
           <Title level={2}>{createdTickets.toLocaleString()}</Title>
-          <Text type="success">+10%</Text>
-          <p className="text-gray-400 font-semibold">Compared to last month</p>
         </Card>
 
         <Card style={cardStyle}>
-          <Text className="text-gray-500 font-bold text-2xl">
+          <Text className="text-gray-500 font-bold !text-xl">
             Resolved Tickets
           </Text>
           <Title level={2}>{solvedTickets.toLocaleString()}</Title>
-          <Text type="success">+50%</Text>
-          <p className="text-gray-400 font-semibold">Compared to last month</p>
+          <Text type="success" style={{ fontSize: 16 }}>
+            {((solvedTickets / createdTickets) * 100).toFixed(0)}%
+          </Text>
+          <p className="text-gray-400 font-semibold">
+            Tickets Has Been Resolved
+          </p>
         </Card>
 
         <Card style={cardStyle}>
-          <Text className="text-gray-500 font-bold text-2xl">
+          <Text className="text-gray-500 font-bold !text-xl">
             Unresolved Tickets
           </Text>
           <Title level={2} className="text-red-500">
             {unsolvedTickets.toLocaleString()}
           </Title>
-          <Text type="danger">-30%</Text>
-          <p className="text-gray-400 font-semibold">Compared to last month</p>
+          <Text type="danger">
+            {((unsolvedTickets / createdTickets) * 100).toFixed(0)}%
+          </Text>
+          <p className="text-gray-400 font-semibold">
+            Tickets Has Not Been Resolved
+          </p>
         </Card>
       </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <Card style={cardStyle}>
+          <Text className="text-gray-500 font-bold !text-xl">
+            One On One Sessions
+          </Text>
+          <Title level={2}>
+            {summary?.meetingTicketCount.toLocaleString()}
+          </Title>
+          <p className="text-gray-400 font-semibold">
+            One On One Sessions Has Been Conducted
+          </p>
+        </Card>
 
+        <Card style={cardStyle}>
+          <Text className="text-gray-500 font-bold !text-xl">Tasks</Text>
+          <Title level={2}>{summary?.taskscount?.toLocaleString()}</Title>
+          <p className="text-gray-400 font-semibold">Tasks Has Been Created</p>
+        </Card>
+      </div>
       <Title level={4}>Tickets Overview (Month-wise)</Title>
       <center>
         <ResponsiveContainer width="50%" height={300}>
