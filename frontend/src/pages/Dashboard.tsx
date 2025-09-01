@@ -46,7 +46,7 @@ function Dashboard() {
     earlyAdopterCount: number;
     taskscount?: number;
   } | null>(null);
-
+  const cardStyle = { borderColor: "gray" };
   const dashboardRef = useRef<HTMLDivElement>(null);
   const donutData = summary
     ? [
@@ -190,27 +190,33 @@ function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <Card>
-          <Text className="text-gray-500">Created Tickets</Text>
+        <Card style={cardStyle}>
+          <Text className="text-gray-500 font-bold text-2xl">
+            Created Tickets
+          </Text>
           <Title level={2}>{createdTickets.toLocaleString()}</Title>
           <Text type="success">+10%</Text>
-          <p className="text-gray-400">Compared to last month</p>
+          <p className="text-gray-400 font-semibold">Compared to last month</p>
         </Card>
 
-        <Card>
-          <Text className="text-gray-500">Solved Tickets</Text>
+        <Card style={cardStyle}>
+          <Text className="text-gray-500 font-bold text-2xl">
+            Resolved Tickets
+          </Text>
           <Title level={2}>{solvedTickets.toLocaleString()}</Title>
           <Text type="success">+50%</Text>
-          <p className="text-gray-400">Compared to last month</p>
+          <p className="text-gray-400 font-semibold">Compared to last month</p>
         </Card>
 
-        <Card>
-          <Text className="text-gray-500">Unsolved Tickets</Text>
+        <Card style={cardStyle}>
+          <Text className="text-gray-500 font-bold text-2xl">
+            Unresolved Tickets
+          </Text>
           <Title level={2} className="text-red-500">
             {unsolvedTickets.toLocaleString()}
           </Title>
           <Text type="danger">-30%</Text>
-          <p className="text-gray-400">Compared to last month</p>
+          <p className="text-gray-400 font-semibold">Compared to last month</p>
         </Card>
       </div>
 
