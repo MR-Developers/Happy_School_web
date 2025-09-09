@@ -292,6 +292,7 @@ function YourTickets() {
                   />
                   <span className="ml-2">Student</span>
                 </label>
+
                 <label className="inline-flex items-center">
                   <input
                     type="checkbox"
@@ -303,6 +304,22 @@ function YourTickets() {
                     }
                   />
                   <span className="ml-2">Teacher</span>
+                </label>
+
+                {/* ✅ New Early Adopter category */}
+                <label className="inline-flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={selectedCategory === "Early Adopter"}
+                    onChange={() =>
+                      setSelectedCategory(
+                        selectedCategory === "Early Adopter"
+                          ? ""
+                          : "Early Adopter"
+                      )
+                    }
+                  />
+                  <span className="ml-2">Early Adopter</span>
                 </label>
               </div>
             </div>
