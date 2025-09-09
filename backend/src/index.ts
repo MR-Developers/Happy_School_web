@@ -14,6 +14,7 @@ import chat from "./routes/Chat";
 import challenges from "./routes/ChallengeRoutes";
 import tasks from "./routes/TaskRoutes";
 import UserAnswerRoutes from "./routes/UserAnswers";
+import OneOnOne from "./routes/OneOnOneRoutes";
 const app = express();
 const db = admin.firestore();
 
@@ -37,6 +38,7 @@ app.use("/chat", chat);
 app.use("/challenges", challenges);
 app.use("/tasks", tasks);
 app.use("/answers", UserAnswerRoutes);
+app.use("/oneonone", OneOnOne);
 
 app.get("/", async (req: Request, res: Response) => {
   try {

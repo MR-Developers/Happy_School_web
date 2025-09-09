@@ -53,7 +53,7 @@ function OneOnOneSessions() {
       setLoading(true);
       try {
         const params = {
-          status: "Meeting",
+          status: selectedStatus || undefined,
           teacher: selectedTeacherEmail || undefined,
           fromDate: fromDate || undefined,
           toDate: toDate || undefined,
@@ -61,7 +61,7 @@ function OneOnOneSessions() {
         };
         //https://api-rim6ljimuq-uc.a.run.app/sesson/all-tickets/thanirurajabrahmam@gmail.com
         const response = await axios.get(
-          `https://api-rim6ljimuq-uc.a.run.app/sesson/all-tickets/${email}`,
+          `http://localhost:5000/oneonone/${email}`,
           { params }
         );
 
@@ -141,6 +141,16 @@ function OneOnOneSessions() {
       key: "category",
       render: (category: string) => (
         <Tag color="blue">{category || "Student"}</Tag>
+      ),
+    },
+    {
+      title: "One On One Sessions",
+      dataIndex: "oneononesessions",
+      key: "oneononesessions",
+      render: (oneononesessions: string) => (
+        <Tag color="orange">
+          <span className="text-black">{oneononesessions || 0}</span>
+        </Tag>
       ),
     },
     {
@@ -259,6 +269,7 @@ function OneOnOneSessions() {
                   />
                   <span className="ml-2">Student</span>
                 </label>
+
                 <label className="inline-flex items-center">
                   <input
                     type="checkbox"
@@ -270,6 +281,22 @@ function OneOnOneSessions() {
                     }
                   />
                   <span className="ml-2">Teacher</span>
+                </label>
+
+                {/* ✅ New Early Adopter category */}
+                <label className="inline-flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={selectedCategory === "Early Adopter"}
+                    onChange={() =>
+                      setSelectedCategory(
+                        selectedCategory === "Early Adopter"
+                          ? ""
+                          : "Early Adopter"
+                      )
+                    }
+                  />
+                  <span className="ml-2">Early Adopter</span>
                 </label>
               </div>
             </div>
