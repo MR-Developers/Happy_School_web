@@ -38,11 +38,11 @@ export const getDashboardSummary = async (
       .limit(1);
 
     // Step 2: Parallel Firestore queries
-    const [meetingCountSnap, earlyAdopterCountSnap, schoolSnapshot] =
+    const [earlyAdopterCountSnap, schoolSnapshot, allTicketsSnap] =
       await Promise.all([
-        ticketsRef.where("status", "==", "Meeting").count().get(),
         ticketsRef.where("category", "==", "Early Adopter").count().get(),
         schoolQueryRef.get(),
+        ticketsRef.get(), // Get all tickets to sum session values
       ]);
 
     if (schoolSnapshot.empty) {
@@ -52,13 +52,23 @@ export const getDashboardSummary = async (
 
     const schoolData = schoolSnapshot.docs[0].data();
 
-    // Step 3: Return combined summary
+    // Step 3: Calculate total session values
+    let totalSessionsValue = 0;
+    allTicketsSnap.docs.forEach((doc) => {
+      const data = doc.data();
+      if (data.oneononesessions && typeof data.oneononesessions === 'number') {
+        totalSessionsValue += data.oneononesessions;
+      }
+    });
+
+    // Step 4: Return combined summary
     res.status(200).json({
       school,
       postCount: schoolData.Posts ?? 0,
-      meetingTicketCount: meetingCountSnap.data().count,
+      meetingTicketCount: totalSessionsValue, // Sum of all oneononesessions field values
       earlyAdopterCount: earlyAdopterCountSnap.data().count,
       taskscount: schoolData.Tasks ?? 0,
+      sessions: totalSessionsValue, // Same as meetingTicketCount for clarity
     });
   } catch (error: any) {
     console.error("Error in getDashboardSummary:", error.message || error);

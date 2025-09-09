@@ -80,6 +80,7 @@ function Dashboard() {
   useEffect(() => {
     const email = localStorage.getItem("email");
     if (!email) return;
+    //https://api-rim6ljimuq-uc.a.run.app/dashboard/summary/${email}
     axios
       .get(`https://api-rim6ljimuq-uc.a.run.app/dashboard/summary/${email}`)
       .then((res) => {
@@ -194,14 +195,14 @@ function Dashboard() {
           <Text className="text-gray-500 font-bold !text-xl">
             Created Tickets
           </Text>
-          <Title level={2}>{createdTickets.toLocaleString()}</Title>
+          <Title level={2}>{createdTickets?.toLocaleString()}</Title>
         </Card>
 
         <Card style={cardStyle}>
           <Text className="text-gray-500 font-bold !text-xl">
             Resolved Tickets
           </Text>
-          <Title level={2}>{solvedTickets.toLocaleString()}</Title>
+          <Title level={2}>{solvedTickets?.toLocaleString()}</Title>
           <Text type="success" style={{ fontSize: 16 }}>
             {((solvedTickets / createdTickets) * 100).toFixed(0)}%
           </Text>
@@ -215,7 +216,7 @@ function Dashboard() {
             Unresolved Tickets
           </Text>
           <Title level={2} className="text-red-500">
-            {unsolvedTickets.toLocaleString()}
+            {unsolvedTickets?.toLocaleString()}
           </Title>
           <Text type="danger">
             {((unsolvedTickets / createdTickets) * 100).toFixed(0)}%
@@ -231,7 +232,7 @@ function Dashboard() {
             One On One Sessions
           </Text>
           <Title level={2}>
-            {summary?.meetingTicketCount.toLocaleString()}
+            {summary?.meetingTicketCount?.toLocaleString()}
           </Title>
           <p className="text-gray-400 font-semibold">
             One On One Sessions Has Been Conducted
@@ -242,6 +243,12 @@ function Dashboard() {
           <Text className="text-gray-500 font-bold !text-xl">Tasks</Text>
           <Title level={2}>{summary?.taskscount?.toLocaleString()}</Title>
           <p className="text-gray-400 font-semibold">Tasks Has Been Created</p>
+        </Card>
+
+        <Card style={cardStyle}>
+          <Text className="text-gray-500 font-bold !text-xl">Posts</Text>
+          <Title level={2}>{summary?.post?.toLocaleString()}</Title>
+          <p className="text-gray-400 font-semibold">Posts Has Been Created</p>
         </Card>
       </div>
       <Title level={4}>Tickets Overview (Month-wise)</Title>

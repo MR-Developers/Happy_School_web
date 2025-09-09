@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable max-len */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {Request, Response} from "express";
 import admin from "../config/firebase";
-/* eslint-disable max-len */
-
 
 const db = admin.firestore();
 
@@ -36,12 +36,15 @@ export const getdashboardsummary = async (req: Request, res: Response): Promise<
       .limit(1);
 
     // Step 2: Parallel Firestore queries
-    const [meetingCountSnap, earlyAdopterCountSnap, schoolSnapshot] =
-      await Promise.all([
-        ticketsRef.where("status", "==", "Meeting").count().get(),
-        ticketsRef.where("category", "==", "Early Adopter").count().get(),
-        schoolQueryRef.get(),
-      ]);
+    const [
+      earlyAdopterCountSnap,
+      schoolSnapshot,
+      allTicketsSnap,
+    ] = await Promise.all([
+      ticketsRef.where("category", "==", "Early Adopter").count().get(),
+      schoolQueryRef.get(),
+      ticketsRef.get(), // Get all tickets to sum session values
+    ]);
 
     if (schoolSnapshot.empty) {
       res.status(404).json({error: "School not found in Schools collection"});
@@ -50,12 +53,21 @@ export const getdashboardsummary = async (req: Request, res: Response): Promise<
 
     const schoolData = schoolSnapshot.docs[0].data();
 
-    // Step 3: Return combined summary
+    // Step 3: Calculate total session values
+    let totalSessionsValue = 0;
+    allTicketsSnap.docs.forEach((doc) => {
+      const data = doc.data();
+      if (data.oneononesessions && typeof data.oneononesessions === "number") {
+        totalSessionsValue += data.oneononesessions;
+      }
+    });
+
+    // Step 4: Return combined summary
     res.status(200).json({
       school,
       postCount: schoolData.Posts ?? 0,
-      meetingTicketCount: meetingCountSnap.data().count,
-      earlyAdopterCount: earlyAdopterCountSnap.data().count,
+      meetingTicketCount: earlyAdopterCountSnap.data().count, // Sum of all oneononesessions field values
+      earlyAdopterCount: totalSessionsValue,
       taskscount: schoolData.Tasks ?? 0,
     });
   } catch (error: any) {
