@@ -17,6 +17,7 @@ import challenge from "./controllers/challenges";
 import task from "./controllers/task";
 import taskans from "./controllers/taskAns";
 import chart from "./controllers/chat";
+import oneoneone from "./routers/oneonone";
 
 setGlobalOptions({maxInstances: 10});
 
@@ -41,6 +42,7 @@ app.use("/get", challenge);
 app.use("/tasks", task);
 app.use("/task-ans", taskans);
 app.use("/chat", chart);
+app.use("/oneonone", oneoneone);
 // Optional test endpoint
 export const helloWorld = onRequest((req, res) => {
   logger.info("Hello logs!", {structuredData: true});

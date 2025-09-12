@@ -15,6 +15,7 @@ interface Teacher {
   Name: string;
   email: string;
   coins?: number;
+  role?: string; // Added role property
 }
 
 const COLORS = ["#22c55e", "#ef4444"]; // green for answered, red for unanswered
@@ -42,6 +43,12 @@ const UserAnswersPage: React.FC = () => {
           `https://api-rim6ljimuq-uc.a.run.app/teachers/${email}`
         );
         const allTeachers: Teacher[] = teacherRes.data.teachers || [];
+        console.log("teachers fetched:", allTeachers);
+
+        // Filter out principals
+        const filteredTeachers = allTeachers.filter(
+          (teacher) => teacher.role?.toLowerCase() !== "principal"
+        );
 
         const docRes = await axios.get(
           `https://api-rim6ljimuq-uc.a.run.app/task-ans/${challengeId}/${trimmedTaskName}`
@@ -51,7 +58,7 @@ const UserAnswersPage: React.FC = () => {
         const answered: Teacher[] = [];
         const unanswered: Teacher[] = [];
 
-        allTeachers.forEach((teacher) => {
+        filteredTeachers.forEach((teacher) => {
           const email = teacher.email?.trim()?.toLowerCase();
           if (answeredEmails.includes(email)) {
             answered.push(teacher);
@@ -76,6 +83,7 @@ const UserAnswersPage: React.FC = () => {
 
     fetchData();
   }, [challengeId, taskName]);
+
   //PDF DOWNLOAD FUNCTION
   // const handleDownloadPDF = () => {
   //   const doc = new jsPDF();
@@ -112,6 +120,7 @@ const UserAnswersPage: React.FC = () => {
 
   //   doc.save(`Task_Report_${taskName}.pdf`);
   // };
+
   const handleDownloadExcel = () => {
     // Prepare worksheet for Answered Teachers
     const answeredData = [
@@ -235,7 +244,7 @@ const UserAnswersPage: React.FC = () => {
 
             <div className="bg-white p-6 rounded-xl shadow-lg flex flex-col">
               <h3 className="text-xl font-semibold text-red-700 mb-4 border-b pb-2">
-                Teachers Who Haven't Completed The Task (
+                Teachers Who did not Completed The Task (
                 {unansweredTeachers.length})
               </h3>
               <div className="flex-1 overflow-y-auto max-h-96 pr-2">
