@@ -9,8 +9,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
 
 interface Teacher {
   Name: string;
@@ -77,40 +76,68 @@ const UserAnswersPage: React.FC = () => {
 
     fetchData();
   }, [challengeId, taskName]);
-  const handleDownloadPDF = () => {
-    const doc = new jsPDF();
+  //PDF DOWNLOAD FUNCTION
+  // const handleDownloadPDF = () => {
+  //   const doc = new jsPDF();
 
-    doc.setFontSize(18);
-    doc.text(`Task Report: ${taskName}`, 14, 20);
+  //   doc.setFontSize(18);
+  //   doc.text(`Task Report: ${taskName}`, 14, 20);
 
-    // Title for answered section
-    doc.setFontSize(14);
-    doc.text("Answered Teachers", 14, 30);
+  //   // Title for answered section
+  //   doc.setFontSize(14);
+  //   doc.text("Answered Teachers", 14, 30);
 
-    // Answered teachers table
-    autoTable(doc, {
-      startY: 35,
-      head: [["Name", "Email", "Coins"]],
-      body: answeredTeachers.map((t) => [t.Name, t.email, t.coins ?? "-"]),
-      headStyles: { fillColor: [34, 197, 94] }, // green
-      styles: { halign: "left" },
-    });
+  //   // Answered teachers table
+  //   autoTable(doc, {
+  //     startY: 35,
+  //     head: [["Name", "Email", "Coins"]],
+  //     body: answeredTeachers.map((t) => [t.Name, t.email, t.coins ?? "-"]),
+  //     headStyles: { fillColor: [34, 197, 94] }, // green
+  //     styles: { halign: "left" },
+  //   });
 
-    // Title for unanswered section
-    const nextY = (doc as any).lastAutoTable.finalY + 10;
-    doc.setFontSize(14);
-    doc.text("Unanswered Teachers", 14, nextY);
+  //   // Title for unanswered section
+  //   const nextY = (doc as any).lastAutoTable.finalY + 10;
+  //   doc.setFontSize(14);
+  //   doc.text("Unanswered Teachers", 14, nextY);
 
-    // Unanswered teachers table
-    autoTable(doc, {
-      startY: nextY + 5,
-      head: [["Name", "Email", "Coins"]],
-      body: unansweredTeachers.map((t) => [t.Name, t.email, t.coins ?? "-"]),
-      headStyles: { fillColor: [239, 68, 68] }, // red
-      styles: { halign: "left" },
-    });
+  //   // Unanswered teachers table
+  //   autoTable(doc, {
+  //     startY: nextY + 5,
+  //     head: [["Name", "Email", "Coins"]],
+  //     body: unansweredTeachers.map((t) => [t.Name, t.email, t.coins ?? "-"]),
+  //     headStyles: { fillColor: [239, 68, 68] }, // red
+  //     styles: { halign: "left" },
+  //   });
 
-    doc.save(`Task_Report_${taskName}.pdf`);
+  //   doc.save(`Task_Report_${taskName}.pdf`);
+  // };
+  const handleDownloadExcel = () => {
+    // Prepare worksheet for Answered Teachers
+    const answeredData = [
+      ["Name", "Email", "Coins"], // Header row
+      ...answeredTeachers.map((t) => [t.Name, t.email, t.coins ?? "-"]),
+    ];
+    const answeredSheet = XLSX.utils.aoa_to_sheet(answeredData);
+
+    // Prepare worksheet for Unanswered Teachers
+    const unansweredData = [
+      ["Name", "Email", "Coins"],
+      ...unansweredTeachers.map((t) => [t.Name, t.email, t.coins ?? "-"]),
+    ];
+    const unansweredSheet = XLSX.utils.aoa_to_sheet(unansweredData);
+
+    // Create workbook
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, answeredSheet, "Answered Teachers");
+    XLSX.utils.book_append_sheet(
+      workbook,
+      unansweredSheet,
+      "Unanswered Teachers"
+    );
+
+    // Download Excel file
+    XLSX.writeFile(workbook, `Task_Report_${taskName}.xlsx`);
   };
 
   const renderTeacherList = (teachers: Teacher[]) => (
@@ -182,10 +209,10 @@ const UserAnswersPage: React.FC = () => {
 
           <div className="flex justify-end mb-6">
             <button
-              onClick={handleDownloadPDF}
+              onClick={handleDownloadExcel}
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-md transition"
             >
-              Download PDF
+              Download Report
             </button>
           </div>
 

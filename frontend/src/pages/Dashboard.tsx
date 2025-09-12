@@ -207,7 +207,7 @@ function Dashboard() {
             {((solvedTickets / createdTickets) * 100).toFixed(0)}%
           </Text>
           <p className="text-gray-400 font-semibold">
-            Tickets Has Been Resolved
+            Tickets Have Been Resolved
           </p>
         </Card>
 
@@ -222,7 +222,7 @@ function Dashboard() {
             {((unsolvedTickets / createdTickets) * 100).toFixed(0)}%
           </Text>
           <p className="text-gray-400 font-semibold">
-            Tickets Has Not Been Resolved
+            Tickets Have Not Been Resolved
           </p>
         </Card>
       </div>
@@ -235,20 +235,20 @@ function Dashboard() {
             {summary?.meetingTicketCount?.toLocaleString()}
           </Title>
           <p className="text-gray-400 font-semibold">
-            One On One Sessions Has Been Conducted
+            One On One Sessions Have Been Conducted
           </p>
         </Card>
 
         <Card style={cardStyle}>
           <Text className="text-gray-500 font-bold !text-xl">Tasks</Text>
           <Title level={2}>{summary?.taskscount?.toLocaleString()}</Title>
-          <p className="text-gray-400 font-semibold">Tasks Has Been Created</p>
+          <p className="text-gray-400 font-semibold">Tasks Have Been Created</p>
         </Card>
 
         <Card style={cardStyle}>
           <Text className="text-gray-500 font-bold !text-xl">Posts</Text>
           <Title level={2}>{summary?.post?.toLocaleString()}</Title>
-          <p className="text-gray-400 font-semibold">Posts Has Been Created</p>
+          <p className="text-gray-400 font-semibold">Posts Have Been Created</p>
         </Card>
       </div>
       <Title level={4}>Tickets Overview (Month-wise)</Title>
