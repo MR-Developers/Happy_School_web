@@ -1,12 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable max-len */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {Request, Response} from "express";
+import { Request, Response } from "express";
 import admin from "../config/firebase";
 
 const db = admin.firestore();
 
-export const getdashboardsummary = async (req: Request, res: Response): Promise<void> => {
+export const getdashboardsummary = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const email = req.params.email;
 
   try {
@@ -19,13 +22,13 @@ export const getdashboardsummary = async (req: Request, res: Response): Promise<
       .get();
 
     if (!userDocSnap.exists) {
-      res.status(404).json({error: "User info not found in Firestore"});
+      res.status(404).json({ error: "User info not found in Firestore" });
       return;
     }
 
     const school = userDocSnap.data()?.school;
     if (!school) {
-      res.status(404).json({error: "School not found"});
+      res.status(404).json({ error: "School not found" });
       return;
     }
 
@@ -36,18 +39,15 @@ export const getdashboardsummary = async (req: Request, res: Response): Promise<
       .limit(1);
 
     // Step 2: Parallel Firestore queries
-    const [
-      earlyAdopterCountSnap,
-      schoolSnapshot,
-      allTicketsSnap,
-    ] = await Promise.all([
-      ticketsRef.where("category", "==", "Early Adopter").count().get(),
-      schoolQueryRef.get(),
-      ticketsRef.get(), // Get all tickets to sum session values
-    ]);
+    const [earlyAdopterCountSnap, schoolSnapshot, allTicketsSnap] =
+      await Promise.all([
+        ticketsRef.where("category", "==", "Early Adopter").count().get(),
+        schoolQueryRef.get(),
+        ticketsRef.get(), // Get all tickets to sum session values
+      ]);
 
     if (schoolSnapshot.empty) {
-      res.status(404).json({error: "School not found in Schools collection"});
+      res.status(404).json({ error: "School not found in Schools collection" });
       return;
     }
 
@@ -72,6 +72,6 @@ export const getdashboardsummary = async (req: Request, res: Response): Promise<
     });
   } catch (error: any) {
     console.error("Error in getDashboardSummary:", error.message || error);
-    res.status(500).json({error: "Internal server error"});
+    res.status(500).json({ error: "Internal server error" });
   }
 };
