@@ -3,6 +3,7 @@ import axios from "axios";
 import { Table, Tag, Typography, Spin, Space, Select } from "antd";
 import { useNavigate } from "react-router-dom";
 import { FilterOutlined, PlusOutlined } from "@ant-design/icons";
+import dayjs from "dayjs";
 
 const { Title } = Typography;
 
@@ -64,7 +65,6 @@ function YourTickets() {
           `https://api-rim6ljimuq-uc.a.run.app/sesson/all-tickets/${email}`,
           { params }
         );
-
         const fetched = response.data.tickets || [];
         console.log("Fetched tickets:", fetched);
         setTickets(fetched); // ✅ Correct
@@ -128,20 +128,31 @@ function YourTickets() {
       title: "Created At",
       dataIndex: "timestamp",
       key: "timestamp",
+
       render: (time: any) => {
         if (!time) return <span className="text-gray-600">N/A</span>;
 
-        // If it's a Firestore Timestamp object
+        // Firestore timestamp
         if (time._seconds) {
           const date = new Date(time._seconds * 1000);
           return <span className="text-gray-600">{date.toLocaleString()}</span>;
         }
 
-        // If it's already a Date or string
-        const dateObj = typeof time === "string" ? new Date(time) : time;
-        return (
-          <span className="text-gray-600">{dateObj.toLocaleString()}</span>
-        );
+        // If it's a string in DD/MM/YYYY hh:mm A
+        if (typeof time === "string") {
+          const parsed = dayjs(time, "DD/MM/YYYY hh:mm A");
+          if (!parsed.isValid()) {
+            return <span className="text-red-600">Invalid Date</span>;
+          }
+          return (
+            <span className="text-gray-600">
+              {parsed.format("DD/MM/YYYY hh:mm A")}
+            </span>
+          );
+        }
+
+        // If it's already a Date
+        return <span className="text-gray-600">{time.toLocaleString()}</span>;
       },
     },
     {
