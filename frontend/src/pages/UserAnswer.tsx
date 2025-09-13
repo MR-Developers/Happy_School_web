@@ -52,7 +52,7 @@ const UserAnswersPage: React.FC = () => {
         );
 
         const docRes = await axios.get(
-          `http://localhost:5000/answers/${challengeId}/${encodeURIComponent(
+          `https://api-rim6ljimuq-uc.a.run.app/task-ans/${challengeId}/${encodeURIComponent(
             trimmedTaskName
           )}`
         );
@@ -170,8 +170,8 @@ const UserAnswersPage: React.FC = () => {
   );
 
   const chartData = [
-    { name: "Completed", value: answeredTeachers.length },
-    { name: "Not Completed", value: unansweredTeachers.length },
+    { name: "Complete", value: answeredTeachers.length },
+    { name: "In Complete", value: unansweredTeachers.length },
   ];
 
   return (
