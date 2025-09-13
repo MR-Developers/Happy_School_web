@@ -55,7 +55,9 @@ const TaskPage: React.FC = () => {
             <div
               key={taskName}
               onClick={() =>
-                navigate(`/useranswers/${challengeId}/${taskName}`)
+                navigate(
+                  `/useranswers/${challengeId}/${encodeURIComponent(taskName)}`
+                )
               }
               className="cursor-pointer bg-white hover:bg-orange-50 border border-gray-200 rounded-xl p-5 shadow-md transition-all duration-200 flex items-start gap-4"
             >

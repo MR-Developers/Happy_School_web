@@ -10,7 +10,8 @@ export const getAnswersByChallengeAndTask = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const { challengeId, taskName } = req.params;
+  const { challengeId } = req.params;
+  const taskName = decodeURIComponent(req.params.taskName);
   console.log("Fetching answers for:", challengeId, taskName);
   if (!challengeId || !taskName) {
     res.status(400).json({ error: "challengeId and taskName are required" });
@@ -27,7 +28,7 @@ export const getAnswersByChallengeAndTask = async (
     console.log("Snapshot size:", snapshot.size);
 
     if (snapshot.empty) {
-      res.status(200).json({ error: "No answers found" });
+      res.status(200).json({ error: "funcing hole" });
       return;
     }
 

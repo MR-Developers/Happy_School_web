@@ -25,7 +25,7 @@ const UserAnswersPage: React.FC = () => {
     challengeId: string;
     taskName: string;
   }>();
-
+  const decodedTaskName = decodeURIComponent(taskName || "");
   const [answeredTeachers, setAnsweredTeachers] = useState<Teacher[]>([]);
   const [unansweredTeachers, setUnansweredTeachers] = useState<Teacher[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,12 +33,13 @@ const UserAnswersPage: React.FC = () => {
 
   useEffect(() => {
     const email = localStorage.getItem("email");
-    if (!email || !challengeId || !taskName) return;
+    if (!email || !challengeId || !decodedTaskName) return;
 
-    const trimmedTaskName = taskName.trim();
-
+    const trimmedTaskName = decodedTaskName.trim();
+    debugger;
     const fetchData = async () => {
       try {
+        debugger;
         const teacherRes = await axios.get(
           `https://api-rim6ljimuq-uc.a.run.app/teachers/${email}`
         );
@@ -51,7 +52,9 @@ const UserAnswersPage: React.FC = () => {
         );
 
         const docRes = await axios.get(
-          `https://api-rim6ljimuq-uc.a.run.app/task-ans/${challengeId}/${trimmedTaskName}`
+          `http://localhost:5000/answers/${challengeId}/${encodeURIComponent(
+            trimmedTaskName
+          )}`
         );
         const answeredEmails: string[] = docRes.data.documentNames || [];
 
@@ -82,7 +85,7 @@ const UserAnswersPage: React.FC = () => {
     };
 
     fetchData();
-  }, [challengeId, taskName]);
+  }, [challengeId, decodedTaskName]);
 
   //PDF DOWNLOAD FUNCTION
   // const handleDownloadPDF = () => {
@@ -146,7 +149,7 @@ const UserAnswersPage: React.FC = () => {
     );
 
     // Download Excel file
-    XLSX.writeFile(workbook, `Task_Report_${taskName}.xlsx`);
+    XLSX.writeFile(workbook, `Task_Report_${decodedTaskName}.xlsx`);
   };
 
   const renderTeacherList = (teachers: Teacher[]) => (
@@ -167,14 +170,14 @@ const UserAnswersPage: React.FC = () => {
   );
 
   const chartData = [
-    { name: "Answered", value: answeredTeachers.length },
-    { name: "Unanswered", value: unansweredTeachers.length },
+    { name: "Completed", value: answeredTeachers.length },
+    { name: "Not Completed", value: unansweredTeachers.length },
   ];
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <h2 className="text-3xl font-bold text-gray-800 mb-8 text-center">
-        Task: {taskName}
+        Task: {decodedTaskName}
       </h2>
 
       {loading ? (
