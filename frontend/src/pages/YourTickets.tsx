@@ -4,7 +4,8 @@ import { Table, Tag, Typography, Spin, Space, Select, Tooltip } from "antd";
 import { useNavigate } from "react-router-dom";
 import { FilterOutlined, PlusOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
-
+import customParseFormat from "dayjs/plugin/customParseFormat";
+dayjs.extend(customParseFormat);
 const { Title } = Typography;
 
 type Contributor = {
