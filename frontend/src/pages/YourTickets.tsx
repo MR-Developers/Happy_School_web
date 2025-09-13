@@ -71,6 +71,7 @@ function YourTickets() {
             fontSize: "14px",
             borderRadius: "8px",
             padding: "8px 12px",
+            maxWidth: 400,
           }}
           overlayInnerStyle={{
             backgroundColor: "#ea580c",
@@ -78,7 +79,7 @@ function YourTickets() {
           }}
         >
           <span className="font-semibold text-indigo-600 text-base cursor-pointer">
-            {text.substring(0, 20)}...
+            {text.substring(0, 30)}...
           </span>
         </Tooltip>
       );

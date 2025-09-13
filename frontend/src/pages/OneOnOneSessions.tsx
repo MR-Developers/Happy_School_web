@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
-import { Table, Tag, Typography, Spin, Space, Select } from "antd";
+import { Table, Tag, Typography, Spin, Space, Select, Tooltip } from "antd";
 import { useNavigate } from "react-router-dom";
 import { FilterOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
@@ -46,7 +46,34 @@ function OneOnOneSessions() {
   const [selectedTeacher, setSelectedTeacher] = useState("");
   const [selectedTeacherEmail, setSelectedTeacherEmail] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
-
+  const renderTicketSubject = (text: string) => {
+    if (text && text.length > 20) {
+      return (
+        <Tooltip
+          title={text}
+          overlayStyle={{
+            backgroundColor: "#ea580c", // Orange background
+            color: "white",
+            fontSize: "14px",
+            borderRadius: "8px",
+            padding: "8px 12px",
+            maxWidth: 400,
+          }}
+          overlayInnerStyle={{
+            backgroundColor: "#ea580c",
+            color: "white",
+          }}
+        >
+          <span className="font-semibold text-indigo-600 text-base cursor-pointer">
+            {text.substring(0, 30)}...
+          </span>
+        </Tooltip>
+      );
+    }
+    return (
+      <span className="font-semibold text-indigo-600 text-base">{text}</span>
+    );
+  };
   const toggleFilters = () => setShowFilters((prev) => !prev);
   useEffect(() => {
     if (!email) return;
@@ -114,9 +141,7 @@ function OneOnOneSessions() {
       title: "Subject",
       dataIndex: "ticketText",
       key: "ticketText",
-      render: (text: string) => (
-        <span className="font-semibold text-indigo-600 text-base">{text}</span>
-      ),
+      render: (text: string) => renderTicketSubject(text),
     },
     {
       title: "Created At",
