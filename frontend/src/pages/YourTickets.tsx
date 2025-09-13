@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
-import { Table, Tag, Typography, Spin, Space, Select } from "antd";
+import { Table, Tag, Typography, Spin, Space, Select, Tooltip } from "antd";
 import { useNavigate } from "react-router-dom";
 import { FilterOutlined, PlusOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
@@ -21,7 +21,10 @@ type Ticket = {
   contributors?: Contributor[];
   userName?: string;
   email?: string;
+  category?: string;
+  teacher?: string; // teacher email
 };
+
 interface Teacher {
   id?: string;
   Name?: string;
@@ -31,6 +34,7 @@ interface Teacher {
   coins?: number;
   profileImage?: string;
 }
+
 function YourTickets() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,6 +51,42 @@ function YourTickets() {
   const [selectedCategory, setSelectedCategory] = useState("");
 
   const toggleFilters = () => setShowFilters((prev) => !prev);
+
+  // Helper function to get teacher name by email
+  const getTeacherNameByEmail = (teacherEmail: string) => {
+    const teacher = teachers.find((t) => t.email === teacherEmail);
+    return teacher?.Name || "Teacher";
+  };
+
+  // Helper function to render ticket subject with ellipsis and tooltip
+  const renderTicketSubject = (text: string) => {
+    if (text && text.length > 20) {
+      return (
+        <Tooltip
+          title={text}
+          overlayStyle={{
+            backgroundColor: "#ea580c", // Orange background
+            color: "white",
+            fontSize: "14px",
+            borderRadius: "8px",
+            padding: "8px 12px",
+          }}
+          overlayInnerStyle={{
+            backgroundColor: "#ea580c",
+            color: "white",
+          }}
+        >
+          <span className="font-semibold text-indigo-600 text-base cursor-pointer">
+            {text.substring(0, 20)}...
+          </span>
+        </Tooltip>
+      );
+    }
+    return (
+      <span className="font-semibold text-indigo-600 text-base">{text}</span>
+    );
+  };
+
   useEffect(() => {
     if (!email) return;
 
@@ -67,7 +107,7 @@ function YourTickets() {
         );
         const fetched = response.data.tickets || [];
         console.log("Fetched tickets:", fetched);
-        setTickets(fetched); // ✅ Correct
+        setTickets(fetched);
       } catch (err) {
         console.error("Error fetching teachers:", err);
       } finally {
@@ -85,6 +125,7 @@ function YourTickets() {
     selectedCategory,
     selectedTeacherEmail,
   ]);
+
   useEffect(() => {
     const email = localStorage.getItem("email");
     if (!email) return;
@@ -101,14 +142,13 @@ function YourTickets() {
       .catch((err) => console.error("Error fetching teachers:", err))
       .finally(() => null);
   }, []);
+
   const columns = [
     {
       title: "Subject",
       dataIndex: "ticketText",
       key: "ticketText",
-      render: (text: string) => (
-        <span className="font-semibold text-indigo-600 text-base">{text}</span>
-      ),
+      render: (text: string) => renderTicketSubject(text),
     },
     {
       title: "Status",
@@ -162,6 +202,41 @@ function YourTickets() {
       render: (category: string) => (
         <Tag color="blue">{category || "Student"}</Tag>
       ),
+    },
+    {
+      title: "Raised on",
+      key: "raisedOn",
+      render: (record: Ticket) => {
+        if (record.category === "Teacher" && record.teacher) {
+          // Display teacher name
+          const teacherName = getTeacherNameByEmail(record.teacher);
+          return (
+            <Tag color="green" className="font-medium">
+              {teacherName}
+            </Tag>
+          );
+        } else if (record.category === "Student") {
+          // Display "Student"
+          return (
+            <Tag color="blue" className="font-medium">
+              Student
+            </Tag>
+          );
+        } else if (record.category === "Early Adopter") {
+          return (
+            <Tag color="purple" className="font-medium">
+              Early Adopter
+            </Tag>
+          );
+        } else {
+          // Default case
+          return (
+            <Tag color="default" className="font-medium">
+              Student
+            </Tag>
+          );
+        }
+      },
     },
     {
       title: "Collaborators",

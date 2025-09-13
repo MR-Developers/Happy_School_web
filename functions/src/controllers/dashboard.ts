@@ -66,8 +66,8 @@ export const getdashboardsummary = async (
     res.status(200).json({
       school,
       postCount: schoolData.Posts ?? 0,
-      meetingTicketCount: earlyAdopterCountSnap.data().count, // Sum of all oneononesessions field values
-      earlyAdopterCount: totalSessionsValue,
+      meetingTicketCount: totalSessionsValue, // Sum of all oneononesessions field values
+      earlyAdopterCount: earlyAdopterCountSnap.data().count,
       taskscount: schoolData.Tasks ?? 0,
     });
   } catch (error: any) {
