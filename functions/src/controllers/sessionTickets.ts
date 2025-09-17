@@ -4,8 +4,92 @@
 // eslint-disable-next-line new-cap
 import {Router, Request, Response} from "express";
 import {db} from "../config/firebase";
+import {Timestamp} from "firebase-admin/firestore";
 // eslint-disable-next-line new-cap
 const router = Router();
+
+// Helper function to convert string timestamp to Firestore Timestamp
+const convertStringToTimestamp = (timestampValue: any): Timestamp | null => {
+  try {
+    if (!timestampValue) return null;
+
+    // If it's already a Firestore Timestamp, return as is
+    if (timestampValue instanceof Timestamp || (timestampValue._seconds && timestampValue._nanoseconds)) {
+      return timestampValue;
+    }
+
+    // If it's a string, try to parse and convert to Timestamp
+    if (typeof timestampValue === "string") {
+      // Try parsing different date formats
+      let date: Date;
+
+      // Check if it's in DD/MM/YYYY, hh:mm A format
+      if (timestampValue.includes(",") && timestampValue.includes("/")) {
+        // Parse format like "17/09/2025, 02:30 PM"
+        const [datePart, timePart] = timestampValue.split(", ");
+        const [day, month, year] = datePart.split("/");
+        const [time, ampm] = timePart.split(" ");
+        const [hours, minutes] = time.split(":");
+
+        let hour24 = parseInt(hours);
+        if (ampm === "PM" && hour24 !== 12) hour24 += 12;
+        if (ampm === "AM" && hour24 === 12) hour24 = 0;
+
+        date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day), hour24, parseInt(minutes));
+      } else {
+        // Try standard date parsing
+        date = new Date(timestampValue);
+      }
+
+      if (isNaN(date.getTime())) {
+        console.warn("Invalid date string:", timestampValue);
+        return null;
+      }
+
+      return Timestamp.fromDate(date);
+    }
+
+    // If it's a number (Unix timestamp)
+    if (typeof timestampValue === "number") {
+      return Timestamp.fromMillis(timestampValue);
+    }
+
+    // Try to convert other formats
+    const date = new Date(timestampValue);
+    if (isNaN(date.getTime())) {
+      return null;
+    }
+
+    return Timestamp.fromDate(date);
+  } catch (error) {
+    console.error("Error converting timestamp:", timestampValue, error);
+    return null;
+  }
+};
+
+// Helper function to get timestamp value for comparison
+const getTimestampValue = (timestamp: any): number => {
+  if (!timestamp) return 0;
+
+  if (timestamp instanceof Timestamp) {
+    return timestamp.toMillis();
+  }
+
+  if (timestamp._seconds) {
+    return timestamp._seconds * 1000 + (timestamp._nanoseconds || 0) / 1000000;
+  }
+
+  if (typeof timestamp === "string") {
+    const converted = convertStringToTimestamp(timestamp);
+    return converted ? converted.toMillis() : 0;
+  }
+
+  if (typeof timestamp === "number") {
+    return timestamp;
+  }
+
+  return new Date(timestamp).getTime() || 0;
+};
 
 router.get("/all-tickets/:email", async (req: Request, res: Response) => {
   const email: string = req.params.email;
@@ -37,17 +121,34 @@ router.get("/all-tickets/:email", async (req: Request, res: Response) => {
       .doc(school)
       .collection(school);
 
-    // Add ordering by timestamp in descending order (newest first)
-    const ticketsSnap = await ticketSubColRef
-      .orderBy("timestamp", "desc")
-      .get();
+    // Fetch all tickets without ordering first (to handle mixed timestamp formats)
+    const ticketsSnap = await ticketSubColRef.get();
 
-    let tickets = ticketsSnap.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    let tickets = ticketsSnap.docs.map((doc) => {
+      const data = doc.data();
 
-    // Apply filters after fetching
+      // Convert string timestamps to Firestore Timestamps
+      if (data.timestamp && typeof data.timestamp === "string") {
+        const convertedTimestamp = convertStringToTimestamp(data.timestamp);
+        if (convertedTimestamp) {
+          data.timestamp = convertedTimestamp;
+        }
+      }
+
+      return {
+        id: doc.id,
+        ...data,
+      };
+    });
+
+    // Sort tickets by timestamp in descending order (newest first)
+    tickets.sort((a, b) => {
+      const timestampA = getTimestampValue((a as any).timestamp);
+      const timestampB = getTimestampValue((b as any).timestamp);
+      return timestampB - timestampA; // Descending order
+    });
+
+    // Apply filters after fetching and sorting
     if (teacher) {
       tickets = tickets.filter(
         (t) =>
@@ -73,16 +174,9 @@ router.get("/all-tickets/:email", async (req: Request, res: Response) => {
     if (fromDate || toDate) {
       tickets = tickets.filter((t) => {
         const ticketTimestamp = (t as any).timestamp;
-        let time: number;
+        const time = getTimestampValue(ticketTimestamp);
 
-        // Handle Firestore Timestamp objects
-        if (ticketTimestamp && typeof ticketTimestamp === "object" && ticketTimestamp._seconds) {
-          time = ticketTimestamp._seconds * 1000;
-        } else if (ticketTimestamp) {
-          time = new Date(ticketTimestamp).getTime();
-        } else {
-          return false; // Skip tickets without timestamp
-        }
+        if (time === 0) return false; // Skip tickets without valid timestamp
 
         const from = fromDate ?
           new Date(String(fromDate)).getTime() :

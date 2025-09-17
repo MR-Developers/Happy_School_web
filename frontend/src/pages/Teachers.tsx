@@ -50,9 +50,14 @@ function Teachers() {
       .finally(() => setLoading(false));
   }, []);
 
-  const filtered = teachers.filter((t) =>
-    t.Name?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Enhanced filtering to include both name and email search
+  const filtered = teachers.filter((t) => {
+    const nameMatch = t.Name?.toLowerCase().includes(searchTerm.toLowerCase());
+    const emailMatch = t.email
+      ?.toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    return nameMatch || emailMatch;
+  });
 
   const columns = [
     {
@@ -147,7 +152,7 @@ function Teachers() {
       </Title>
 
       <Input
-        placeholder="Search by name..."
+        placeholder="Search by name or email..."
         prefix={<SearchOutlined />}
         className="max-w-md mb-6 bg-white shadow-sm rounded-lg"
         size="large"
