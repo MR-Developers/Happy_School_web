@@ -21,6 +21,7 @@ import ChallengePage from "./pages/Challenges";
 import TaskPage from "./pages/Tasks";
 import UserAnswersPage from "./pages/UserAnswer";
 import OneOnOneSessions from "./pages/OneOnOneSessions";
+import ReportSelectionPage from "./pages/Reports";
 
 function LayoutWrapper() {
   const location = useLocation();
@@ -87,6 +88,10 @@ function LayoutWrapper() {
           <Route
             path="/one-one-sessions"
             element={<ProtectedRoute element={<OneOnOneSessions />} />}
+          />
+          <Route
+            path="/reports"
+            element={<ProtectedRoute element={<ReportSelectionPage />} />}
           />
         </Routes>
       </div>

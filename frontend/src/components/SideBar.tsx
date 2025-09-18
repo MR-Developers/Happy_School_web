@@ -33,7 +33,7 @@ function SideBar() {
     {
       name: "Report",
       icon: faChartLine,
-      externalLink: "https://www.google.com", // 🌐 External link
+      path: "/reports",
     },
     { name: "Logout", icon: faSignOutAlt, isLogout: true },
   ];
