@@ -1,24 +1,25 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faUser,
-  faSearch,
   faChalkboardTeacher,
   faTicket,
   faSignOutAlt,
   faClipboardList,
   faVideoCamera,
+  faChartLine, // 📊 Icon for Report
 } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { icon } from "@fortawesome/fontawesome-svg-core";
 
 function SideBar() {
   const username = useState(localStorage.getItem("UserName"))[0];
   const role = useState(localStorage.getItem("role"))[0];
+  const school = useState(localStorage.getItem("school"))[0];
   const location = useLocation();
   const pathname = location.pathname.toLowerCase();
   const navigate = useNavigate();
 
+  // ✅ Added "Report" with external link
   const menuItems = [
     { name: "Dashboard", icon: faUser, path: "/dashboard" },
     { name: "Teachers", icon: faChalkboardTeacher, path: "/teacher" },
@@ -29,6 +30,11 @@ function SideBar() {
       icon: faVideoCamera,
       path: "/one-one-sessions",
     },
+    {
+      name: "Report",
+      icon: faChartLine,
+      externalLink: "https://www.google.com", // 🌐 External link
+    },
     { name: "Logout", icon: faSignOutAlt, isLogout: true },
   ];
 
@@ -37,8 +43,20 @@ function SideBar() {
     localStorage.removeItem("UserName");
     localStorage.removeItem("email");
     localStorage.removeItem("role");
+    localStorage.removeItem("school");
     localStorage.removeItem("firebaseToken");
     navigate("/");
+  };
+
+  const handleItemClick = (item) => {
+    if (item.isLogout) {
+      handleLogout();
+    } else if (item.externalLink) {
+      // 🌍 Open external link in a new tab
+      window.open(item.externalLink, "_blank", "noopener,noreferrer");
+    } else if (item.path) {
+      navigate(item.path);
+    }
   };
 
   return (
@@ -51,16 +69,18 @@ function SideBar() {
         <div className="ml-3">
           <h1 className="text-white text-xl font-bold break-all">{username}</h1>
           <p className="text-white text-sm">{role}</p>
+          {school && (
+            <p className="text-gray-300 text-xs mt-1 break-all">{school}</p>
+          )}
         </div>
       </div>
+
       {/* Menu List (Scrollable) */}
       <ul className="mt-6 space-y-2 flex-1 overflow-y-auto pr-2">
         {menuItems.map((item) => (
           <li
             key={item.name}
-            onClick={() =>
-              item.isLogout ? handleLogout() : item.path && navigate(item.path)
-            }
+            onClick={() => handleItemClick(item)}
             className={`flex items-center h-10 pl-4 pr-2 rounded-xl cursor-pointer ${
               pathname === item.path ? "bg-black" : "bg-[#454545]"
             } text-white hover:bg-black transition-all duration-150`}

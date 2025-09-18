@@ -177,17 +177,32 @@ function Dashboard() {
     }
   };
 
+  const handleRedirect = () => {
+    // Replace with your desired URL
+    window.open("https://example.com", "_blank");
+  };
+
   return (
     <div className="p-6" ref={dashboardRef}>
       <div className="flex justify-between items-center mb-4">
         <Title level={2}>Dashboard</Title>
-        <Button
-          type="primary"
-          onClick={handleExportPDF}
-          className="bg-orange-500 hover:bg-orange-600"
-        >
-          Export Report
-        </Button>
+        <div className="flex flex-col gap-2">
+          <Button
+            type="primary"
+            onClick={handleExportPDF}
+            style={{ backgroundColor: "#f97316", borderColor: "#f97316" }}
+            className="hover:!bg-orange-600 hover:!border-orange-600"
+          >
+            Export Report
+          </Button>
+          {/* <Button
+            type="default"
+            onClick={handleRedirect}
+            className="border-orange-500 text-orange-500 hover:!border-orange-600 hover:!text-orange-600"
+          >
+            View Details
+          </Button> */}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
