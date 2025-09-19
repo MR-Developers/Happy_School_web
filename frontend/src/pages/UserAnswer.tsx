@@ -35,7 +35,7 @@ const UserAnswersPage: React.FC = () => {
     const email = localStorage.getItem("email");
     if (!email || !challengeId || !decodedTaskName) return;
 
-    const trimmedTaskName = decodedTaskName.trim();
+    const trimmedTaskName = decodedTaskName;
     debugger;
     const fetchData = async () => {
       try {
