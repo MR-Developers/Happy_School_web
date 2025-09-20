@@ -15,6 +15,7 @@ import challenges from "./routes/ChallengeRoutes";
 import tasks from "./routes/TaskRoutes";
 import UserAnswerRoutes from "./routes/UserAnswers";
 import OneOnOne from "./routes/OneOnOneRoutes";
+import links from "./routes/GetReports";
 const app = express();
 const db = admin.firestore();
 
@@ -39,6 +40,7 @@ app.use("/challenges", challenges);
 app.use("/tasks", tasks);
 app.use("/answers", UserAnswerRoutes);
 app.use("/oneonone", OneOnOne);
+app.use("/reports", links);
 
 app.get("/", async (req: Request, res: Response) => {
   try {
