@@ -1,48 +1,95 @@
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { GraduationCap, Users } from "lucide-react";
+import axios from "axios";
+import { message, Spin } from "antd";
 
 export default function ReportSelectionPage() {
-  const school = localStorage.getItem("school"); // read school from localStorage
 
-  // Map links per school
-  const schoolLinks: Record<string, { student: string; teacher: string }> = {
-    "Johnson Grammar School - Mallapur": {
-      student:
-        "https://lookerstudio.google.com/reporting/866b05d1-ac15-4e39-b43a-f290375a24c1",
-      teacher:
-        "https://lookerstudio.google.com/reporting/91b64ad6-164a-460c-b185-67bb6411de4f",
-    },
-    "Johnson Grammar School - Habsiguda": {
-      student:
-        "https://lookerstudio.google.com/reporting/51bd87fe-b531-4283-adbd-7bbedc5da1c6",
-      teacher:
-        "https://lookerstudio.google.com/reporting/ddaa686d-c232-4fe4-8601-5ff18005dac3",
-    },
-    // add more schools as needed
+  const [loading, setLoading] = useState(true);
+  const [reports, setReports] = useState<{
+    studentRefReport?: string;
+    teacherRefReport?: string;
+    schoolName?: string;
+  } | null>(null);
+  const [error, setError] = useState("");
+
+  // Base API URL
+  const baseURL = "https://api-rim6ljimuq-uc.a.run.app";
+
+  const schoolName = localStorage.getItem("school");
+
+  // Fetch reports when component mounts
+  useEffect(() => {
+    if (!schoolName) {
+      setError("School name not found in local storage");
+      setLoading(false);
+      return;
+    }
+
+    const fetchReports = async () => {
+      try {
+        const response = await axios.get(
+          `${baseURL}/reports/getSchoolReports/${encodeURIComponent(
+            schoolName
+          )}`
+        );
+        setReports(response.data);
+      } catch (err) {
+        console.error("Error fetching reports:", err);
+        setError("Failed to fetch reports");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReports();
+    console.log("data ", reports);
+  }, [schoolName]);
+
+  // Handle opening a report
+  const handleOpenReport = (link?: string) => {
+    if (!link) {
+      message.error("Report link not available for this school.");
+      return;
+    }
+    window.open(link, "_blank");
   };
 
-  const defaultLinks = {
-    student:
-      "https://lookerstudio.google.com/reporting/51bd87fe-b531-4283-adbd-asdgsdagsa",
-    teacher:
-      "https://lookerstudio.google.com/reporting/91b64ad6-164a-460c-b185-sdghadsfgh",
-  };
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Spin size="large" tip="Loading reports..." />
+      </div>
+    );
+  }
 
-  const links = schoolLinks[school ?? ""] || defaultLinks;
+  if (error) {
+    return (
+      <div className="flex justify-center items-center min-h-screen text-red-500">
+        {error}
+      </div>
+    );
+  }
+
+ 
+
+      
+
 
   const options = [
     {
       title: "Student Report",
       description: "View detailed performance and attendance reports.",
       icon: GraduationCap,
-      link: links.student,
+      link: reports?.studentRefReport,
       color: "from-blue-500 to-indigo-600",
     },
     {
       title: "Teacher Report",
       description: "Access teaching insights and feedback reports.",
       icon: Users,
-      link: links.teacher,
+      link: reports?.teacherRefReport,
       color: "from-green-500 to-emerald-600",
     },
   ];
@@ -51,19 +98,17 @@ export default function ReportSelectionPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 p-6">
       <div className="grid md:grid-cols-2 gap-8 max-w-4xl w-full">
         {options.map((opt, i) => (
-          <motion.a
+          <motion.div
             key={i}
-            href={opt.link}
-            target="_blank"
-            rel="noopener noreferrer"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            onClick={() => handleOpenReport(opt.link)}
             className={`bg-gradient-to-br ${opt.color} rounded-2xl shadow-lg p-8 text-white flex flex-col items-center justify-center cursor-pointer transition-transform duration-300`}
           >
             <opt.icon size={48} className="mb-4" />
             <h2 className="text-2xl font-bold mb-2">{opt.title}</h2>
             <p className="text-sm opacity-90 text-center">{opt.description}</p>
-          </motion.a>
+          </motion.div>
         ))}
       </div>
     </div>
