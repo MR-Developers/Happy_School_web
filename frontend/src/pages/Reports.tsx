@@ -14,7 +14,7 @@ export default function ReportSelectionPage() {
   const [error, setError] = useState("");
 
   // Base API URL
-  const baseURL = "http://localhost:5000";
+  const baseURL = "https://api-rim6ljimuq-uc.a.run.app";
 
   const schoolName = localStorage.getItem("school");
 
