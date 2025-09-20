@@ -28,14 +28,6 @@ jobs:
         working-directory: frontend
 
       # Build backend with environment variables
-      - name: ⚙️ Build Backend
-        env:
-          firebaseApiKey: ${{ secrets.FIREBASE_API_KEY }}
-        run: |
-          echo "FIREBASE_API_KEY=$FIREBASE_API_KEY" > .env
-          npm install
-          npm run build
-        working-directory: backend
 
       # Build Firebase Functions with environment variables
       - name: ⚙️ Build Firebase Functions
