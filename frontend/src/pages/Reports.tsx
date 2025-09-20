@@ -5,6 +5,7 @@ import axios from "axios";
 import { message, Spin } from "antd";
 
 export default function ReportSelectionPage() {
+
   const [loading, setLoading] = useState(true);
   const [reports, setReports] = useState<{
     studentRefReport?: string;
@@ -71,7 +72,11 @@ export default function ReportSelectionPage() {
     );
   }
 
-  // Prepare options dynamically
+ 
+
+      
+
+
   const options = [
     {
       title: "Student Report",
