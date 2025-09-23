@@ -31,7 +31,7 @@ function SideBar() {
       path: "/one-one-sessions",
     },
     {
-      name: "Report",
+      name: "Survey  Report",
       icon: faChartLine,
       path: "/reports",
     },
