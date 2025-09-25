@@ -9,8 +9,14 @@ import {
   Badge,
   Tooltip,
   Tag,
+  Button,
 } from "antd";
-import { UserOutlined, SearchOutlined } from "@ant-design/icons";
+import {
+  UserOutlined,
+  SearchOutlined,
+  DownloadOutlined,
+} from "@ant-design/icons";
+import * as XLSX from "xlsx";
 
 const { Title } = Typography;
 
@@ -50,14 +56,33 @@ function Teachers() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Enhanced filtering to include both name and email search
   const filtered = teachers.filter((t) => {
-    const nameMatch = t.Name?.toLowerCase().includes(searchTerm.toLowerCase());
-    const emailMatch = t.email
-      ?.toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    return nameMatch || emailMatch;
+    const term = searchTerm.toLowerCase();
+    return (
+      t.Name?.toLowerCase().includes(term) ||
+      t.email?.toLowerCase().includes(term)
+    );
   });
+
+  // Excel download handler
+  const handleDownload = () => {
+    const dataToExport = filtered
+      .filter((t) => t.role?.toLowerCase() !== "principal") // same filter as table
+      .map((t, idx) => ({
+        Rank: idx + 1,
+        Name: t.Name || "-",
+        Email: t.email || "-",
+        Phone: t.phone || "-",
+        Role: t.role || "-",
+        Coins: t.coins ?? 0,
+      }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Teachers");
+
+    XLSX.writeFile(workbook, "teachers_list.xlsx");
+  };
 
   const columns = [
     {
@@ -146,10 +171,20 @@ function Teachers() {
 
   return (
     <div className="min-h-screen p-6">
-      <Title className="text-orange-600 m-0">
-        Teachers{" "}
-        <span className="text-gray-500 text-lg">({teachers.length})</span>
-      </Title>
+      <div className="flex justify-between items-center mb-4">
+        <Title className="text-orange-600 m-0">
+          Teachers{" "}
+          <span className="text-gray-500 text-lg">({teachers.length})</span>
+        </Title>
+
+        <Button
+          type="primary"
+          icon={<DownloadOutlined />}
+          onClick={handleDownload}
+        >
+          Download List
+        </Button>
+      </div>
 
       <Input
         placeholder="Search by name or email..."
