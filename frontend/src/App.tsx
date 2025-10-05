@@ -37,9 +37,11 @@ function LayoutWrapper() {
   );
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen relative">
       {showSidebar && <SideBar />}
-      <div className="flex-1 bg-white  overflow-auto">
+      <div className="flex-1 bg-white overflow-auto w-full lg:w-auto">
+        {/* Spacer for mobile app bar - only on pages with sidebar */}
+        {showSidebar && <div className="h-14 lg:hidden" />}
         <Routes>
           <Route path="/" element={<Login />} />
           <Route
@@ -54,10 +56,6 @@ function LayoutWrapper() {
             path="/teacher"
             element={<ProtectedRoute element={<Teacher />} />}
           />
-          {/* <Route
-            path="/notification"
-            element={<ProtectedRoute element={<Notification />} />}
-          /> */}
           <Route
             path="/addticket"
             element={<ProtectedRoute element={<AddTicket />} />}

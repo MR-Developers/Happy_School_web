@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { Table, Tag, Typography, Spin, Space, Select, Tooltip } from "antd";
 import { useNavigate } from "react-router-dom";
@@ -22,7 +22,10 @@ type Ticket = {
   contributors?: Contributor[];
   userName?: string;
   email?: string;
+  category?: string;
+  oneononesessions?: string;
 };
+
 interface Teacher {
   id?: string;
   Name?: string;
@@ -32,6 +35,7 @@ interface Teacher {
   coins?: number;
   profileImage?: string;
 }
+
 function OneOnOneSessions() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
@@ -46,13 +50,14 @@ function OneOnOneSessions() {
   const [selectedTeacher, setSelectedTeacher] = useState("");
   const [selectedTeacherEmail, setSelectedTeacherEmail] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+
   const renderTicketSubject = (text: string) => {
     if (text && text.length > 20) {
       return (
         <Tooltip
           title={text}
           overlayStyle={{
-            backgroundColor: "#ea580c", // Orange background
+            backgroundColor: "#ea580c",
             color: "white",
             fontSize: "14px",
             borderRadius: "8px",
@@ -64,17 +69,21 @@ function OneOnOneSessions() {
             color: "white",
           }}
         >
-          <span className="font-semibold text-indigo-600 text-base cursor-pointer">
+          <span className="font-semibold text-indigo-600 text-sm sm:text-base cursor-pointer">
             {text.substring(0, 30)}...
           </span>
         </Tooltip>
       );
     }
     return (
-      <span className="font-semibold text-indigo-600 text-base">{text}</span>
+      <span className="font-semibold text-indigo-600 text-sm sm:text-base">
+        {text}
+      </span>
     );
   };
+
   const toggleFilters = () => setShowFilters((prev) => !prev);
+
   useEffect(() => {
     if (!email) return;
 
@@ -88,12 +97,11 @@ function OneOnOneSessions() {
           toDate: toDate || undefined,
           category: selectedCategory || undefined,
         };
-        //https://api-rim6ljimuq-uc.a.run.app/sesson/all-tickets/thanirurajabrahmam@gmail.com
+
         const response = await axios.get(
           `https://api-rim6ljimuq-uc.a.run.app/oneonone/${email}`,
           { params }
         );
-        debugger;
 
         const fetched = response.data.tickets || [];
         console.log("Fetched tickets:", fetched);
@@ -102,7 +110,7 @@ function OneOnOneSessions() {
             new Date(b.timestamp ?? "").getTime() -
             new Date(a.timestamp ?? "").getTime()
         );
-        setTickets(sorted); // ✅ Correct
+        setTickets(sorted);
       } catch (err) {
         console.error("Error fetching teachers:", err);
       } finally {
@@ -120,6 +128,7 @@ function OneOnOneSessions() {
     selectedCategory,
     selectedTeacherEmail,
   ]);
+
   useEffect(() => {
     const email = localStorage.getItem("email");
     if (!email) return;
@@ -136,6 +145,29 @@ function OneOnOneSessions() {
       .catch((err) => console.error("Error fetching teachers:", err))
       .finally(() => null);
   }, []);
+
+  const formatTimestamp = (time: any) => {
+    if (!time) return "N/A";
+
+    // Firestore timestamp
+    if (time._seconds) {
+      const date = new Date(time._seconds * 1000);
+      return date.toLocaleString();
+    }
+
+    // If it's a string in DD/MM/YYYY hh:mm A
+    if (typeof time === "string") {
+      const parsed = dayjs(time, "DD/MM/YYYY hh:mm A");
+      if (!parsed.isValid()) {
+        return "Invalid Date";
+      }
+      return parsed.format("DD/MM/YYYY hh:mm A");
+    }
+
+    // If it's already a Date
+    return time.toLocaleString();
+  };
+
   const columns = [
     {
       title: "Subject",
@@ -148,29 +180,10 @@ function OneOnOneSessions() {
       dataIndex: "timestamp",
       key: "timestamp",
       render: (time: any) => {
-        if (!time) return <span className="text-gray-600">N/A</span>;
-
-        // Firestore timestamp
-        if (time._seconds) {
-          const date = new Date(time._seconds * 1000);
-          return <span className="text-gray-600">{date.toLocaleString()}</span>;
-        }
-
-        // If it's a string in DD/MM/YYYY hh:mm A
-        if (typeof time === "string") {
-          const parsed = dayjs(time, "DD/MM/YYYY hh:mm A");
-          if (!parsed.isValid()) {
-            return <span className="text-red-600">Invalid Date</span>;
-          }
-          return (
-            <span className="text-gray-600">
-              {parsed.format("DD/MM/YYYY hh:mm A")}
-            </span>
-          );
-        }
-
-        // If it's already a Date
-        return <span className="text-gray-600">{time.toLocaleString()}</span>;
+        const formatted = formatTimestamp(time);
+        return (
+          <span className="text-gray-600 text-xs sm:text-sm">{formatted}</span>
+        );
       },
     },
     {
@@ -215,163 +228,227 @@ function OneOnOneSessions() {
       dataIndex: "userName",
       key: "userName",
       render: (userName: string) => (
-        <span className="text-gray-600">{userName || "Anonymous"}</span>
+        <span className="text-gray-600 text-xs sm:text-sm">
+          {userName || "Anonymous"}
+        </span>
       ),
     },
   ];
 
+  // Mobile Card View Component
+  const MobileTicketCard = ({ ticket }: { ticket: Ticket }) => (
+    <div
+      onClick={() => navigate("/showticket", { state: { ticket } })}
+      className="bg-white rounded-lg shadow-md p-4 mb-4 border border-gray-200 cursor-pointer hover:shadow-lg transition-shadow"
+    >
+      <div className="mb-3">
+        <div className="text-xs text-gray-500 mb-1">Subject</div>
+        {renderTicketSubject(ticket.ticketText)}
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 mb-3">
+        <div>
+          <div className="text-xs text-gray-500 mb-1">Category</div>
+          <Tag color="blue">{ticket.category || "Student"}</Tag>
+        </div>
+        <div>
+          <div className="text-xs text-gray-500 mb-1">Sessions</div>
+          <Tag color="orange">
+            <span className="text-black">{ticket.oneononesessions || 0}</span>
+          </Tag>
+        </div>
+      </div>
+
+      <div className="mb-3">
+        <div className="text-xs text-gray-500 mb-1">Collaborators</div>
+        {!ticket.contributors || ticket.contributors.length === 0 ? (
+          <Tag color="default">None</Tag>
+        ) : (
+          <Space wrap>
+            {ticket.contributors.map((c) => (
+              <Tag key={c.email} color="cyan" className="text-xs">
+                {c.name}
+              </Tag>
+            ))}
+          </Space>
+        )}
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 text-xs">
+        <div>
+          <span className="text-gray-500">Created: </span>
+          <span className="text-gray-700">
+            {formatTimestamp(ticket.timestamp)}
+          </span>
+        </div>
+        <div className="text-right">
+          <span className="text-gray-500">By: </span>
+          <span className="text-gray-700">
+            {ticket.userName || "Anonymous"}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="min-h-screen p-6">
+    <div className="min-h-screen p-3 sm:p-4 md:p-6">
       {/* Title + Filter Row */}
-      <div className="flex items-center mb-4">
-        <Title level={2} className="text-orange-600 m-0">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
+        <Title level={2} className="text-orange-600 m-0 text-xl sm:text-2xl">
           One - One Sessions{" "}
-          <span className="text-gray-500 text-lg">({tickets.length})</span>
+          <span className="text-gray-500 text-base sm:text-lg">
+            ({tickets.length})
+          </span>
         </Title>
         <div className="flex-1" />
-        <button
-          className="flex items-center gap-2 bg-white hover:bg-orange-100 text-orange-600 border border-orange-300 px-4 mr-2 py-2 rounded-lg shadow-sm transition-all duration-200 font-medium"
-          onClick={toggleFilters}
-        >
-          <FilterOutlined />
-          Filter
-        </button>
+        <div className="relative">
+          <button
+            className="flex items-center gap-2 bg-white hover:bg-orange-100 text-orange-600 border border-orange-300 px-3 sm:px-4 py-2 rounded-lg shadow-sm transition-all duration-200 font-medium text-sm"
+            onClick={toggleFilters}
+          >
+            <FilterOutlined />
+            Filter
+          </button>
 
-        {showFilters && (
-          <div className="absolute top-12 right-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50 p-4">
-            {/* Filters go here */}
-            <div className="mb-4">
-              <label className="block text-sm text-gray-600 mb-1">
-                Select Teacher
-              </label>
-              <Select
-                showSearch
-                allowClear
-                placeholder="Search teachers"
-                optionFilterProp="children"
-                className="w-full border rounded-md px-3 py-2 text-sm text-gray-700"
-                filterOption={(input, option) =>
-                  (option?.children as unknown as string)
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-                value={selectedTeacher}
-                onChange={(value) => {
-                  setSelectedTeacher(value);
-                  setSelectedTeacherEmail(
-                    teachers.find((t) => t.email === value)?.email || ""
-                  );
-                }}
-              >
-                {teachers.map((teacher) => (
-                  <Select.Option key={teacher.email} value={teacher.email}>
-                    {teacher.Name}
-                  </Select.Option>
-                ))}
-              </Select>
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm text-gray-600 mb-1">
-                Date Range
-              </label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="date"
-                  className="flex-1 min-w-0 border rounded-md px-3 py-2 text-sm text-gray-700"
-                  value={fromDate}
-                  onChange={(e) => setFromDate(e.target.value)}
-                />
-                <span className="text-gray-500 whitespace-nowrap">to</span>
-                <input
-                  type="date"
-                  className="flex-1 min-w-0 border rounded-md px-3 py-2 text-sm text-gray-700"
-                  value={toDate}
-                  onChange={(e) => setToDate(e.target.value)}
-                />
+          {showFilters && (
+            <div className="absolute top-12 right-0 mt-2 w-72 sm:w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50 p-4">
+              <div className="mb-4">
+                <label className="block text-sm text-gray-600 mb-1">
+                  Select Teacher
+                </label>
+                <Select
+                  showSearch
+                  allowClear
+                  placeholder="Search teachers"
+                  optionFilterProp="children"
+                  className="w-full"
+                  filterOption={(input, option) =>
+                    (option?.children as unknown as string)
+                      .toLowerCase()
+                      .includes(input.toLowerCase())
+                  }
+                  value={selectedTeacher}
+                  onChange={(value) => {
+                    setSelectedTeacher(value);
+                    setSelectedTeacherEmail(
+                      teachers.find((t) => t.email === value)?.email || ""
+                    );
+                  }}
+                >
+                  {teachers.map((teacher) => (
+                    <Select.Option key={teacher.email} value={teacher.email}>
+                      {teacher.Name}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm text-gray-600 mb-1">
+                  Date Range
+                </label>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                  <input
+                    type="date"
+                    className="w-full sm:flex-1 border rounded-md px-3 py-2 text-sm text-gray-700"
+                    value={fromDate}
+                    onChange={(e) => setFromDate(e.target.value)}
+                  />
+                  <span className="text-gray-500 text-sm whitespace-nowrap">
+                    to
+                  </span>
+                  <input
+                    type="date"
+                    className="w-full sm:flex-1 border rounded-md px-3 py-2 text-sm text-gray-700"
+                    value={toDate}
+                    onChange={(e) => setToDate(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm text-gray-600 mb-1">
+                  Category
+                </label>
+                <div className="flex flex-col gap-2 text-sm text-gray-700">
+                  <label className="inline-flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={selectedCategory === "Student"}
+                      onChange={() =>
+                        setSelectedCategory(
+                          selectedCategory === "Student" ? "" : "Student"
+                        )
+                      }
+                    />
+                    <span className="ml-2">Student</span>
+                  </label>
+
+                  <label className="inline-flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={selectedCategory === "Teacher"}
+                      onChange={() =>
+                        setSelectedCategory(
+                          selectedCategory === "Teacher" ? "" : "Teacher"
+                        )
+                      }
+                    />
+                    <span className="ml-2">Teacher</span>
+                  </label>
+
+                  <label className="inline-flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={selectedCategory === "Early Adopter"}
+                      onChange={() =>
+                        setSelectedCategory(
+                          selectedCategory === "Early Adopter"
+                            ? ""
+                            : "Early Adopter"
+                        )
+                      }
+                    />
+                    <span className="ml-2">Early Adopter</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row justify-end gap-2">
+                <button
+                  className="px-4 py-2 text-sm text-gray-600 hover:underline"
+                  onClick={() => setShowFilters(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="px-4 py-2 text-sm text-red-600 border border-red-400 rounded-md hover:bg-red-100"
+                  onClick={() => {
+                    setSelectedStatus("");
+                    setSelectedTeacher("");
+                    setSelectedTeacherEmail("");
+                    setFromDate("");
+                    setToDate("");
+                    setSelectedCategory("");
+                    setShowFilters(false);
+                  }}
+                >
+                  Clear Filters
+                </button>
+                <button
+                  className="px-4 py-2 text-sm bg-orange-500 text-white rounded-md hover:bg-orange-600"
+                  onClick={() => {
+                    setShowFilters(false);
+                    console.log("Apply filters");
+                  }}
+                >
+                  Apply
+                </button>
               </div>
             </div>
-            <div className="mb-4">
-              <label className="block text-sm text-gray-600 mb-1">
-                Category
-              </label>
-              <div className="flex flex-col gap-2 text-sm text-gray-700">
-                <label className="inline-flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={selectedCategory === "Student"}
-                    onChange={() =>
-                      setSelectedCategory(
-                        selectedCategory === "Student" ? "" : "Student"
-                      )
-                    }
-                  />
-                  <span className="ml-2">Student</span>
-                </label>
-
-                <label className="inline-flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={selectedCategory === "Teacher"}
-                    onChange={() =>
-                      setSelectedCategory(
-                        selectedCategory === "Teacher" ? "" : "Teacher"
-                      )
-                    }
-                  />
-                  <span className="ml-2">Teacher</span>
-                </label>
-
-                {/* ✅ New Early Adopter category */}
-                <label className="inline-flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={selectedCategory === "Early Adopter"}
-                    onChange={() =>
-                      setSelectedCategory(
-                        selectedCategory === "Early Adopter"
-                          ? ""
-                          : "Early Adopter"
-                      )
-                    }
-                  />
-                  <span className="ml-2">Early Adopter</span>
-                </label>
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-2">
-              <button
-                className="px-4 py-2 text-sm text-gray-600 hover:underline"
-                onClick={() => setShowFilters(false)}
-              >
-                Cancel
-              </button>
-              <button
-                className="px-4 py-2 text-sm text-red-600 border border-red-400 rounded-md hover:bg-red-100"
-                onClick={() => {
-                  setSelectedStatus("");
-                  setSelectedTeacher("");
-                  setSelectedTeacherEmail("");
-                  setFromDate("");
-                  setToDate("");
-                  setSelectedCategory("");
-                  setShowFilters(false);
-                }}
-              >
-                Clear Filters
-              </button>
-              <button
-                className="px-4 py-2 text-sm bg-orange-500 text-white rounded-md hover:bg-orange-600"
-                onClick={() => {
-                  setShowFilters(false);
-                  console.log("Apply filters");
-                }}
-              >
-                Apply
-              </button>
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {loading ? (
@@ -379,19 +456,37 @@ function OneOnOneSessions() {
           <Spin tip="Loading tickets..." size="large" />
         </div>
       ) : (
-        <Table
-          columns={columns}
-          dataSource={tickets}
-          rowKey="id"
-          pagination={{ pageSize: 8 }}
-          bordered
-          onRow={(record) => ({
-            onClick: () => {
-              navigate("/showticket", { state: { ticket: record } });
-            },
-          })}
-          className="cursor-pointer rounded-xl shadow-md bg-white"
-        />
+        <>
+          {/* Desktop Table View */}
+          <div className="hidden lg:block">
+            <Table
+              columns={columns}
+              dataSource={tickets}
+              rowKey="id"
+              pagination={{ pageSize: 8 }}
+              bordered
+              onRow={(record) => ({
+                onClick: () => {
+                  navigate("/showticket", { state: { ticket: record } });
+                },
+              })}
+              className="cursor-pointer rounded-xl shadow-md bg-white"
+            />
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="lg:hidden">
+            {tickets.length === 0 ? (
+              <div className="text-center py-10 text-gray-500">
+                No tickets found
+              </div>
+            ) : (
+              tickets.map((ticket) => (
+                <MobileTicketCard key={ticket.id} ticket={ticket} />
+              ))
+            )}
+          </div>
+        </>
       )}
     </div>
   );
