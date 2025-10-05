@@ -72,7 +72,7 @@ function ShowTicket() {
                 "The ticket data is not available. This might happen if you accessed this page directly or refreshed the browser."}
             </p>
             <button
-              onClick={() => navigate("/one-on-one-sessions")}
+              onClick={() => navigate("/one-one-sessions")}
               className="flex items-center gap-2 bg-orange-400 hover:bg-orange-500 text-white px-6 py-3 rounded-lg transition-colors duration-200 mx-auto"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -91,7 +91,7 @@ function ShowTicket() {
         <div className="bg-orange-400 text-white px-6 py-5">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => navigate("/one-on-one-sessions")}
+              onClick={() => navigate("/one-one-sessions")}
               className="hover:bg-orange-500 p-2 rounded-lg transition-colors duration-200"
             >
               <ArrowLeft className="w-5 h-5" />

@@ -23,7 +23,7 @@ type Ticket = {
   userName?: string;
   email?: string;
   category?: string;
-  teacher?: string; // teacher email
+  teacher?: string;
 };
 
 interface Teacher {
@@ -53,20 +53,18 @@ function YourTickets() {
 
   const toggleFilters = () => setShowFilters((prev) => !prev);
 
-  // Helper function to get teacher name by email
   const getTeacherNameByEmail = (teacherEmail: string) => {
     const teacher = teachers.find((t) => t.email === teacherEmail);
     return teacher?.Name || "Teacher";
   };
 
-  // Helper function to render ticket subject with ellipsis and tooltip
   const renderTicketSubject = (text: string) => {
     if (text && text.length > 20) {
       return (
         <Tooltip
           title={text}
           overlayStyle={{
-            backgroundColor: "#ea580c", // Orange background
+            backgroundColor: "#ea580c",
             color: "white",
             fontSize: "14px",
             borderRadius: "8px",
@@ -78,15 +76,36 @@ function YourTickets() {
             color: "white",
           }}
         >
-          <span className="font-semibold text-indigo-600 text-base cursor-pointer">
+          <span className="font-semibold text-indigo-600 text-sm sm:text-base cursor-pointer">
             {text.substring(0, 30)}...
           </span>
         </Tooltip>
       );
     }
     return (
-      <span className="font-semibold text-indigo-600 text-base">{text}</span>
+      <span className="font-semibold text-indigo-600 text-sm sm:text-base">
+        {text}
+      </span>
     );
+  };
+
+  const formatTimestamp = (time: any) => {
+    if (!time) return "N/A";
+
+    if (time._seconds) {
+      const date = new Date(time._seconds * 1000);
+      return date.toLocaleString();
+    }
+
+    if (typeof time === "string") {
+      const parsed = dayjs(time, "DD/MM/YYYY hh:mm A");
+      if (!parsed.isValid()) {
+        return "Invalid Date";
+      }
+      return parsed.format("DD/MM/YYYY hh:mm A");
+    }
+
+    return time.toLocaleString();
   };
 
   useEffect(() => {
@@ -170,31 +189,11 @@ function YourTickets() {
       title: "Created At",
       dataIndex: "timestamp",
       key: "timestamp",
-
       render: (time: any) => {
-        if (!time) return <span className="text-gray-600">N/A</span>;
-
-        // Firestore timestamp
-        if (time._seconds) {
-          const date = new Date(time._seconds * 1000);
-          return <span className="text-gray-600">{date.toLocaleString()}</span>;
-        }
-
-        // If it's a string in DD/MM/YYYY hh:mm A
-        if (typeof time === "string") {
-          const parsed = dayjs(time, "DD/MM/YYYY hh:mm A");
-          if (!parsed.isValid()) {
-            return <span className="text-red-600">Invalid Date</span>;
-          }
-          return (
-            <span className="text-gray-600">
-              {parsed.format("DD/MM/YYYY hh:mm A")}
-            </span>
-          );
-        }
-
-        // If it's already a Date
-        return <span className="text-gray-600">{time.toLocaleString()}</span>;
+        const formatted = formatTimestamp(time);
+        return (
+          <span className="text-gray-600 text-xs sm:text-sm">{formatted}</span>
+        );
       },
     },
     {
@@ -210,7 +209,6 @@ function YourTickets() {
       key: "raisedOn",
       render: (record: Ticket) => {
         if (record.category === "Teacher" && record.teacher) {
-          // Display teacher name
           const teacherName = getTeacherNameByEmail(record.teacher);
           return (
             <Tag color="green" className="font-medium">
@@ -218,7 +216,6 @@ function YourTickets() {
             </Tag>
           );
         } else if (record.category === "Student") {
-          // Display "Student"
           return (
             <Tag color="blue" className="font-medium">
               Student
@@ -231,7 +228,6 @@ function YourTickets() {
             </Tag>
           );
         } else {
-          // Default case
           return (
             <Tag color="default" className="font-medium">
               Student
@@ -264,39 +260,148 @@ function YourTickets() {
       dataIndex: "userName",
       key: "userName",
       render: (userName: string) => (
-        <span className="text-gray-600">{userName || "Anonymous"}</span>
+        <span className="text-gray-600 text-xs sm:text-sm">
+          {userName || "Anonymous"}
+        </span>
       ),
     },
   ];
 
-  return (
-    <div className="min-h-screen p-6">
-      {/* Title + Filter Row */}
-      <div className="flex items-center mb-4">
-        <Title level={2} className="text-orange-600 m-0">
-          School Tickets{" "}
-          <span className="text-gray-500 text-lg">({tickets.length})</span>
-        </Title>
-        <div className="flex-1" />
-        <button
-          className="flex items-center gap-2 bg-white hover:bg-orange-100 text-orange-600 border border-orange-300 px-4 mr-2 py-2 rounded-lg shadow-sm transition-all duration-200 font-medium"
-          onClick={toggleFilters}
-        >
-          <FilterOutlined />
-          Filter
-        </button>
+  // Mobile Card Component
+  const TicketCard = ({ ticket }: { ticket: Ticket }) => {
+    const getStatusColor = (status?: string) => {
+      return status === "Ticket Raised"
+        ? "orange"
+        : status === "Resolved"
+        ? "green"
+        : "blue";
+    };
 
-        <button
-          className="flex items-center gap-2 bg-orange-500 hover:bg-orange-400 text-white border border-orange-600 px-4 py-2 rounded-lg shadow-sm transition-all duration-200 font-medium"
-          onClick={() => (window.location.href = "/addticket")}
-        >
-          <PlusOutlined />
-          Add Ticket
-        </button>
+    const getRaisedOnTag = () => {
+      if (ticket.category === "Teacher" && ticket.teacher) {
+        const teacherName = getTeacherNameByEmail(ticket.teacher);
+        return (
+          <Tag color="green" className="font-medium text-xs">
+            {teacherName}
+          </Tag>
+        );
+      } else if (ticket.category === "Student") {
+        return (
+          <Tag color="blue" className="font-medium text-xs">
+            Student
+          </Tag>
+        );
+      } else if (ticket.category === "Early Adopter") {
+        return (
+          <Tag color="purple" className="font-medium text-xs">
+            Early Adopter
+          </Tag>
+        );
+      } else {
+        return (
+          <Tag color="default" className="font-medium text-xs">
+            Student
+          </Tag>
+        );
+      }
+    };
+
+    return (
+      <div
+        onClick={() => navigate("/showticket", { state: { ticket } })}
+        className="bg-white rounded-lg shadow-md p-4 mb-4 border border-gray-200 cursor-pointer hover:shadow-lg transition-shadow"
+      >
+        <div className="mb-3">
+          <div className="text-xs text-gray-500 mb-1">Subject</div>
+          {renderTicketSubject(ticket.ticketText)}
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 mb-3">
+          <div>
+            <div className="text-xs text-gray-500 mb-1">Status</div>
+            <Tag color={getStatusColor(ticket.status)}>
+              {ticket.status || "Pending"}
+            </Tag>
+          </div>
+          <div>
+            <div className="text-xs text-gray-500 mb-1">Category</div>
+            <Tag color="blue">{ticket.category || "Student"}</Tag>
+          </div>
+        </div>
+
+        <div className="mb-3">
+          <div className="text-xs text-gray-500 mb-1">Raised On</div>
+          {getRaisedOnTag()}
+        </div>
+
+        <div className="mb-3">
+          <div className="text-xs text-gray-500 mb-1">Collaborators</div>
+          {!ticket.contributors || ticket.contributors.length === 0 ? (
+            <Tag color="default" className="text-xs">
+              None
+            </Tag>
+          ) : (
+            <Space wrap>
+              {ticket.contributors.map((c) => (
+                <Tag key={c.email} color="cyan" className="text-xs">
+                  {c.name}
+                </Tag>
+              ))}
+            </Space>
+          )}
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 text-xs">
+          <div>
+            <span className="text-gray-500">Created: </span>
+            <span className="text-gray-700">
+              {formatTimestamp(ticket.timestamp)}
+            </span>
+          </div>
+          <div className="text-right">
+            <span className="text-gray-500">By: </span>
+            <span className="text-gray-700">
+              {ticket.userName || "Anonymous"}
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="min-h-screen p-3 sm:p-4 md:p-6">
+      {/* Header */}
+      <div className="flex flex-col gap-3 mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <Title level={2} className="text-orange-600 m-0 text-xl sm:text-2xl">
+            School Tickets{" "}
+            <span className="text-gray-500 text-base sm:text-lg">
+              ({tickets.length})
+            </span>
+          </Title>
+          <div className="flex-1" />
+          <div className="flex gap-2">
+            <button
+              className="flex items-center gap-2 bg-white hover:bg-orange-100 text-orange-600 border border-orange-300 px-3 sm:px-4 py-2 rounded-lg shadow-sm transition-all duration-200 font-medium text-sm flex-1 sm:flex-initial justify-center"
+              onClick={toggleFilters}
+            >
+              <FilterOutlined />
+              <span className="hidden sm:inline">Filter</span>
+            </button>
+
+            <button
+              className="flex items-center gap-2 bg-orange-500 hover:bg-orange-400 text-white border border-orange-600 px-3 sm:px-4 py-2 rounded-lg shadow-sm transition-all duration-200 font-medium text-sm flex-1 sm:flex-initial justify-center"
+              onClick={() => (window.location.href = "/addticket")}
+            >
+              <PlusOutlined />
+              Add Ticket
+            </button>
+          </div>
+        </div>
 
         {showFilters && (
-          <div className="absolute top-12 right-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50 p-4">
-            {/* Filters go here */}
+          <div className="relative sm:absolute sm:top-12 sm:right-0 mt-2 w-full sm:w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50 p-4">
             <div className="mb-4">
               <label className="block text-sm text-gray-600 mb-1">Status</label>
               <select
@@ -322,7 +427,7 @@ function YourTickets() {
                 allowClear
                 placeholder="Search teachers"
                 optionFilterProp="children"
-                className="w-full border rounded-md px-3 py-2 text-sm text-gray-700"
+                className="w-full"
                 filterOption={(input, option) =>
                   (option?.children as unknown as string)
                     .toLowerCase()
@@ -343,26 +448,30 @@ function YourTickets() {
                 ))}
               </Select>
             </div>
+
             <div className="mb-4">
               <label className="block text-sm text-gray-600 mb-1">
                 Date Range
               </label>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                 <input
                   type="date"
-                  className="flex-1 min-w-0 border rounded-md px-3 py-2 text-sm text-gray-700"
+                  className="w-full sm:flex-1 border rounded-md px-3 py-2 text-sm text-gray-700"
                   value={fromDate}
                   onChange={(e) => setFromDate(e.target.value)}
                 />
-                <span className="text-gray-500 whitespace-nowrap">to</span>
+                <span className="text-gray-500 text-sm whitespace-nowrap">
+                  to
+                </span>
                 <input
                   type="date"
-                  className="flex-1 min-w-0 border rounded-md px-3 py-2 text-sm text-gray-700"
+                  className="w-full sm:flex-1 border rounded-md px-3 py-2 text-sm text-gray-700"
                   value={toDate}
                   onChange={(e) => setToDate(e.target.value)}
                 />
               </div>
             </div>
+
             <div className="mb-4">
               <label className="block text-sm text-gray-600 mb-1">
                 Category
@@ -394,7 +503,6 @@ function YourTickets() {
                   <span className="ml-2">Teacher</span>
                 </label>
 
-                {/* ✅ New Early Adopter category */}
                 <label className="inline-flex items-center">
                   <input
                     type="checkbox"
@@ -412,9 +520,9 @@ function YourTickets() {
               </div>
             </div>
 
-            <div className="flex justify-end gap-2">
+            <div className="flex flex-col sm:flex-row justify-end gap-2">
               <button
-                className="px-4 py-2 text-sm text-gray-600 hover:underline"
+                className="px-4 py-2 text-sm text-gray-600 hover:underline order-1 sm:order-none"
                 onClick={() => setShowFilters(false)}
               >
                 Cancel
@@ -452,19 +560,37 @@ function YourTickets() {
           <Spin tip="Loading tickets..." size="large" />
         </div>
       ) : (
-        <Table
-          columns={columns}
-          dataSource={tickets}
-          rowKey="id"
-          pagination={{ pageSize: 8 }}
-          bordered
-          onRow={(record) => ({
-            onClick: () => {
-              navigate("/showticket", { state: { ticket: record } });
-            },
-          })}
-          className="cursor-pointer rounded-xl shadow-md bg-white"
-        />
+        <>
+          {/* Desktop Table View */}
+          <div className="hidden lg:block">
+            <Table
+              columns={columns}
+              dataSource={tickets}
+              rowKey="id"
+              pagination={{ pageSize: 8 }}
+              bordered
+              onRow={(record) => ({
+                onClick: () => {
+                  navigate("/showticket", { state: { ticket: record } });
+                },
+              })}
+              className="cursor-pointer rounded-xl shadow-md bg-white"
+            />
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="lg:hidden">
+            {tickets.length === 0 ? (
+              <div className="text-center py-10 text-gray-500">
+                No tickets found
+              </div>
+            ) : (
+              tickets.map((ticket) => (
+                <TicketCard key={ticket.id} ticket={ticket} />
+              ))
+            )}
+          </div>
+        </>
       )}
     </div>
   );
