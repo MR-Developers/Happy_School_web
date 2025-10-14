@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 
 import SideBar from "./components/SideBar";
+import CounselorSideBar from "./components/CounselorSideBar";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Tickets from "./pages/Tickets";
@@ -22,26 +23,49 @@ import TaskPage from "./pages/Tasks";
 import UserAnswersPage from "./pages/UserAnswer";
 import OneOnOneSessions from "./pages/OneOnOneSessions";
 import ReportSelectionPage from "./pages/Reports";
+import CounselorDashboard from "./pages/Counselor/CounselorDashboard";
+import CounselorTeachers from "./pages/Counselor/CounselorTeachers";
+import CounselorTickets from "./pages/Counselor/CounselorTickets";
+import CounselorChallengePage from "./pages/Counselor/CounselorChallenges";
+import CounselorTaskPage from "./pages/Counselor/CounselorTasks";
+import CounselorOneOnOneSessions from "./pages/Counselor/CounselorOneOnOneSessions";
+import CounselorAddTicket from "./pages/Counselor/CounselorAddTicket";
+import CounselorReports from "./pages/Counselor/CounselorReports";
 
 function LayoutWrapper() {
   const location = useLocation();
   const hideNavOnRoutes = ["/", "/addticket", "/showticket"];
+  const counselorRoutes = [
+    "/counselordashboard",
+    "/counselorteachers",
+    "/counselortickets",
+    "/counselorchallenges",
+    "/tasks/:challengeName/:challengeId/:school",
+    "/counseloroneonone",
+    "/counselorreports",
+    "/counseloraddticket",
+    "/reports",
+  ];
 
   function ProtectedRoute({ element }: { element: JSX.Element }) {
     const isAuthenticated = localStorage.getItem("authToken");
     return isAuthenticated ? element : <Navigate to="/" />;
   }
 
-  const showSidebar = !hideNavOnRoutes.includes(
-    location.pathname.toLowerCase()
-  );
-
+  let sidebarToShow: JSX.Element | null = null;
+  if (!hideNavOnRoutes.includes(location.pathname.toLowerCase())) {
+    if (counselorRoutes.includes(location.pathname.toLowerCase())) {
+      sidebarToShow = <CounselorSideBar />;
+    } else {
+      sidebarToShow = <SideBar />;
+    }
+  }
   return (
     <div className="flex h-screen relative">
-      {showSidebar && <SideBar />}
+      {sidebarToShow}
       <div className="flex-1 bg-white overflow-auto w-full lg:w-auto">
         {/* Spacer for mobile app bar - only on pages with sidebar */}
-        {showSidebar && <div className="h-14 lg:hidden" />}
+        {sidebarToShow && <div className="h-14 lg:hidden" />}
         <Routes>
           <Route path="/" element={<Login />} />
           <Route
@@ -90,6 +114,40 @@ function LayoutWrapper() {
           <Route
             path="/reports"
             element={<ProtectedRoute element={<ReportSelectionPage />} />}
+          />
+        </Routes>
+        <Routes>
+          <Route
+            path="/counselordashboard"
+            element={<ProtectedRoute element={<CounselorDashboard />} />}
+          />
+          <Route
+            path="/counselorteachers"
+            element={<ProtectedRoute element={<CounselorTeachers />} />}
+          />
+          <Route
+            path="/counselortickets"
+            element={<ProtectedRoute element={<CounselorTickets />} />}
+          />
+          <Route
+            path="/counselorchallenges"
+            element={<ProtectedRoute element={<CounselorChallengePage />} />}
+          />
+          <Route
+            path="/counselortasks/:challengeName/:challengeId/:school"
+            element={<ProtectedRoute element={<CounselorTaskPage />} />}
+          />
+          <Route
+            path="/counseloroneonone"
+            element={<ProtectedRoute element={<CounselorOneOnOneSessions />} />}
+          />
+          <Route
+            path="/counseloraddticket"
+            element={<ProtectedRoute element={<CounselorAddTicket />} />}
+          />
+          <Route
+            path="/counselorreports"
+            element={<ProtectedRoute element={<CounselorReports />} />}
           />
         </Routes>
       </div>

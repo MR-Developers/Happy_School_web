@@ -48,6 +48,7 @@ export const RaiseTicketController = async (
       userName: userName || "",
       email,
       timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      oneononesessions: 0,
       reply: "",
       status: "Ticket Raised",
       tocken: 0,

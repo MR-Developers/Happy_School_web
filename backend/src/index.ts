@@ -15,6 +15,15 @@ import challenges from "./routes/ChallengeRoutes";
 import tasks from "./routes/TaskRoutes";
 import UserAnswerRoutes from "./routes/UserAnswers";
 import OneOnOne from "./routes/OneOnOneRoutes";
+import schools from "./routes/SchoolRoute";
+import counselorDashboard from "./routes/CounselorRoutes/CounselorDashboardRoute";
+import couselorTickets from "./routes/CounselorRoutes/CounselorTicketsRoute";
+import counselorTeachers from "./routes/CounselorRoutes/CounselorTeachersRoute";
+import counselorChallenges from "./routes/CounselorRoutes/CounselorChallengesRoute";
+import counselorOneOnOne from "./routes/CounselorRoutes/CounselorOneOnOneRoute";
+import counselorAddTicket from "./routes/CounselorRoutes/CounselorAddTicketRoute";
+import counselorAddTicketTeacher from "./routes/CounselorRoutes/CounselorAddTicketTeacherRoute";
+import counselorReports from "./routes/CounselorRoutes/CounselorReportsRoute";
 import links from "./routes/GetReports";
 const app = express();
 const db = admin.firestore();
@@ -41,6 +50,15 @@ app.use("/tasks", tasks);
 app.use("/answers", UserAnswerRoutes);
 app.use("/oneonone", OneOnOne);
 app.use("/reports", links);
+app.use("/counselordashboard", counselorDashboard);
+app.use("/counselortickets", couselorTickets);
+app.use("/counselorteachers", counselorTeachers);
+app.use("/counselorchallenges", counselorChallenges);
+app.use("/counseloroneonone", counselorOneOnOne);
+app.use("/counseloraddticket", counselorAddTicket);
+app.use("/counseloraddticketteachers", counselorAddTicketTeacher);
+app.use("/counselorreports", counselorReports);
+app.use("/getallschools", schools);
 
 app.get("/", async (req: Request, res: Response) => {
   try {
