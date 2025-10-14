@@ -44,7 +44,6 @@ function LayoutWrapper() {
     "/counseloroneonone",
     "/counselorreports",
     "/counseloraddticket",
-    "/reports",
   ];
 
   function ProtectedRoute({ element }: { element: JSX.Element }) {
