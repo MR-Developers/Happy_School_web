@@ -44,6 +44,18 @@ function Login() {
             setTimeout(() => {
               nav("/dashboard");
             }, 1200);
+          } else if (data.role.toString().toLowerCase() === "counselor") {
+            toast.success("Login successful");
+            localStorage.setItem("authToken", data.jwtToken);
+            localStorage.setItem("firebaseToken", data.firebaseToken);
+            localStorage.setItem("UserName", data.name);
+            localStorage.setItem("role", data.role);
+            localStorage.setItem("email", data.email);
+            localStorage.setItem("schools", data.schools);
+
+            setTimeout(() => {
+              nav("/counselordashboard");
+            }, 1200);
           } else {
             toast.error("Access denied. Only principals can log in.");
           }
