@@ -43,7 +43,6 @@ const CounselorChallengePage: React.FC = () => {
       .then((res) => {
         const flattenedChallenges: Challenge[] = [];
 
-        // Flatten challenges from all schools
         res.data.data.forEach((schoolData) => {
           Object.entries(schoolData.challenges).forEach(([id, name]) => {
             flattenedChallenges.push({
@@ -55,8 +54,6 @@ const CounselorChallengePage: React.FC = () => {
         });
 
         setChallenges(flattenedChallenges);
-
-        // Store failed schools info
         if (res.data.failedSchools && res.data.failedSchools.length > 0) {
           setFailedSchools(res.data.failedSchools.map((f) => f.school));
         }

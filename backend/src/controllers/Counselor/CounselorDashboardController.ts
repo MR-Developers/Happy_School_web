@@ -12,7 +12,6 @@ export const getCounselorDashboardSummary = async (
   const email = req.params.email;
 
   try {
-    // Step 1: Fetch user school info
     const userDocSnap = await db
       .collection("Users")
       .doc(email)
@@ -30,8 +29,6 @@ export const getCounselorDashboardSummary = async (
       res.status(404).json({ error: "No schools found" });
       return;
     }
-
-    // Step 2: For each school, fetch data in parallel
     const results = await Promise.all(
       schools.map(async (school) => {
         const ticketsRef = db
@@ -56,7 +53,6 @@ export const getCounselorDashboardSummary = async (
 
         const schoolData = schoolSnapshot.docs[0].data();
 
-        // Calculate total one-on-one sessions for this school
         let totalSessionsValue = 0;
         allTicketsSnap.docs.forEach((doc) => {
           const data = doc.data();
@@ -79,7 +75,6 @@ export const getCounselorDashboardSummary = async (
       })
     );
 
-    // Step 3: Filter out nulls (in case some schools were invalid)
     const validResults = results.filter((r) => r !== null) as any[];
 
     if (validResults.length === 0) {
@@ -87,7 +82,6 @@ export const getCounselorDashboardSummary = async (
       return;
     }
 
-    // Step 4: Aggregate totals
     const totalSummary = validResults.reduce(
       (acc, cur) => {
         acc.postCount += cur.postCount;
@@ -107,7 +101,6 @@ export const getCounselorDashboardSummary = async (
         schools: [] as string[],
       }
     );
-    // Step 5: Return combined summary
     res.status(200).json(totalSummary);
   } catch (error: any) {
     console.error("Error in getDashboardSummary:", error.message || error);

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import admin from "../../config/firebaseAdmin"; // Adjust path if needed
+import admin from "../../config/firebaseAdmin";
 
 const db = admin.firestore();
 
@@ -22,7 +22,6 @@ export const CounselorAddTicketController = async (
   } = req.body;
 
   try {
-    // Get user info
     const snapshot = await db
       .collection("Users")
       .doc(email)

@@ -18,8 +18,6 @@ export const CounselorAddTicketTeacherController = async (
       res.status(404).json({ error: "school not found" });
       return;
     }
-
-    // Get all teacher document IDs
     const techSnapshot = await db
       .collection("SchoolUsers")
       .doc(school)
@@ -33,7 +31,6 @@ export const CounselorAddTicketTeacherController = async (
       return;
     }
 
-    // Fetch userinfo for each teacher
     const teacherData = await Promise.all(
       teacherIds.map(async (id) => {
         const docRef = db

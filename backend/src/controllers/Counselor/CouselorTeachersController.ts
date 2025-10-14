@@ -12,7 +12,6 @@ export const CounselorTeacherController = async (
   const email: string = req.params.email;
 
   try {
-    // 1️⃣ Fetch counselor's user info
     const userInfoSnap = await db
       .collection("Users")
       .doc(email)
@@ -37,7 +36,6 @@ export const CounselorTeacherController = async (
       return;
     }
 
-    // 2️⃣ Fetch teachers from all schools
     const allTeachers: any[] = [];
 
     for (const school of schools) {
@@ -48,8 +46,6 @@ export const CounselorTeacherController = async (
         .get();
 
       const teacherIds = teachersSnap.docs.map((doc) => doc.id);
-
-      // Fetch teacher info for each teacher
       const teacherData = await Promise.all(
         teacherIds.map(async (id) => {
           const docSnap = await db
@@ -80,7 +76,6 @@ export const CounselorTeacherController = async (
       return;
     }
 
-    // 3️⃣ Send response
     res.status(200).json({
       message: "Teachers fetched successfully",
       totalTeachers: allTeachers.length,

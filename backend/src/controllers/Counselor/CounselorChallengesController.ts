@@ -17,7 +17,6 @@ export const CounselorChallengeController = async (
   }
 
   try {
-    // Fetch user info to get school(s)
     const userInfoSnap = await db
       .collection("Users")
       .doc(email)
@@ -42,7 +41,6 @@ export const CounselorChallengeController = async (
       return;
     }
 
-    // Fetch each school's ChallengeNames doc in parallel and handle failures
     const promises = schools.map(async (school) => {
       const docRef = db
         .collection("Content")
@@ -52,9 +50,8 @@ export const CounselorChallengeController = async (
         .collection("ChallengeNames")
         .doc("ChallengeNames");
 
-      const docSnap = await docRef.get(); // may throw if permission / network error
+      const docSnap = await docRef.get();
       if (!docSnap.exists) {
-        // treat "not found" as a non-fatal condition
         throw new Error(`ChallengeNames not found for school: ${school}`);
       }
 
@@ -71,7 +68,6 @@ export const CounselorChallengeController = async (
       if (result.status === "fulfilled") {
         allChallenges.push(result.value);
       } else {
-        // capture useful failure info but don't abort
         const reason =
           result.reason instanceof Error
             ? result.reason.message
@@ -82,15 +78,12 @@ export const CounselorChallengeController = async (
     });
 
     if (allChallenges.length === 0) {
-      // Nothing succeeded — return 404 with failures
       res.status(404).json({
         error: "No challenges found for any assigned school",
         failedSchools,
       });
       return;
     }
-
-    // Return partial successes and failure details (if any)
     res.status(200).json({
       message: "Challenges fetched (partial if some failed)",
       totalSchoolsRequested: schools.length,

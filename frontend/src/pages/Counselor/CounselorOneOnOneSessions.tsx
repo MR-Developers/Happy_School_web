@@ -195,13 +195,11 @@ function CounselorOneOnOneSessions() {
   const formatTimestamp = (time: any) => {
     if (!time) return "N/A";
 
-    // Firestore timestamp
     if (time._seconds) {
       const date = new Date(time._seconds * 1000);
       return date.toLocaleString();
     }
 
-    // If it's a string in DD/MM/YYYY hh:mm A
     if (typeof time === "string") {
       const parsed = dayjs(time, "DD/MM/YYYY hh:mm A");
       if (!parsed.isValid()) {
@@ -210,7 +208,6 @@ function CounselorOneOnOneSessions() {
       return parsed.format("DD/MM/YYYY hh:mm A");
     }
 
-    // If it's already a Date
     return time.toLocaleString();
   };
 
@@ -291,13 +288,11 @@ function CounselorOneOnOneSessions() {
     },
   ];
 
-  // Mobile Card View Component
   const MobileTicketCard = ({ ticket }: { ticket: Ticket }) => (
     <div
       onClick={() => navigate("/showticket", { state: { ticket } })}
       className="bg-white rounded-lg shadow-md p-4 mb-4 border border-gray-200 cursor-pointer hover:shadow-lg transition-shadow"
     >
-      {/* School Badge */}
       <div className="mb-3">
         <Tag color="purple" className="font-medium">
           {ticket.school}
@@ -356,7 +351,6 @@ function CounselorOneOnOneSessions() {
 
   return (
     <div className="min-h-screen p-3 sm:p-4 md:p-6">
-      {/* Failed Schools Warning */}
       {failedSchools.length > 0 && (
         <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
           <p className="text-sm text-yellow-800">
@@ -366,7 +360,6 @@ function CounselorOneOnOneSessions() {
         </div>
       )}
 
-      {/* Title + Filter Row */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
         <Title level={2} className="text-orange-600 m-0 text-xl sm:text-2xl">
           One - One Sessions{" "}

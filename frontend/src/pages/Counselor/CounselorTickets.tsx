@@ -267,7 +267,6 @@ function CounselorTickets() {
     },
   ];
 
-  // Mobile Card Component
   const TicketCard = ({ ticket }: { ticket: Ticket }) => {
     const getStatusColor = (status?: string) => {
       return status === "Ticket Raised"

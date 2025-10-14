@@ -13,7 +13,6 @@ export const OneOnOneController = async (
   const { teacher, status, fromDate, toDate, category } = req.query;
 
   try {
-    // 1️⃣ Get user's schools
     const userInfoSnap = await db
       .collection("Users")
       .doc(email)
@@ -39,7 +38,6 @@ export const OneOnOneController = async (
       return;
     }
 
-    // 2️⃣ Fetch tickets for each school in parallel
     const results = await Promise.allSettled(
       schools.map(async (school) => {
         const ticketSubColRef = db
@@ -54,12 +52,10 @@ export const OneOnOneController = async (
           ...doc.data(),
         }));
 
-        // ✅ Filter: only tickets with oneononesessions > 0
         tickets = tickets.filter(
           (t) => (t as any).oneononesessions && (t as any).oneononesessions > 0
         );
 
-        // Apply filters (teacher, status, category, date range)
         if (teacher) {
           tickets = tickets.filter(
             (t) =>
@@ -104,7 +100,6 @@ export const OneOnOneController = async (
       })
     );
 
-    // 3️⃣ Process results
     const successful: any[] = [];
     const failed: any[] = [];
 
@@ -123,7 +118,6 @@ export const OneOnOneController = async (
       }
     });
 
-    // 4️⃣ Handle responses
     if (successful.length === 0) {
       res.status(404).json({
         error: "No data found for any school",

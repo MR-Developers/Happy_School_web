@@ -13,7 +13,6 @@ export const CounselorTicketController = async (
   const { teacher, status, fromDate, toDate, category } = req.query;
 
   try {
-    // 1️⃣ Fetch user info
     const userInfoSnap = await db
       .collection("Users")
       .doc(email)
@@ -34,7 +33,6 @@ export const CounselorTicketController = async (
       return;
     }
 
-    // 2️⃣ Fetch tickets for all schools in parallel
     const allTicketsArrays = await Promise.all(
       schools.map(async (school) => {
         const ticketSubColRef = db
@@ -53,10 +51,8 @@ export const CounselorTicketController = async (
       })
     );
 
-    // Flatten all school tickets into one array
     let tickets = allTicketsArrays.flat();
 
-    // 3️⃣ Apply filters
     if (teacher) {
       tickets = tickets.filter(
         (t) => (t as any).email?.toLowerCase() === String(teacher).toLowerCase()
@@ -90,8 +86,6 @@ export const CounselorTicketController = async (
         return time >= from && time <= to;
       });
     }
-
-    // 4️⃣ Send final response
     res.status(200).json({
       message: "Tickets fetched successfully",
       totalTickets: tickets.length,

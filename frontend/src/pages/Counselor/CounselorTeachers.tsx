@@ -172,7 +172,6 @@ function CounselorTeachers() {
     },
   ];
 
-  // Mobile Card Component
   const TeacherCard = ({
     teacher,
     index,
@@ -244,7 +243,6 @@ function CounselorTeachers() {
     (t) => t.role?.toLowerCase() !== "principal"
   );
 
-  // Pagination for mobile cards
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = startIndex + pageSize;
   const paginatedTeachers = filteredTeachers.slice(startIndex, endIndex);

@@ -15,10 +15,10 @@ interface Teacher {
   Name: string;
   email: string;
   coins?: number;
-  role?: string; // Added role property
+  role?: string;
 }
 
-const COLORS = ["#22c55e", "#ef4444"]; // green for answered, red for unanswered
+const COLORS = ["#22c55e", "#ef4444"];
 
 const UserAnswersPage: React.FC = () => {
   const { challengeId, taskName } = useParams<{
@@ -125,21 +125,18 @@ const UserAnswersPage: React.FC = () => {
   // };
 
   const handleDownloadExcel = () => {
-    // Prepare worksheet for Answered Teachers
     const answeredData = [
-      ["Name", "Email", "Coins"], // Header row
+      ["Name", "Email", "Coins"],
       ...answeredTeachers.map((t) => [t.Name, t.email, t.coins ?? "-"]),
     ];
     const answeredSheet = XLSX.utils.aoa_to_sheet(answeredData);
 
-    // Prepare worksheet for Unanswered Teachers
     const unansweredData = [
       ["Name", "Email", "Coins"],
       ...unansweredTeachers.map((t) => [t.Name, t.email, t.coins ?? "-"]),
     ];
     const unansweredSheet = XLSX.utils.aoa_to_sheet(unansweredData);
 
-    // Create workbook
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, answeredSheet, "Answered Teachers");
     XLSX.utils.book_append_sheet(
@@ -147,8 +144,6 @@ const UserAnswersPage: React.FC = () => {
       unansweredSheet,
       "Unanswered Teachers"
     );
-
-    // Download Excel file
     XLSX.writeFile(workbook, `Task_Report_${decodedTaskName}.xlsx`);
   };
 
@@ -228,7 +223,6 @@ const UserAnswersPage: React.FC = () => {
             </button>
           </div>
 
-          {/* Answered and Unanswered Lists */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-white p-6 rounded-xl shadow-lg flex flex-col">
               <h3 className="text-xl font-semibold text-green-700 mb-4 border-b pb-2">

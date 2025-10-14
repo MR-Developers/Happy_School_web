@@ -37,7 +37,6 @@ export default function CounselorReports() {
         );
         setSchools(response.data.data);
 
-        // Auto-select first school if available
         if (response.data.data.length > 0) {
           setSelectedSchool(response.data.data[0]);
         }

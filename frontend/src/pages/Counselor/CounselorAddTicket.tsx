@@ -111,7 +111,6 @@ function CounselorAddTicket() {
       .finally(() => setLoadingSchools(false));
   }, [email]);
 
-  // Fetch teachers based on selected school
   const fetchTeachers = async (schoolName: string) => {
     if (!email || !schoolName) return;
     setLoadingTeachers(true);
@@ -176,8 +175,6 @@ function CounselorAddTicket() {
         contributors: values.contributors,
         category: values.category,
       };
-
-      // If category is Teacher, send teacher as a map with name and email
       if (values.category === "Teacher" && values.selectedTeacher) {
         payload.teacher = {
           name: values.selectedTeacher.name,
@@ -195,7 +192,7 @@ function CounselorAddTicket() {
 
       alert("✅ Ticket submitted successfully!");
       resetForm();
-      setTeachers([]); // Clear teachers when form is reset
+      setTeachers([]);
     } catch (err) {
       console.error("Submission Error:", err);
       alert("❌ Error submitting ticket");
@@ -246,7 +243,7 @@ function CounselorAddTicket() {
                   setFieldValue("school", option?.value || "");
                   setFieldValue("selectedTeacher", null);
                   setFieldValue("contributors", []);
-                  setTeachers([]); // Clear previous teachers
+                  setTeachers([]);
                   if (option?.value) {
                     fetchTeachers(option.value);
                   }

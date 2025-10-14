@@ -18,7 +18,6 @@ export const getCounselorSchoolReports = async (
   }
 
   try {
-    // 1️⃣ Get user info to find assigned schools
     const userInfoSnap = await db
       .collection("Users")
       .doc(email)
@@ -43,10 +42,8 @@ export const getCounselorSchoolReports = async (
       return;
     }
 
-    // 2️⃣ Fetch reports for all schools
     const allReports = await Promise.all(
       schools.map(async (schoolName) => {
-        // Query the school in Schools collection
         const schoolSnap = await db
           .collection("Schools")
           .where("SchoolName", "==", schoolName)
@@ -54,7 +51,6 @@ export const getCounselorSchoolReports = async (
           .get();
 
         if (schoolSnap.empty) {
-          // School not found, skip it
           return null;
         }
 
@@ -70,7 +66,6 @@ export const getCounselorSchoolReports = async (
       })
     );
 
-    // 3️⃣ Filter out nulls (schools not found)
     const validReports = allReports.filter(Boolean);
 
     if (validReports.length === 0) {
@@ -79,8 +74,6 @@ export const getCounselorSchoolReports = async (
         .json({ error: "No reports found for any assigned schools" });
       return;
     }
-
-    // 4️⃣ Return response
     res.status(200).json({
       message: "School reports fetched successfully",
       totalSchools: schools.length,

@@ -7,7 +7,6 @@ const db = admin.firestore();
 
 export const getAllSchools = async (req: Request, res: Response) => {
   try {
-    // Fetch all documents in the "schools" collection
     const schoolsSnap = await db.collection("Schools").get();
 
     if (schoolsSnap.empty) {
