@@ -98,7 +98,7 @@ function CounselorAddTicket() {
     if (!email) return;
     setLoadingSchools(true);
     axios
-      .get(`http://localhost:5000/getallschools/schools`)
+      .get(`http://localhost:5000/counselorschools/${email}`)
       .then((res) => {
         const schoolList = (res.data.schools || [])
           .filter((s: any) => s.name)
@@ -164,6 +164,7 @@ function CounselorAddTicket() {
       contributors: Contributor[];
       selectedTeacher: TeacherMap | null;
       category: string;
+      privacy: boolean;
     },
     { resetForm, setSubmitting }: any
   ) => {
@@ -174,6 +175,7 @@ function CounselorAddTicket() {
         ticketText: values.ticketText,
         contributors: values.contributors,
         category: values.category,
+        privacy: values.privacy,
       };
       if (values.category === "Teacher" && values.selectedTeacher) {
         payload.teacher = {
@@ -224,6 +226,7 @@ function CounselorAddTicket() {
           contributors: [] as Contributor[],
           selectedTeacher: null as TeacherMap | null,
           category: "",
+          privacy: false,
         }}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
@@ -468,6 +471,22 @@ function CounselorAddTicket() {
                 component="div"
                 className="text-red-500 text-sm mt-1"
               />
+            </div>
+            {/* Private Ticket Checkbox */}
+            {/* Privacy Checkbox */}
+            <div className="flex items-center mt-4">
+              <Field
+                type="checkbox"
+                name="privacy"
+                id="privacy"
+                className="h-4 w-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
+              />
+              <label
+                htmlFor="privacy"
+                className="ml-2 block text-sm text-gray-700"
+              >
+                Make this ticket private
+              </label>
             </div>
 
             {/* Submit Button */}

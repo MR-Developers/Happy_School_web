@@ -14,11 +14,13 @@ export const CounselorAddTicketController = async (
     teacher,
     contributors,
     category,
+    privacy,
   }: {
     ticketText: string;
     teacher: string;
     contributors: { name: string; email: string }[];
     category: string;
+    privacy: boolean;
   } = req.body;
 
   try {
@@ -52,6 +54,7 @@ export const CounselorAddTicketController = async (
       status: "Ticket Raised",
       tocken: 0,
       school,
+      privacy,
       contributors: contributors || [],
       category,
     };

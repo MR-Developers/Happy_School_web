@@ -32,11 +32,6 @@ function CounselorSideBar() {
       icon: faVideoCamera,
       path: "/counseloroneonone",
     },
-    {
-      name: "Survey Report",
-      icon: faChartLine,
-      path: "/counselorreports",
-    },
     { name: "Logout", icon: faSignOutAlt, isLogout: true },
   ];
 

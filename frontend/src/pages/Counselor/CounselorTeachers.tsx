@@ -124,6 +124,17 @@ function CounselorTeachers() {
       ),
     },
     {
+      title: "School",
+      dataIndex: "school",
+      key: "school",
+      render: (text: string) =>
+        text ? (
+          <span className="text-gray-700 text-sm">{text}</span>
+        ) : (
+          <div className="text-center text-gray-400 font-medium">-</div>
+        ),
+    },
+    {
       title: "Email",
       dataIndex: "email",
       key: "email",

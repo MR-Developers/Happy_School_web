@@ -30,7 +30,6 @@ import CounselorChallengePage from "./pages/Counselor/CounselorChallenges";
 import CounselorTaskPage from "./pages/Counselor/CounselorTasks";
 import CounselorOneOnOneSessions from "./pages/Counselor/CounselorOneOnOneSessions";
 import CounselorAddTicket from "./pages/Counselor/CounselorAddTicket";
-import CounselorReports from "./pages/Counselor/CounselorReports";
 
 function LayoutWrapper() {
   const location = useLocation();
@@ -42,7 +41,6 @@ function LayoutWrapper() {
     "/counselorchallenges",
     "/tasks/:challengeName/:challengeId/:school",
     "/counseloroneonone",
-    "/counselorreports",
     "/counseloraddticket",
   ];
 
@@ -143,10 +141,6 @@ function LayoutWrapper() {
           <Route
             path="/counseloraddticket"
             element={<ProtectedRoute element={<CounselorAddTicket />} />}
-          />
-          <Route
-            path="/counselorreports"
-            element={<ProtectedRoute element={<CounselorReports />} />}
           />
         </Routes>
       </div>
