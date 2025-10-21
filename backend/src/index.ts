@@ -15,7 +15,7 @@ import challenges from "./routes/ChallengeRoutes";
 import tasks from "./routes/TaskRoutes";
 import UserAnswerRoutes from "./routes/UserAnswers";
 import OneOnOne from "./routes/OneOnOneRoutes";
-import schools from "./routes/SchoolRoute";
+import schools from "./routes/CounselorRoutes/CounselorSchoolRoute";
 import counselorDashboard from "./routes/CounselorRoutes/CounselorDashboardRoute";
 import couselorTickets from "./routes/CounselorRoutes/CounselorTicketsRoute";
 import counselorTeachers from "./routes/CounselorRoutes/CounselorTeachersRoute";
@@ -58,7 +58,7 @@ app.use("/counseloroneonone", counselorOneOnOne);
 app.use("/counseloraddticket", counselorAddTicket);
 app.use("/counseloraddticketteachers", counselorAddTicketTeacher);
 app.use("/counselorreports", counselorReports);
-app.use("/getallschools", schools);
+app.use("/counselorschools", schools);
 
 app.get("/", async (req: Request, res: Response) => {
   try {

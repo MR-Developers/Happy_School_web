@@ -14,6 +14,7 @@ type Contributor = {
 };
 
 type Ticket = {
+  school: string;
   id: string;
   ticketText: string;
   status?: string;
@@ -197,13 +198,17 @@ function CounselorTickets() {
       },
     },
     {
-      title: "Category",
-      dataIndex: "category",
-      key: "category",
-      render: (category: string) => (
-        <Tag color="blue">{category || "Student"}</Tag>
-      ),
+      title: "School",
+      dataIndex: "school",
+      key: "school",
+      render: (text: string) =>
+        text ? (
+          <span className="text-gray-700 text-sm">{text}</span>
+        ) : (
+          <div className="text-center text-gray-400 font-medium">-</div>
+        ),
     },
+
     {
       title: "Raised on",
       key: "raisedOn",
@@ -362,6 +367,10 @@ function CounselorTickets() {
             <span className="text-gray-700">
               {ticket.userName || "Anonymous"}
             </span>
+          </div>
+          <div className="flex items-start">
+            <span className="text-gray-500 w-20 flex-shrink-0">School:</span>
+            <span className="text-gray-700">{ticket.school || "-"}</span>
           </div>
         </div>
       </div>
