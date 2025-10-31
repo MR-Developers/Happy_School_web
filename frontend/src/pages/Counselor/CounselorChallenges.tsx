@@ -39,7 +39,9 @@ const CounselorChallengePage: React.FC = () => {
     if (!email) return;
 
     axios
-      .get<ApiResponse>(`http://localhost:5000/counselorchallenges/${email}`)
+      .get<ApiResponse>(
+        `https://api-rim6ljimuq-uc.a.run.app/counselorchallenges/${email}`
+      )
       .then((res) => {
         const flattenedChallenges: Challenge[] = [];
 

@@ -44,7 +44,7 @@ function CounselorTeachers() {
     if (!email) return;
 
     axios
-      .get(`http://localhost:5000/counselorteachers/${email}`)
+      .get(`https://api-rim6ljimuq-uc.a.run.app/counselorteachers/${email}`)
       .then((res) => {
         const fetched = res.data.teachers || [];
         const sorted = fetched.sort(

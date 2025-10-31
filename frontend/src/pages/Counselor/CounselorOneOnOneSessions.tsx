@@ -119,7 +119,7 @@ function CounselorOneOnOneSessions() {
         };
 
         const response = await axios.get<ApiResponse>(
-          `http://localhost:5000/counseloroneonone/${email}`,
+          `https://api-rim6ljimuq-uc.a.run.app/counseloroneonone/${email}`,
           { params }
         );
         console.log(response);
@@ -180,7 +180,7 @@ function CounselorOneOnOneSessions() {
     if (!email) return;
 
     axios
-      .get(`http://localhost:5000/counselorteachers/${email}`)
+      .get(`https://api-rim6ljimuq-uc.a.run.app/counselorteachers/${email}`)
       .then((res) => {
         const fetched = res.data.teachers || [];
         const sorted = fetched.sort(

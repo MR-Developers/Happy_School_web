@@ -77,7 +77,7 @@ function CounselorDashboard() {
 
     setLoadingTickets(true);
     axios
-      .get(`http://localhost:5000/counselortickets/${email}`)
+      .get(`https://api-rim6ljimuq-uc.a.run.app/counselortickets/${email}`)
       .then((res) => {
         console.log("Fetched tickets:", res.data.tickets);
         setTickets(res.data.tickets || []);
@@ -92,7 +92,7 @@ function CounselorDashboard() {
 
     setLoadingSummary(true);
     axios
-      .get(`http://localhost:5000/counselordashboard/${email}`)
+      .get(`https://api-rim6ljimuq-uc.a.run.app/counselordashboard/${email}`)
       .then((res) => {
         const { postCount, challengeCount } = res.data;
         setSummary({
