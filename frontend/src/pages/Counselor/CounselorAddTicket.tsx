@@ -98,7 +98,7 @@ function CounselorAddTicket() {
     if (!email) return;
     setLoadingSchools(true);
     axios
-      .get(`http://localhost:5000/counselorschools/${email}`)
+      .get(`https://api-rim6ljimuq-uc.a.run.app/counselorschools/${email}`)
       .then((res) => {
         const schoolList = (res.data.schools || [])
           .filter((s: any) => s.name)
@@ -116,7 +116,7 @@ function CounselorAddTicket() {
     setLoadingTeachers(true);
     try {
       const res = await axios.get(
-        `http://localhost:5000/counseloraddticketteachers/${schoolName}`,
+        `https://api-rim6ljimuq-uc.a.run.app/counseloraddticketteachers/${schoolName}`,
         {
           params: { school: schoolName },
         }
@@ -188,7 +188,7 @@ function CounselorAddTicket() {
       console.log("Final payload:", payload);
 
       await axios.post(
-        `http://localhost:5000/counseloraddticket/${email}/${values.school}`,
+        `https://api-rim6ljimuq-uc.a.run.app/counseloraddticket/${email}/${values.school}`,
         payload
       );
 
