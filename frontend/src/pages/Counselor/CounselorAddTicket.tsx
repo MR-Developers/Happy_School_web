@@ -147,14 +147,16 @@ function CounselorAddTicket() {
       })
     ),
     category: Yup.string().required("Please select a category"),
-    selectedTeacher: isStudent
-      ? Yup.object().optional()
-      : Yup.object()
-          .shape({
-            name: Yup.string().required(),
-            email: Yup.string().email().required(),
-          })
-          .required("Please select a teacher"),
+    selectedTeacher: Yup.lazy((_, context) => {
+      const category = context.parent.category;
+      if (category === "Teacher" || category === "Early Adopter") {
+        return Yup.object({
+          name: Yup.string().required("Please select a teacher"),
+          email: Yup.string().email().required("Please select a teacher"),
+        }).required();
+      }
+      return Yup.mixed().notRequired();
+    }),
   });
 
   const handleSubmit = async (
