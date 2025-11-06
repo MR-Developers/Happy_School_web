@@ -45,10 +45,12 @@ export const YourTicketController = async (
       .orderBy("timestamp", "desc")
       .get();
 
-    const tickets = ticketsSnap.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    const tickets = ticketsSnap.docs
+      .map((doc) => ({
+        id: doc.id,
+        ...(doc.data() as any),
+      }))
+      .filter((doc) => doc.privacy === false || doc.privacy === undefined);
 
     res.status(200).json({
       message: "Tickets fetched successfully",
