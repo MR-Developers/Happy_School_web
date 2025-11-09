@@ -19,7 +19,15 @@ import taskans from "./controllers/taskAns";
 import chart from "./controllers/chat";
 import oneoneone from "./routers/oneonone";
 import reports from "./routers/getLinks";
-
+import schools from "./routers/counselorroutes/counselorschoolroute";
+import counselordashboard from "./routers/counselorroutes/counselordashboardroute";
+import couselortickets from "./routers/counselorroutes/counselorticketsroute";
+import counselorteachers from "./routers/counselorroutes/counselorteachersroute";
+import counselorchallenges from "./routers/counselorroutes/counselorchallengesroute";
+import counseloroneonone from "./routers/counselorroutes/counseloroneononeroute";
+import counseloraddticket from "./routers/counselorroutes/counseloraddticketroute";
+import counseloraddticketteacher from "./routers/counselorroutes/counseloraddticketteachertoute";
+import counselorreports from "./routers/counselorroutes/counselorreportsroute";
 setGlobalOptions({maxInstances: 10});
 
 const app = express();
@@ -45,6 +53,15 @@ app.use("/task-ans", taskans);
 app.use("/chat", chart);
 app.use("/oneonone", oneoneone);
 app.use("/reports", reports);
+app.use("/counselordashboard", counselordashboard);
+app.use("/counselortickets", couselortickets);
+app.use("/counselorteachers", counselorteachers);
+app.use("/counselorchallenges", counselorchallenges);
+app.use("/counseloroneonone", counseloroneonone);
+app.use("/counseloraddticket", counseloraddticket);
+app.use("/counseloraddticketteachers", counseloraddticketteacher);
+app.use("/counselorreports", counselorreports);
+app.use("/counselorschools", schools);
 // Optional test endpoint
 export const helloWorld = onRequest((req, res) => {
   logger.info("Hello logs!", {structuredData: true});

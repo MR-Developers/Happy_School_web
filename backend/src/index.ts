@@ -3,7 +3,6 @@ import cors from "cors";
 import dotenv from "dotenv";
 dotenv.config();
 import admin from "./config/firebaseAdmin";
-
 import authRoutes from "./routes/LoginRoute";
 import teacherRoutes from "./routes/TeacherRoute";
 import ticketRoute from "./routes/TicketRoute";
