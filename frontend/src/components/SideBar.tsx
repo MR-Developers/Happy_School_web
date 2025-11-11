@@ -14,31 +14,45 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 function SideBar() {
-  const username = useState(localStorage.getItem("UserName"))[0];
-  const role = useState(localStorage.getItem("role"))[0];
-  const school = useState(localStorage.getItem("school"))[0];
+  const username = localStorage.getItem("UserName");
+  const role = localStorage.getItem("role");
+  const school = localStorage.getItem("school");
   const location = useLocation();
   const pathname = location.pathname.toLowerCase();
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const menuItems = [
-    { name: "Dashboard", icon: faUser, path: "/dashboard" },
-    { name: "Teachers", icon: faChalkboardTeacher, path: "/teacher" },
-    { name: "Tickets Raised", icon: faTicket, path: "/yourtickets" },
-    { name: "Challenges", icon: faClipboardList, path: "/challenges" },
-    {
-      name: "One-One Sessions",
-      icon: faVideoCamera,
-      path: "/one-one-sessions",
-    },
-    {
-      name: "Survey Report",
-      icon: faChartLine,
-      path: "/reports",
-    },
-    { name: "Logout", icon: faSignOutAlt, isLogout: true },
-  ];
+  const getMenuItems = () => {
+    if (role && role.toLowerCase() === "co-ordinator") {
+      return [
+        { name: "Coordinator Home", icon: faUser, path: "/co-ordinator" },
+        {name: "Tickets Raised", icon: faTicket, path: "/co-ordinator/tickets" },
+        { name: "Teachers", icon: faUser, path: "/co-ordinator/teachers" },
+        { name: "Challenges", icon: faClipboardList, path: "/co-ordinator/challenges" },
+        
+         {
+          name: "One-One Sessions",
+          icon: faVideoCamera,
+          path: "/co-ordinator/one-on-one",
+        },
+        { name: "Logout", icon: faSignOutAlt, isLogout: true },
+      ];
+    } else {
+      return [
+        { name: "Dashboard", icon: faUser, path: "/dashboard" },
+        { name: "Teachers", icon: faChalkboardTeacher, path: "/teacher" },
+        { name: "Tickets Raised", icon: faTicket, path: "/yourtickets" },
+        { name: "Challenges", icon: faClipboardList, path: "/challenges" },
+        {
+          name: "One-One Sessions",
+          icon: faVideoCamera,
+          path: "/one-one-sessions",
+        },
+        { name: "Survey Report", icon: faChartLine, path: "/reports" },
+        { name: "Logout", icon: faSignOutAlt, isLogout: true },
+      ];
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("authToken");
@@ -57,13 +71,13 @@ function SideBar() {
       window.open(item.externalLink, "_blank", "noopener,noreferrer");
     } else if (item.path) {
       navigate(item.path);
-      setIsSidebarOpen(false); // Close sidebar on mobile after navigation
+      setIsSidebarOpen(false);
     }
   };
 
   return (
     <>
-      {/* Mobile Top App Bar - Only visible on mobile/tablet */}
+      {/* Mobile Top App Bar */}
       <div className="fixed top-0 left-0 right-0 h-14 bg-white shadow-md z-40 lg:hidden flex items-center px-4">
         <button
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -80,8 +94,6 @@ function SideBar() {
         </h1>
       </div>
 
-      {/* Note: Spacer is now handled in the main content wrapper */}
-
       {/* Overlay for mobile */}
       {isSidebarOpen && (
         <div
@@ -96,7 +108,7 @@ function SideBar() {
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        {/* Header (Profile) */}
+        {/* Header */}
         <div className="flex flex-row items-center shrink-0 mt-2 lg:mt-0">
           <div className="bg-orange-200 rounded-full p-4 inline-block">
             <FontAwesomeIcon icon={faUser} className="text-4xl text-white" />
@@ -112,14 +124,14 @@ function SideBar() {
           </div>
         </div>
 
-        {/* Menu List (Scrollable) */}
+        {/* Menu List */}
         <ul className="mt-6 space-y-2 flex-1 overflow-y-auto pr-2">
-          {menuItems.map((item) => (
+          {getMenuItems().map((item) => (
             <li
               key={item.name}
               onClick={() => handleItemClick(item)}
               className={`flex items-center h-10 pl-4 pr-2 rounded-xl cursor-pointer ${
-                pathname === item.path ? "bg-black" : "bg-[#454545]"
+                pathname.startsWith(item.path) ? "bg-black" : "bg-[#454545]"
               } text-white hover:bg-black transition-all duration-150`}
             >
               <FontAwesomeIcon icon={item.icon} className="mr-3" />

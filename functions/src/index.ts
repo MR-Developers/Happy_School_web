@@ -27,7 +27,10 @@ import counselorchallenges from "./routers/counselorroutes/counselorchallengesro
 import counseloroneonone from "./routers/counselorroutes/counseloroneononeroute";
 import counseloraddticket from "./routers/counselorroutes/counseloraddticketroute";
 import counseloraddticketteacher from "./routers/counselorroutes/counseloraddticketteachertoute";
-import counselorreports from "./routers/counselorroutes/counselorreportsroute";
+import counselorreports from "./routers/counselorroutes/counselorreportsroute"; import coordinatordashboard from "./routers/Co-ordinator/Coordinatordashboard";
+import Fetchtickets from "./routers/Co-ordinator/Fetchtickets";
+import Fetchteacher from "./routers/Co-ordinator/Fetchteachers";
+
 setGlobalOptions({maxInstances: 10});
 
 const app = express();
@@ -62,6 +65,11 @@ app.use("/counseloraddticket", counseloraddticket);
 app.use("/counseloraddticketteachers", counseloraddticketteacher);
 app.use("/counselorreports", counselorreports);
 app.use("/counselorschools", schools);
+
+// Coordinator Routes
+app.use("/co-ordinator/teachers", Fetchteacher);
+app.use("/co-ordinator/tickets", Fetchtickets);
+app.use("/co-ordinator", coordinatordashboard);
 // Optional test endpoint
 export const helloWorld = onRequest((req, res) => {
   logger.info("Hello logs!", {structuredData: true});
