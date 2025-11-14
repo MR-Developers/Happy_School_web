@@ -3,9 +3,8 @@
 /* eslint-disable max-len */
 
 import {Request, Response} from "express";
-import admin from "../config/firebase"; // Adjust path if needed
+import admin, {db, auth} from "../config/firebase"; // Adjust path if needed
 
-const db = admin.firestore();
 
 export const raiseticket = async (
   req: Request,
@@ -25,6 +24,8 @@ export const raiseticket = async (
   } = req.body;
 
   try {
+    const userRecord = await auth.getUserByEmail(email);
+    const uid = userRecord.uid;
     const snapshot = await db
       .collection("Users")
       .doc(email)
@@ -50,6 +51,7 @@ export const raiseticket = async (
       ticketText: ticketText || "",
       userName: userName || "",
       email,
+      uid,
       timestamp: admin.firestore.FieldValue.serverTimestamp(),
       reply: "",
       status: "Ticket Raised",

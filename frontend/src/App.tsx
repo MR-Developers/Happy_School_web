@@ -1,3 +1,4 @@
+
 import {
   BrowserRouter as Router,
   Routes,
@@ -30,6 +31,13 @@ import CounselorChallengePage from "./pages/Counselor/CounselorChallenges";
 import CounselorTaskPage from "./pages/Counselor/CounselorTasks";
 import CounselorOneOnOneSessions from "./pages/Counselor/CounselorOneOnOneSessions";
 import CounselorAddTicket from "./pages/Counselor/CounselorAddTicket";
+import CoordinatorHome from "./pages/Co-ordinator/CoordinatorHome";
+import CoordinatorTeachers from "./pages/Co-ordinator/Teachers";
+import CoordinatorTickets from "./pages/Co-ordinator/CoordinatorTickets";
+import CoordinatorChallges from "./pages/Co-ordinator/CoordinatorChallges";
+import CoordinatorTasks from "./pages/Co-ordinator/Tasks";
+import CoordinatorUnanswered from "./pages/Co-ordinator/CoordinatorUnanswered";
+import CoordinatorOneonOne from "./pages/Co-ordinator/CoordinatorOneonOne";
 
 function LayoutWrapper() {
   const location = useLocation();
@@ -142,6 +150,23 @@ function LayoutWrapper() {
             path="/counseloraddticket"
             element={<ProtectedRoute element={<CounselorAddTicket />} />}
           />
+
+          <Route path="/co-ordinator" element={<ProtectedRoute
+             element={ <CoordinatorHome/>}/>}/>
+          <Route path="/co-ordinator/teachers" element={<ProtectedRoute
+             element={ <CoordinatorTeachers/>}/>}/>
+
+            <Route path="/co-ordinator/tickets" element={<ProtectedRoute element={<CoordinatorTickets/>} />}/>
+            <Route path = "/co-ordinator/challenges" element= {<ProtectedRoute element= {<CoordinatorChallges/>}/>}/>
+              <Route
+            path="/co-ordinator/tasks/:challengeName/:challengeId"
+            element={<ProtectedRoute element={<CoordinatorTasks/>} />}
+          />
+           <Route
+            path="/co-ordinator/useranswers/:challengeId/:taskName"
+            element={<CoordinatorUnanswered/>}
+          />
+          <Route path="/co-ordinator/one-on-one" element={<ProtectedRoute element={<CoordinatorOneonOne />} />} />
         </Routes>
       </div>
     </div>
