@@ -102,7 +102,7 @@ const CoordinatorTickets = () => {
   useEffect(() => {
     const fetchTeachers = async () => {
       try {
-        const res = await axios.get(
+       const res = await axios.get(
           `https://api-rim6ljimuq-uc.a.run.app/co-ordinator/teachers/${email}`
         );
         setTeachers(res.data.teachers || []);
@@ -210,9 +210,10 @@ const CoordinatorTickets = () => {
       } else if (values.category === "student" && values.raisedOn) {
         payload.student = values.raisedOn;
       }
+      console.log('oii payload')
 
-      const res = await axios.post(
-        `https://api-rim6ljimuq-uc.a.run.app/coordinatoraddticket/${email}/${school}`,
+         const res = await axios.post(
+        `https://api-rim6ljimuq-uc.a.run.app/raiseticket/${email}`,
         payload
       );
 

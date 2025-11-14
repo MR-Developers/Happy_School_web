@@ -127,37 +127,37 @@ function AddTicket() {
     { resetForm, setSubmitting }: any
   ) => {
     console.log("Form Submitted With:", values);
-    try {
-      const payload: any = {
-        ticketText: values.ticketText,
-        contributors: values.contributors,
-        category: values.category,
+  try {
+    const payload: any = {
+      ticketText: values.ticketText,
+      contributors: values.contributors,
+      category: values.category,
+    };
+
+    // If category is Teacher, send teacher as a map with name and email
+    if (values.category === "Teacher" && values.selectedTeacher) {
+      payload.teacher = {
+        name: values.selectedTeacher.name,
+        email: values.selectedTeacher.email,
       };
-
-      // If category is Teacher, send teacher as a map with name and email
-      if (values.category === "Teacher" && values.selectedTeacher) {
-        payload.teacher = {
-          name: values.selectedTeacher.name,
-          email: values.selectedTeacher.email,
-        };
-        console.log("Sending teacher data:", payload.teacher);
-      }
-
-      console.log("Final payload:", payload);
-
-      await axios.post(
-        `https://api-rim6ljimuq-uc.a.run.app/raiseticket/${email}`,
-        payload
-      );
-
-      alert("✅ Ticket submitted successfully!");
-      resetForm();
-    } catch (err) {
-      console.error("Submission Error:", err);
-      alert("❌ Error submitting ticket");
-    } finally {
-      setSubmitting(false);
+      console.log("Sending teacher data:", payload.teacher);
     }
+
+    console.log("Final payload:", payload);
+
+    await axios.post(
+      `https://api-rim6ljimuq-uc.a.run.app/raiseticket/${email}`,
+      payload
+    );
+
+    alert("✅ Ticket submitted successfully!");
+    resetForm();
+  } catch (err) {
+    console.error("Submission Error:", err);
+    alert("❌ Error submitting ticket");
+  } finally {
+    setSubmitting(false);
+  }
   };
 
   const teacherOptions = teachers.map((t) => ({
