@@ -65,7 +65,10 @@ const CoordinatorOneonOne = () => {
         const filtered = fetched.filter(
           (t: Teacher) => t.role?.toLowerCase() !== "co-ordinator"
         );
-        const sorted = filtered.sort((a, b) => (b.coins ?? 0) - (a.coins ?? 0));
+        const sorted = filtered.sort(
+          (a: { coins: any }, b: { coins: any }) =>
+            (b.coins ?? 0) - (a.coins ?? 0)
+        );
         setTeachers(sorted);
       })
       .catch((err) => console.error("Error fetching teachers:", err));
@@ -101,8 +104,8 @@ const CoordinatorOneonOne = () => {
 
         const sorted = fetched.sort(
           (a, b) =>
-            new Date(b.timestamp ?? "").getTime() -
-            new Date(a.timestamp ?? "").getTime()
+            getTimestampAsDate(b.timestamp).getTime() -
+            getTimestampAsDate(a.timestamp).getTime()
         );
         setTickets(sorted);
       } catch (err) {
@@ -113,7 +116,14 @@ const CoordinatorOneonOne = () => {
     };
 
     fetchFilteredTickets();
-  }, [email, teachers, selectedTeacherEmail, fromDate, toDate, selectedCategory]);
+  }, [
+    email,
+    teachers,
+    selectedTeacherEmail,
+    fromDate,
+    toDate,
+    selectedCategory,
+  ]);
 
   const renderTicketSubject = (text: string) => {
     if (text && text.length > 20) {
@@ -144,6 +154,13 @@ const CoordinatorOneonOne = () => {
         {text}
       </span>
     );
+  };
+
+  const getTimestampAsDate = (time: any): Date => {
+    if (!time) return new Date(0);
+    if (time._seconds) return new Date(time._seconds * 1000);
+    if (typeof time === "string") return new Date(time);
+    return new Date(0);
   };
 
   const formatTimestamp = (time: any) => {
@@ -259,11 +276,15 @@ const CoordinatorOneonOne = () => {
       <div className="grid grid-cols-2 gap-3 text-xs">
         <div>
           <span className="text-gray-500">Created: </span>
-          <span className="text-gray-700">{formatTimestamp(ticket.timestamp)}</span>
+          <span className="text-gray-700">
+            {formatTimestamp(ticket.timestamp)}
+          </span>
         </div>
         <div className="text-right">
           <span className="text-gray-500">By: </span>
-          <span className="text-gray-700">{ticket.userName || "Anonymous"}</span>
+          <span className="text-gray-700">
+            {ticket.userName || "Anonymous"}
+          </span>
         </div>
       </div>
     </div>
@@ -362,7 +383,9 @@ const CoordinatorOneonOne = () => {
                         type="checkbox"
                         checked={selectedCategory === cat}
                         onChange={() =>
-                          setSelectedCategory(selectedCategory === cat ? "" : cat)
+                          setSelectedCategory(
+                            selectedCategory === cat ? "" : cat
+                          )
                         }
                       />
                       <span className="ml-2">{cat}</span>
@@ -419,7 +442,8 @@ const CoordinatorOneonOne = () => {
               pagination={{ pageSize: 8 }}
               bordered
               onRow={(record) => ({
-                onClick: () => navigate("/showticket", { state: { ticket: record } }),
+                onClick: () =>
+                  navigate("/showticket", { state: { ticket: record } }),
               })}
               className="cursor-pointer rounded-xl shadow-md bg-white"
             />

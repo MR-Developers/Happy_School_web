@@ -1,14 +1,19 @@
 import { useEffect, useState } from "react";
-import { Table, Typography, message, Spin, Tag, Card } from "antd";
+import { Table, Typography, message, Spin, Tag, Card, Grid } from "antd";
 import axios from "axios";
 import { UserOutlined } from "@ant-design/icons";
+import type { ColumnsType } from "antd/es/table";
 
 const { Title } = Typography;
+const { useBreakpoint } = Grid;
 
 const CoordinatorTeachers = () => {
   const [teachers, setTeachers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const email = localStorage.getItem("email");
+  const screens = useBreakpoint();
+
+  const isMobile = !screens.md;
 
   useEffect(() => {
     const fetchTeachers = async () => {
@@ -34,22 +39,23 @@ const CoordinatorTeachers = () => {
     fetchTeachers();
   }, [email]);
 
-  const columns = [
+  const columns: ColumnsType<any> = [
     {
       title: "#",
       key: "index",
+      width: 60,
       render: (_: any, __: any, index: number) => (
         <Tag color="orange">{index + 1}</Tag>
       ),
-      width: 60,
+      responsive: ["md"], // Hide on mobile
     },
     {
       title: "Name",
       dataIndex: "Name",
       key: "Name",
       render: (name: string) => (
-        <span style={{ fontWeight: 500, color: "#ff7a00" }}>
-          <UserOutlined style={{ marginRight: 6, color: "#ffa94d" }} />
+        <span style={{ fontWeight: 600, color: "#ff7a00" }}>
+          <UserOutlined style={{ marginRight: 6 }} />
           {name}
         </span>
       ),
@@ -71,6 +77,7 @@ const CoordinatorTeachers = () => {
           {school}
         </Tag>
       ),
+      responsive: ["md"],
     },
     {
       title: "Department",
@@ -99,11 +106,11 @@ const CoordinatorTeachers = () => {
       dataIndex: "courses",
       key: "courses",
       render: (courses: string[]) =>
-        courses && courses.length > 0 ? (
-          <ul style={{ paddingLeft: "18px", margin: 0 }}>
-            {courses.map((course, i) => (
-              <li key={i} style={{ color: "#444" }}>
-                {course}
+        courses?.length ? (
+          <ul style={{ paddingLeft: 18, margin: 0 }}>
+            {courses.map((c, i) => (
+              <li key={i} style={{ color: "#444", lineHeight: "20px" }}>
+                {c}
               </li>
             ))}
           </ul>
@@ -116,69 +123,133 @@ const CoordinatorTeachers = () => {
   return (
     <div
       style={{
-        padding: "24px",
-        backgroundColor: "#fffaf5",
+        padding: isMobile ? "16px" : "24px",
+        backgroundColor: "#ffffff",
         minHeight: "100vh",
       }}
     >
-      <Card
+      {/* Title */}
+      <Title
+        level={isMobile ? 4 : 3}
         style={{
-          border: "1px solid #ffd8b3",
-          borderRadius: 12,
-          boxShadow: "0 2px 8px rgba(255, 165, 0, 0.1)",
+          color: "#ff7a00",
+          borderBottom: "2px solid #ffb84d",
+          paddingBottom: 8,
+          marginBottom: 20,
+          fontSize: isMobile ? "20px" : "28px",
         }}
       >
-        <Title
-          level={3}
+        Teachers under Coordinator:{" "}
+        <span style={{ color: "#333" }}>{email || "Unknown"}</span>
+      </Title>
+
+      {/* Loading */}
+      {loading ? (
+        <div
           style={{
-            color: "#ff7a00",
-            borderBottom: "2px solid #ffb84d",
-            paddingBottom: 8,
-            marginBottom: 24,
+            display: "flex",
+            justifyContent: "center",
+            padding: "50px 0",
           }}
         >
-          Teachers under Coordinator:{" "}
-          <span style={{ color: "#333" }}>{email || "Unknown"}</span>
-        </Title>
+          <Spin size="large" tip="Loading teachers..." />
+        </div>
+      ) : isMobile ? (
+        /* MOBILE VIEW - CARD LIST */
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {teachers.map((t: any) => (
+            <Card
+              key={t.id}
+              style={{
+                border: "1px solid #ffe0b3",
+                borderRadius: 12,
+                padding: 12,
+              }}
+            >
+              <div style={{ fontSize: 16, fontWeight: 600, color: "#ff7a00" }}>
+                <UserOutlined style={{ marginRight: 6 }} />
+                {t.Name}
+              </div>
 
-        {loading ? (
+              <div style={{ marginTop: 6, color: "#444" }}>{t.email}</div>
+
+              <div style={{ marginTop: 6 }}>
+                <Tag color="orange">{t.school}</Tag>
+                <Tag color="volcano" style={{ marginLeft: 6 }}>
+                  {t.department}
+                </Tag>
+              </div>
+
+              <div style={{ marginTop: 6 }}>
+                <Tag
+                  color={t.coins > 100 ? "gold" : "volcano"}
+                  style={{ fontWeight: 600 }}
+                >
+                  Coins: {t.coins}
+                </Tag>
+              </div>
+
+              <div style={{ marginTop: 6 }}>
+                <strong>Courses:</strong>
+                <br />
+                {t.courses?.length ? (
+                  <ul style={{ marginTop: 4, paddingLeft: 18 }}>
+                    {t.courses.map((c: string, i: number) => (
+                      <li key={i}>{c}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <span style={{ color: "#999" }}>None</span>
+                )}
+              </div>
+            </Card>
+          ))}
+
           <div
             style={{
-              display: "flex",
-              justifyContent: "center",
-              padding: "50px 0",
+              textAlign: "center",
+              marginTop: 16,
+              color: "#ff7a00",
+              fontWeight: 600,
             }}
           >
-            <Spin size="large" tip="Loading teachers..." />
+            Total Teachers: {teachers.length}
           </div>
-        ) : (
-          <Table
-            columns={columns}
-            dataSource={teachers}
-            rowKey="id"
-            bordered
-            pagination={{ pageSize: 5 }}
-            style={{
-              border: "1px solid #ffe0b3",
-              borderRadius: 10,
-            }}
-            summary={() => (
-              <Table.Summary fixed>
-                <Table.Summary.Row>
-                  <Table.Summary.Cell index={0} colSpan={6}>
-                    <strong style={{ color: "#ff7a00" }}>Total Teachers:</strong>
-                  </Table.Summary.Cell>
-                  <Table.Summary.Cell index={1}>
-                    <strong style={{ color: "#ff7a00" }}>
-                      {teachers.length}
-                    </strong>
-                  </Table.Summary.Cell>
-                </Table.Summary.Row>
-              </Table.Summary>
-            )}
-          />
-        )}
-      </Card>
+        </div>
+      ) : (
+        /* DESKTOP TABLE */
+        <Table
+          columns={columns}
+          dataSource={teachers}
+          rowKey="id"
+          bordered
+          tableLayout="fixed"
+          pagination={{
+            pageSize: 5,
+            position: ["bottomCenter"], // 👈 FIXED PAGINATION ON MOBILE
+            showSizeChanger: false,
+          }}
+          scroll={{ x: true }}
+          style={{
+            border: "1px solid #ffe0b3",
+            borderRadius: 10,
+          }}
+          summary={() => (
+            <Table.Summary fixed>
+              <Table.Summary.Row>
+                <Table.Summary.Cell index={0} colSpan={6}>
+                  <strong style={{ color: "#ff7a00" }}>Total Teachers:</strong>
+                </Table.Summary.Cell>
+                <Table.Summary.Cell index={1}>
+                  <strong style={{ color: "#ff7a00" }}>
+                    {teachers.length}
+                  </strong>
+                </Table.Summary.Cell>
+              </Table.Summary.Row>
+            </Table.Summary>
+          )}
+        />
+      )}
     </div>
   );
 };
