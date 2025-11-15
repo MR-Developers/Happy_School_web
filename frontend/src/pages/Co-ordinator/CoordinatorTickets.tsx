@@ -10,8 +10,9 @@ import {
   Spin,
   Table,
   Tag,
-  Space,
   Tooltip,
+  Grid,
+  Card,
 } from "antd";
 import { PlusOutlined, FilterOutlined } from "@ant-design/icons";
 import axios from "axios";
@@ -20,6 +21,7 @@ import dayjs from "dayjs";
 
 const { Title } = Typography;
 const { Option } = Select;
+const { useBreakpoint } = Grid;
 
 type Contributor = {
   name: string;
@@ -30,18 +32,14 @@ type Ticket = {
   id: string;
   ticketText: string;
   status?: string;
-  timestamp?: string;
-  contributors?: Contributor[];
+  timestamp?: any;
   category?: string;
-  teacher?: string;
-  userName?: string;
-  school?: string;
+  contributors?: Contributor[];
 };
 
 type Teacher = {
   Name?: string;
   email: string;
-  coins?: number;
 };
 
 const CoordinatorTickets = () => {
@@ -56,19 +54,26 @@ const CoordinatorTickets = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedTeacher, setSelectedTeacher] = useState("");
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+
+  const screens = useBreakpoint();
+  const isMobile = !screens.md;
 
   const email = localStorage.getItem("email");
   const school = localStorage.getItem("school");
   const navigate = useNavigate();
 
-  // ------------------------------
+  // Format created timestamp
+  const formatTimestamp = (t: any) => {
+    if (!t) return "N/A";
+    if (t._seconds)
+      return dayjs(t._seconds * 1000).format("DD/MM/YYYY hh:mm A");
+    return dayjs(t).format("DD/MM/YYYY hh:mm A");
+  };
+
   // Fetch tickets
-  // ------------------------------
   useEffect(() => {
-    if (!email || !school) return;
+    if (!email) return;
 
     const fetchTickets = async () => {
       setLoading(true);
@@ -76,8 +81,6 @@ const CoordinatorTickets = () => {
         const params = {
           status: selectedStatus || undefined,
           teacher: selectedTeacher || undefined,
-          fromDate: fromDate || undefined,
-          toDate: toDate || undefined,
           category: selectedCategory || undefined,
         };
 
@@ -85,49 +88,37 @@ const CoordinatorTickets = () => {
           `https://api-rim6ljimuq-uc.a.run.app/co-ordinator/tickets/${email}`,
           { params }
         );
+
         setTickets(res.data.tickets || []);
-      } catch (err) {
-        console.error("Error fetching tickets:", err);
+      } catch (e) {
+        console.error(e);
       } finally {
         setLoading(false);
       }
     };
 
     fetchTickets();
-  }, [email, school, selectedStatus, selectedTeacher, fromDate, toDate, selectedCategory]);
+  }, [selectedStatus, selectedTeacher, selectedCategory]);
 
-  // ------------------------------
   // Fetch teachers
-  // ------------------------------
   useEffect(() => {
     const fetchTeachers = async () => {
       try {
-       const res = await axios.get(
+        const res = await axios.get(
           `https://api-rim6ljimuq-uc.a.run.app/co-ordinator/teachers/${email}`
         );
         setTeachers(res.data.teachers || []);
       } catch (err) {
-        console.error("Error fetching teachers:", err);
+        console.error(err);
       } finally {
         setTeachLoading(false);
       }
     };
 
     fetchTeachers();
-  }, [email]);
+  }, []);
 
-  // ------------------------------
-  // Format timestamp
-  // ------------------------------
-  const formatTimestamp = (time: any) => {
-    if (!time) return "N/A";
-    if (time._seconds) return new Date(time._seconds * 1000).toLocaleString();
-    return dayjs(time).format("DD/MM/YYYY hh:mm A");
-  };
-
-  // ------------------------------
-  // Table Columns
-  // ------------------------------
+  // Desktop Table Columns
   const columns = [
     {
       title: "Subject",
@@ -135,8 +126,8 @@ const CoordinatorTickets = () => {
       key: "ticketText",
       render: (text: string) => (
         <Tooltip title={text}>
-          <span className="text-indigo-600 font-medium cursor-pointer">
-            {text.length > 30 ? text.substring(0, 30) + "..." : text}
+          <span className="font-medium text-blue-600">
+            {text.length > 40 ? text.substring(0, 40) + "..." : text}
           </span>
         </Tooltip>
       ),
@@ -145,18 +136,22 @@ const CoordinatorTickets = () => {
       title: "Status",
       dataIndex: "status",
       key: "status",
-      render: (status: string) => {
-        const color =
-          status === "Resolved"
-            ? "green"
-            : status === "Ticket Raised"
-            ? "orange"
-            : "blue";
-        return <Tag color={color}>{status || "Pending"}</Tag>;
-      },
+      render: (status: string) => (
+        <Tag
+          color={
+            status === "Resolved"
+              ? "green"
+              : status === "Ticket Raised"
+              ? "orange"
+              : "blue"
+          }
+        >
+          {status || "Pending"}
+        </Tag>
+      ),
     },
     {
-      title: "Created At",
+      title: "Created",
       dataIndex: "timestamp",
       key: "timestamp",
       render: (t: any) => formatTimestamp(t),
@@ -166,34 +161,13 @@ const CoordinatorTickets = () => {
       dataIndex: "category",
       key: "category",
       render: (cat: string) => (
-        <Tag color={cat === "Teacher" ? "green" : cat === "Student" ? "blue" : "purple"}>
-          {cat}
-        </Tag>
+        <Tag color={cat === "Teacher" ? "green" : "blue"}>{cat}</Tag>
       ),
-    },
-    {
-      title: "Contributors",
-      dataIndex: "contributors",
-      key: "contributors",
-      render: (contributors: Contributor[]) => {
-        if (!contributors?.length) return <Tag color="default">None</Tag>;
-        return contributors.map((c) => (
-          <Tag key={c.email} color="cyan">
-            {c.name}
-          </Tag>
-        ));
-      },
     },
   ];
 
-  // ------------------------------
-  // Drawer form submit
-  // ------------------------------
   const handleSubmit = async (values: any) => {
-    if (!email || !school) {
-      message.error("Missing email or school info in localStorage");
-      return;
-    }
+    if (!email || !school) return message.error("Missing user info");
 
     setSubmitting(true);
     try {
@@ -202,133 +176,250 @@ const CoordinatorTickets = () => {
         ticketText: values.description,
         contributors: values.contributors,
         category: values.category,
-        privacy: false,
       };
 
-      if (values.category === "teacher" && values.raisedOn) {
-        payload.teacher = values.raisedOn;
-      } else if (values.category === "student" && values.raisedOn) {
-        payload.student = values.raisedOn;
-      }
-      console.log('oii payload')
-
-         const res = await axios.post(
+      await axios.post(
         `https://api-rim6ljimuq-uc.a.run.app/raiseticket/${email}`,
         payload
       );
 
-      if (res.status === 200) {
-        message.success("Ticket raised successfully!");
-        form.resetFields();
-        setOpen(false);
-        // refresh tickets
-        const newTickets = await axios.get(
-          `https://api-rim6ljimuq-uc.a.run.app/coordinatortickets/${email}/${school}`
-        );
-        setTickets(newTickets.data.tickets || []);
-      } else {
-        message.warning("Unexpected response");
-      }
-    } catch (err: any) {
+      message.success("Ticket created!");
+      setOpen(false);
+      form.resetFields();
+    } catch (err) {
       console.error(err);
-      message.error("Failed to submit ticket.");
+      message.error("Failed to create");
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#fff7e6] p-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
-        <Title level={3} style={{ color: "#fa8c16", margin: 0 }}>
-          🎫 Coordinator Tickets ({tickets.length})
-        </Title>
+    <div
+      style={{
+        padding: isMobile ? "14px" : "24px",
+        backgroundColor: "#fff",
+        minHeight: "100vh",
+      }}
+    >
+      {/* HEADER */}
+      <div className="flex flex-col sm:flex-row justify-between gap-3 mb-4">
+        <Title level={isMobile ? 4 : 3}>Tickets ({tickets.length})</Title>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 w-full sm:w-auto">
           <Button
             icon={<FilterOutlined />}
+            block={isMobile}
             onClick={() => setShowFilters(!showFilters)}
           >
             Filter
           </Button>
+
           <Button
             type="primary"
             icon={<PlusOutlined />}
+            block={isMobile}
             onClick={() => setOpen(true)}
-            style={{ backgroundColor: "#fa8c16", borderColor: "#fa8c16" }}
+            style={{ background: "#fa8c16", borderColor: "#fa8c16" }}
           >
             Add Ticket
           </Button>
         </div>
       </div>
 
-      {/* Filters */}
+      {/* FILTERS */}
+      {/* FILTER POPUP LIKE COUNSELOR PAGE */}
       {showFilters && (
-        <div className="bg-white border rounded-lg shadow-md p-4 mb-4">
-          <div className="grid sm:grid-cols-3 gap-4">
-            <Select
-              placeholder="Status"
+        <div className="relative sm:absolute sm:right-0 sm:top-16 w-full sm:w-80 bg-white border border-gray-200 rounded-lg shadow-lg p-4 z-50">
+          {/* Status */}
+          <div className="mb-4">
+            <label className="block text-sm text-gray-600 mb-1">Status</label>
+            <select
+              className="w-full border rounded-md px-3 py-2 text-sm text-gray-700"
               value={selectedStatus}
-              onChange={setSelectedStatus}
-              allowClear
+              onChange={(e) => setSelectedStatus(e.target.value)}
             >
-              <Option value="Ticket Raised">Ticket Raised</Option>
-              <Option value="Resolved">Resolved</Option>
-            </Select>
+              <option value="">All</option>
+              <option value="Ticket Raised">Ticket Raised</option>
+              <option value="Resolved">Resolved</option>
+            </select>
+          </div>
 
+          {/* Teacher Search Dropdown */}
+          <div className="mb-4">
+            <label className="block text-sm text-gray-600 mb-1">
+              Select Teacher
+            </label>
             <Select
-              placeholder="Teacher"
-              value={selectedTeacher}
-              onChange={setSelectedTeacher}
+              showSearch
               allowClear
+              placeholder="Search teachers"
+              optionFilterProp="children"
+              className="w-full"
+              filterOption={(input, option) =>
+                (option?.children as unknown as string)
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+              value={selectedTeacher}
+              onChange={(value) => setSelectedTeacher(value)}
             >
               {teachers.map((t) => (
-                <Option key={t.email} value={t.email}>
-                  {t.Name}
-                </Option>
+                <Select.Option key={t.email} value={t.email}>
+                  <div className="flex flex-col leading-tight">
+                    <span className="font-medium text-gray-800">
+                      {t.Name || "Unknown"}
+                    </span>
+                    <span className="text-gray-500 text-xs truncate">
+                      ({t.email})
+                    </span>
+                  </div>
+                </Select.Option>
               ))}
             </Select>
+          </div>
 
-            <Select
-              placeholder="Category"
-              value={selectedCategory}
-              onChange={setSelectedCategory}
-              allowClear
+          {/* Category Checkboxes */}
+          <div className="mb-4">
+            <label className="block text-sm text-gray-600 mb-1">Category</label>
+            <div className="flex flex-col gap-2 text-sm text-gray-700">
+              <label className="inline-flex items-center">
+                <input
+                  type="checkbox"
+                  checked={selectedCategory === "Student"}
+                  onChange={() =>
+                    setSelectedCategory(
+                      selectedCategory === "Student" ? "" : "Student"
+                    )
+                  }
+                />
+                <span className="ml-2">Student</span>
+              </label>
+
+              <label className="inline-flex items-center">
+                <input
+                  type="checkbox"
+                  checked={selectedCategory === "Teacher"}
+                  onChange={() =>
+                    setSelectedCategory(
+                      selectedCategory === "Teacher" ? "" : "Teacher"
+                    )
+                  }
+                />
+                <span className="ml-2">Teacher</span>
+              </label>
+            </div>
+          </div>
+
+          {/* Bottom Buttons */}
+          <div className="flex flex-col sm:flex-row justify-end gap-2 mt-4">
+            <button
+              className="px-4 py-2 text-sm text-gray-600 hover:underline"
+              onClick={() => setShowFilters(false)}
             >
-              <Option value="Student">Student</Option>
-              <Option value="Teacher">Teacher</Option>
-            </Select>
+              Cancel
+            </button>
+            <button
+              className="px-4 py-2 text-sm border border-red-400 text-red-600 rounded-md hover:bg-red-100"
+              onClick={() => {
+                setSelectedStatus("");
+                setSelectedTeacher("");
+                setSelectedCategory("");
+                setShowFilters(false);
+              }}
+            >
+              Clear Filters
+            </button>
+            <button
+              className="px-4 py-2 text-sm bg-orange-500 text-white rounded-md hover:bg-orange-600"
+              onClick={() => setShowFilters(false)}
+            >
+              Apply
+            </button>
           </div>
         </div>
       )}
 
-      {/* Tickets Table */}
-      {loading ? (
-        <div className="flex justify-center py-20">
-          <Spin tip="Loading tickets..." size="large" />
+      {/* MOBILE CARD VIEW */}
+      {isMobile && (
+        <div className="flex flex-col gap-3">
+          {loading ? (
+            <div className="flex justify-center py-20">
+              <Spin size="large" />
+            </div>
+          ) : tickets.length === 0 ? (
+            <p>No tickets found.</p>
+          ) : (
+            tickets.map((t) => (
+              <Card
+                key={t.id}
+                onClick={() =>
+                  navigate("/showticket", { state: { ticket: t } })
+                }
+                style={{
+                  border: "1px solid #f0f0f0",
+                  borderRadius: 12,
+                  cursor: "pointer",
+                }}
+              >
+                <div style={{ fontWeight: 600, color: "#1677ff" }}>
+                  {t.ticketText.length > 30
+                    ? t.ticketText.substring(0, 30) + "..."
+                    : t.ticketText}
+                </div>
+
+                <div style={{ marginTop: 6 }}>
+                  <Tag
+                    color={
+                      t.status === "Resolved"
+                        ? "green"
+                        : t.status === "Ticket Raised"
+                        ? "orange"
+                        : "blue"
+                    }
+                  >
+                    {t.status}
+                  </Tag>
+                  <Tag color={t.category === "Teacher" ? "green" : "blue"}>
+                    {t.category}
+                  </Tag>
+                </div>
+
+                <div style={{ marginTop: 6, color: "#666" }}>
+                  <strong>Created: </strong> {formatTimestamp(t.timestamp)}
+                </div>
+              </Card>
+            ))
+          )}
         </div>
-      ) : (
+      )}
+
+      {/* DESKTOP TABLE */}
+      {!isMobile && (
         <Table
           columns={columns}
           dataSource={tickets}
           rowKey="id"
-          pagination={{ pageSize: 8 }}
+          pagination={{
+            pageSize: 8,
+            position: ["bottomCenter"],
+            showSizeChanger: false,
+          }}
           bordered
+          className="rounded-lg shadow-sm"
           onRow={(record) => ({
-            onClick: () => navigate("/showticket", { state: { ticket: record } }),
+            onClick: () =>
+              navigate("/showticket", { state: { ticket: record } }),
           })}
-          className="cursor-pointer bg-white rounded-lg shadow-md"
         />
       )}
 
-      {/* Drawer for adding tickets */}
+      {/* DRAWER FORM */}
       <Drawer
-        title={<span style={{ color: "#fa8c16" }}>Create New Ticket</span>}
-        width={420}
+        title="Create New Ticket"
         onClose={() => setOpen(false)}
         open={open}
-        destroyOnClose
+        width={isMobile ? "100%" : 420}
       >
         <Form layout="vertical" form={form} onFinish={handleSubmit}>
           <Form.Item
@@ -336,7 +427,11 @@ const CoordinatorTickets = () => {
             label="Description"
             rules={[{ required: true }]}
           >
-            <Input.TextArea rows={3} placeholder="Describe the issue" />
+            <Input.TextArea
+              placeholder="Describe the issue"
+              rows={3}
+              style={{ resize: "none" }}
+            />
           </Form.Item>
 
           <Form.Item
@@ -344,7 +439,11 @@ const CoordinatorTickets = () => {
             label="Contributors"
             rules={[{ required: true }]}
           >
-            <Select mode="multiple" placeholder="Select contributors">
+            <Select
+              mode="multiple"
+              placeholder="Select contributors"
+              loading={teachLoading}
+            >
               {teachers.map((t) => (
                 <Option key={t.email} value={t.email}>
                   {t.Name}
@@ -358,22 +457,18 @@ const CoordinatorTickets = () => {
             label="Category"
             rules={[{ required: true }]}
           >
-            <Select placeholder="Select category">
-              <Option value="student">Student</Option>
-              <Option value="teacher">Teacher</Option>
+            <Select>
+              <Option value="Teacher">Teacher</Option>
+              <Option value="Student">Student</Option>
             </Select>
-          </Form.Item>
-
-          <Form.Item name="raisedOn" label="Raised On">
-            <Input placeholder="Enter student/teacher name or email" />
           </Form.Item>
 
           <Button
             type="primary"
-            htmlType="submit"
-            loading={submitting}
             block
-            style={{ backgroundColor: "#fa8c16", borderColor: "#fa8c16" }}
+            loading={submitting}
+            style={{ background: "#fa8c16", borderColor: "#fa8c16" }}
+            htmlType="submit"
           >
             Submit
           </Button>
