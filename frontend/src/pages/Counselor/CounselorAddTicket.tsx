@@ -144,7 +144,7 @@ function CounselorAddTicket() {
 
     try {
       const res = await axios.get(
-        `http://api-rim6ljimuq-uc.a.run.app/counseloraddticketwing/${schoolName}`
+        `https://api-rim6ljimuq-uc.a.run.app/counseloraddticketwing/${schoolName}`
       );
 
       const wingList = (res.data.wings || []).map((w: any) => ({
@@ -228,7 +228,7 @@ function CounselorAddTicket() {
       console.log("Final payload:", payload);
 
       const res = await axios.post(
-        `http://localhost:5000/counseloraddticket/${email}/${values.school}`,
+        `https://api-rim6ljimuq-uc.a.run.app/counseloraddticket/${email}/${values.school}`,
         payload
       );
       console.log(res);
