@@ -37,6 +37,8 @@ export const RaiseTicketController = async (
     const userData = snapshot.data() as { school?: string; Name?: string };
     const school = userData.school;
     const userName = userData.Name;
+    const userRecord = await admin.auth().getUserByEmail(email);
+const uid = userRecord.uid;
 
     if (!school) {
       res.status(400).json({ error: "School not found for the user" });
@@ -47,6 +49,7 @@ export const RaiseTicketController = async (
       ticketText: ticketText || "",
       userName: userName || "",
       email,
+      uid,
       timestamp: admin.firestore.FieldValue.serverTimestamp(),
       oneononesessions: 0,
       reply: "",

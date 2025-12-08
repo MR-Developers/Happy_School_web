@@ -56,7 +56,24 @@ function Login() {
             setTimeout(() => {
               nav("/counselordashboard");
             }, 1200);
-          } else {
+            
+          }
+          else if (data.role.toString().toLowerCase() === "co-ordinator") {
+            toast.success("Login successful");
+            localStorage.setItem("authToken", data.jwtToken);
+            localStorage.setItem("firebaseToken", data.firebaseToken);
+            localStorage.setItem("UserName", data.name);
+            localStorage.setItem("role", data.role);
+            localStorage.setItem("email", data.email);
+            localStorage.setItem("school", data.school);
+            console.log('oii responce ', data)
+            setTimeout(() => {
+              nav("/co-ordinator");
+            }, 1200);
+            
+          }
+          
+           else {
             toast.error("Access denied. Only principals can log in.");
           }
         } else {

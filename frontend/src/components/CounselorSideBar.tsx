@@ -6,7 +6,6 @@ import {
   faSignOutAlt,
   faClipboardList,
   faVideoCamera,
-  faChartLine,
   faBars,
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";

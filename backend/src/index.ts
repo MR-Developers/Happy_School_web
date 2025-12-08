@@ -3,7 +3,6 @@ import cors from "cors";
 import dotenv from "dotenv";
 dotenv.config();
 import admin from "./config/firebaseAdmin";
-
 import authRoutes from "./routes/LoginRoute";
 import teacherRoutes from "./routes/TeacherRoute";
 import ticketRoute from "./routes/TicketRoute";
@@ -25,6 +24,10 @@ import counselorAddTicket from "./routes/CounselorRoutes/CounselorAddTicketRoute
 import counselorAddTicketTeacher from "./routes/CounselorRoutes/CounselorAddTicketTeacherRoute";
 import counselorReports from "./routes/CounselorRoutes/CounselorReportsRoute";
 import links from "./routes/GetReports";
+import Fetchteacher from "./routes/Coordinator/FetchTeacher";
+import  FetchTickets from "./routes/Coordinator/FetchTickets";
+import coordinatordashboard from "./routes/Coordinator/CoordinatorDashboard";
+
 const app = express();
 const db = admin.firestore();
 
@@ -59,6 +62,10 @@ app.use("/counseloraddticket", counselorAddTicket);
 app.use("/counseloraddticketteachers", counselorAddTicketTeacher);
 app.use("/counselorreports", counselorReports);
 app.use("/counselorschools", schools);
+// Coordinator Routes
+app.use("/co-ordinator/teachers", Fetchteacher);
+app.use("/co-ordinator/tickets", FetchTickets);
+app.use("/co-ordinator", coordinatordashboard);
 
 app.get("/", async (req: Request, res: Response) => {
   try {

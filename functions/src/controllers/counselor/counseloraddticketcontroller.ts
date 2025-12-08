@@ -1,31 +1,30 @@
-// functions/src/controllers/raiseTicketController.ts
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable max-len */
-
 import {Request, Response} from "express";
-import admin, {db, auth} from "../config/firebase"; // Adjust path if needed
+import admin from "../../config/firebase";
 
+const db = admin.firestore();
 
-export const raiseticket = async (
+export const counseloraddticketcontroller = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   const email: string = req.params.email;
+  const school: string = req.params.school;
   const {
     ticketText,
     teacher,
     contributors,
     category,
+    privacy,
   }: {
     ticketText: string;
     teacher: string;
     contributors: { name: string; email: string }[];
     category: string;
+    privacy: boolean;
   } = req.body;
 
   try {
-    const userRecord = await auth.getUserByEmail(email);
-    const uid = userRecord.uid;
     const snapshot = await db
       .collection("Users")
       .doc(email)
@@ -39,7 +38,6 @@ export const raiseticket = async (
     }
 
     const userData = snapshot.data() as { school?: string; Name?: string };
-    const school = userData.school;
     const userName = userData.Name;
 
     if (!school) {
@@ -51,12 +49,13 @@ export const raiseticket = async (
       ticketText: ticketText || "",
       userName: userName || "",
       email,
-      uid,
       timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      oneononesessions: 0,
       reply: "",
       status: "Ticket Raised",
       tocken: 0,
       school,
+      privacy,
       contributors: contributors || [],
       category,
     };
