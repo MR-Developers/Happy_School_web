@@ -30,7 +30,10 @@ interface TeacherOption {
   value: string;
   name: string;
 }
-
+interface Wing {
+  id: string;
+  wingName: string;
+}
 const MultiSelectByName = ({
   name,
   label,
@@ -92,7 +95,8 @@ function CounselorAddTicket() {
   const [isStudent, setIsStudent] = useState(true);
   const [loadingSchools, setLoadingSchools] = useState(false);
   const [loadingTeachers, setLoadingTeachers] = useState(false);
-
+  const [wings, setWings] = useState<Wing[]>([]);
+  const [loadingWings, setLoadingWings] = useState(false);
   // Fetch schools
   useEffect(() => {
     if (!email) return;
@@ -134,19 +138,50 @@ function CounselorAddTicket() {
       setLoadingTeachers(false);
     }
   };
+  const fetchWings = async (schoolName: string) => {
+    if (!schoolName) return;
+    setLoadingWings(true);
+
+    try {
+      const res = await axios.get(
+        `https://api-rim6ljimuq-uc.a.run.app/counseloraddticketwing/${schoolName}`
+      );
+
+      const wingList = (res.data.wings || []).map((w: any) => ({
+        id: w.id,
+        wingName: `(${w.Name}) (${w.coordinatorName})`,
+      }));
+
+      setWings(wingList);
+    } catch (err) {
+      console.error("Error fetching wings:", err);
+    } finally {
+      setLoadingWings(false);
+    }
+  };
 
   const validationSchema = Yup.object({
     school: Yup.string().required("Please select a school"),
+
+    wing: Yup.string().when("school", {
+      is: () => wings.length > 0,
+      then: (schema) => schema.required("Please select a wing"),
+      otherwise: (schema) => schema.nullable(),
+    }),
+
     ticketText: Yup.string()
       .required("Ticket description is required")
       .min(10, "Minimum 10 characters"),
+
     contributors: Yup.array().of(
       Yup.object().shape({
         name: Yup.string().required(),
         email: Yup.string().email().required(),
       })
     ),
+
     category: Yup.string().required("Please select a category"),
+
     selectedTeacher: Yup.lazy((_, context) => {
       const category = context.parent.category;
       if (category === "Teacher" || category === "Early Adopter") {
@@ -167,6 +202,7 @@ function CounselorAddTicket() {
       selectedTeacher: TeacherMap | null;
       category: string;
       privacy: boolean;
+      wing: string;
     },
     { resetForm, setSubmitting }: any
   ) => {
@@ -179,6 +215,8 @@ function CounselorAddTicket() {
         category: values.category,
         privacy: values.privacy,
       };
+      payload.wingId = values.wing;
+
       if (values.category === "Teacher" && values.selectedTeacher) {
         payload.teacher = {
           name: values.selectedTeacher.name,
@@ -189,11 +227,11 @@ function CounselorAddTicket() {
 
       console.log("Final payload:", payload);
 
-      await axios.post(
+      const res = await axios.post(
         `https://api-rim6ljimuq-uc.a.run.app/counseloraddticket/${email}/${values.school}`,
         payload
       );
-
+      console.log(res);
       alert("✅ Ticket submitted successfully!");
       resetForm();
       setTeachers([]);
@@ -229,6 +267,7 @@ function CounselorAddTicket() {
           selectedTeacher: null as TeacherMap | null,
           category: "",
           privacy: false,
+          wing: "",
         }}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
@@ -245,12 +284,17 @@ function CounselorAddTicket() {
                 placeholder="-- Select school --"
                 isLoading={loadingSchools}
                 onChange={(option: any) => {
-                  setFieldValue("school", option?.value || "");
+                  const selectedSchool = option?.value || "";
+                  setFieldValue("school", selectedSchool);
+
                   setFieldValue("selectedTeacher", null);
                   setFieldValue("contributors", []);
                   setTeachers([]);
-                  if (option?.value) {
-                    fetchTeachers(option.value);
+                  setWings([]);
+
+                  if (selectedSchool) {
+                    fetchTeachers(selectedSchool);
+                    fetchWings(selectedSchool);
                   }
                 }}
                 onBlur={() => setFieldTouched("school", true)}
@@ -285,6 +329,51 @@ function CounselorAddTicket() {
                 className="text-red-500 text-sm mt-1"
               />
             </div>
+            {/* Wing Select */}
+            {wings.length > 0 && (
+              <div className="mb-4 mt-3">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Select Wing <span className="text-red-500">*</span>
+                </label>
+
+                <Select
+                  options={wings.map((w) => ({
+                    label: w.wingName,
+                    value: w.id,
+                  }))}
+                  placeholder={
+                    loadingWings ? "Loading wings..." : "-- Select wing --"
+                  }
+                  isLoading={loadingWings}
+                  isDisabled={!values.school || loadingWings}
+                  onChange={(option: any) => {
+                    setFieldValue("wing", option?.value || "");
+                  }}
+                  onBlur={() => setFieldTouched("wing", true)}
+                  value={
+                    values.wing
+                      ? wings
+                          .map((w) => ({ label: w.wingName, value: w.id }))
+                          .find((opt) => opt.value === values.wing) || null
+                      : null
+                  }
+                  styles={{
+                    control: (base, state) => ({
+                      ...base,
+                      borderColor: state.isFocused ? "#f97316" : "#f97316",
+                      boxShadow: "none",
+                      "&:hover": { borderColor: "#f97316" },
+                    }),
+                  }}
+                />
+
+                <ErrorMessage
+                  name="wing"
+                  component="div"
+                  className="text-red-500 text-sm mt-1"
+                />
+              </div>
+            )}
 
             {/* Ticket Text */}
             <Field

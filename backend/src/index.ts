@@ -22,10 +22,11 @@ import counselorChallenges from "./routes/CounselorRoutes/CounselorChallengesRou
 import counselorOneOnOne from "./routes/CounselorRoutes/CounselorOneOnOneRoute";
 import counselorAddTicket from "./routes/CounselorRoutes/CounselorAddTicketRoute";
 import counselorAddTicketTeacher from "./routes/CounselorRoutes/CounselorAddTicketTeacherRoute";
+import counselorAddTicketWing from "./routes/CounselorRoutes/CounselorAddTicketWingRoute";
 import counselorReports from "./routes/CounselorRoutes/CounselorReportsRoute";
 import links from "./routes/GetReports";
 import Fetchteacher from "./routes/Coordinator/FetchTeacher";
-import  FetchTickets from "./routes/Coordinator/FetchTickets";
+import FetchTickets from "./routes/Coordinator/FetchTickets";
 import coordinatordashboard from "./routes/Coordinator/CoordinatorDashboard";
 
 const app = express();
@@ -60,6 +61,7 @@ app.use("/counselorchallenges", counselorChallenges);
 app.use("/counseloroneonone", counselorOneOnOne);
 app.use("/counseloraddticket", counselorAddTicket);
 app.use("/counseloraddticketteachers", counselorAddTicketTeacher);
+app.use("/counseloraddticketwing", counselorAddTicketWing);
 app.use("/counselorreports", counselorReports);
 app.use("/counselorschools", schools);
 // Coordinator Routes

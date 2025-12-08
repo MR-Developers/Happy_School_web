@@ -15,12 +15,14 @@ export const CounselorAddTicketController = async (
     contributors,
     category,
     privacy,
+    wingId,
   }: {
     ticketText: string;
     teacher: string;
     contributors: { name: string; email: string }[];
     category: string;
     privacy: boolean;
+    wingId: string;
   } = req.body;
 
   try {
@@ -57,6 +59,7 @@ export const CounselorAddTicketController = async (
       privacy,
       contributors: contributors || [],
       category,
+      wingId: wingId,
     };
 
     if (category === "Teacher") {
