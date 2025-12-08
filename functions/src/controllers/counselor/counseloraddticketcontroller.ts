@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {Request, Response} from "express";
+import { Request, Response } from "express";
 import admin from "../../config/firebase";
 
 const db = admin.firestore();
@@ -16,12 +16,14 @@ export const counseloraddticketcontroller = async (
     contributors,
     category,
     privacy,
+    wingId,
   }: {
     ticketText: string;
     teacher: string;
     contributors: { name: string; email: string }[];
     category: string;
     privacy: boolean;
+    wingId: string;
   } = req.body;
 
   try {
@@ -33,7 +35,7 @@ export const counseloraddticketcontroller = async (
       .get();
 
     if (!snapshot.exists) {
-      res.status(404).json({error: "User info not found in Firestore"});
+      res.status(404).json({ error: "User info not found in Firestore" });
       return;
     }
 
@@ -41,7 +43,7 @@ export const counseloraddticketcontroller = async (
     const userName = userData.Name;
 
     if (!school) {
-      res.status(400).json({error: "School not found for the user"});
+      res.status(400).json({ error: "School not found for the user" });
       return;
     }
 
@@ -58,6 +60,7 @@ export const counseloraddticketcontroller = async (
       privacy,
       contributors: contributors || [],
       category,
+      wingId: wingId,
     };
 
     if (category === "Teacher") {
@@ -77,7 +80,7 @@ export const counseloraddticketcontroller = async (
       .get();
 
     if (schoolTicketCountRef.empty) {
-      res.status(404).json({error: "School not found"});
+      res.status(404).json({ error: "School not found" });
       return;
     }
     const doc = schoolTicketCountRef.docs[0];
@@ -94,6 +97,6 @@ export const counseloraddticketcontroller = async (
     });
   } catch (e) {
     console.error("Error in RaiseTicketController:", e);
-    res.status(500).json({error: "Internal server error"});
+    res.status(500).json({ error: "Internal server error" });
   }
 };

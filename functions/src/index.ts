@@ -2,12 +2,11 @@
 /* eslint-disable max-len */
 
 import express from "express";
-import {setGlobalOptions} from "firebase-functions";
-import {onRequest} from "firebase-functions/v2/https";
-import * as logger from "firebase-functions/logger";
+import { setGlobalOptions } from "firebase-functions/v2";
+import { onRequest } from "firebase-functions/v2/https";
 import cors from "cors";
 import loginRoutes from "./routers/loginroute";
-import {WEB_API_KEY, JWT_SECRET} from "./controllers/login"; // <- Import secrets
+import { WEB_API_KEY, JWT_SECRET } from "./controllers/login"; // <- Import secrets
 import dashboardroute from "./routers/dashboard";
 import ticketroutes from "./routers/ticket";
 import teacherroutes from "./routers/teacher";
@@ -27,11 +26,13 @@ import counselorchallenges from "./routers/counselorroutes/counselorchallengesro
 import counseloroneonone from "./routers/counselorroutes/counseloroneononeroute";
 import counseloraddticket from "./routers/counselorroutes/counseloraddticketroute";
 import counseloraddticketteacher from "./routers/counselorroutes/counseloraddticketteachertoute";
-import counselorreports from "./routers/counselorroutes/counselorreportsroute"; import coordinatordashboard from "./routers/Co-ordinator/Coordinatordashboard";
+import counseloraddticketwing from "./routers/counselorroutes/counseloraddticketwingroute";
+import counselorreports from "./routers/counselorroutes/counselorreportsroute";
+import coordinatordashboard from "./routers/Co-ordinator/Coordinatordashboard";
 import Fetchtickets from "./routers/Co-ordinator/Fetchtickets";
 import Fetchteacher from "./routers/Co-ordinator/Fetchteachers";
 
-setGlobalOptions({maxInstances: 10});
+setGlobalOptions({ maxInstances: 10 });
 
 const app = express();
 
@@ -63,6 +64,7 @@ app.use("/counselorchallenges", counselorchallenges);
 app.use("/counseloroneonone", counseloroneonone);
 app.use("/counseloraddticket", counseloraddticket);
 app.use("/counseloraddticketteachers", counseloraddticketteacher);
+app.use("/counseloraddticketwing", counseloraddticketwing);
 app.use("/counselorreports", counselorreports);
 app.use("/counselorschools", schools);
 
@@ -71,10 +73,6 @@ app.use("/co-ordinator/teachers", Fetchteacher);
 app.use("/co-ordinator/tickets", Fetchtickets);
 app.use("/co-ordinator", coordinatordashboard);
 // Optional test endpoint
-export const helloWorld = onRequest((req, res) => {
-  logger.info("Hello logs!", {structuredData: true});
-  res.send("Hello from Firebase!");
-});
 
 // ✅ Inject secrets into entire Express app
-export const api = onRequest({secrets: [WEB_API_KEY, JWT_SECRET]}, app);
+export const api = onRequest({ secrets: [WEB_API_KEY, JWT_SECRET] }, app);
