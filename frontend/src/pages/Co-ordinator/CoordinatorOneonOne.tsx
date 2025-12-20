@@ -43,6 +43,7 @@ const CoordinatorOneonOne = () => {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const navigate = useNavigate();
   const email = localStorage.getItem("email");
+  const wingId = localStorage.getItem("wingId");
 
   const [showFilters, setShowFilters] = useState(false);
   const [fromDate, setFromDate] = useState("");
@@ -59,7 +60,11 @@ const CoordinatorOneonOne = () => {
     if (!email) return;
 
     axios
-      .get(`https://api-rim6ljimuq-uc.a.run.app/co-ordinator/teachers/${email}`)
+      .get(
+        // `http://localhost:5000/co-ordinator/teachers/${wingId}`
+        `https://api-rim6ljimuq-uc.a.run.app/co-ordinator/teachers/${wingId}`
+
+      )
       .then((res) => {
         const fetched = res.data.teachers || [];
         const filtered = fetched.filter(

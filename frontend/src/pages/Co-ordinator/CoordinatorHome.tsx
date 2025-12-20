@@ -26,7 +26,7 @@ const CoordinatorHome: React.FC = () => {
   const dashboardRef = useRef<HTMLDivElement>(null);
 
   const cardStyle = { borderColor: "gray" };
-
+const wingId = localStorage.getItem('wingId')
   const donutData = summary
     ? [
         { name: "Teachers", value: summary.totalTeachers || 0, color: "#6366f1" },
@@ -43,7 +43,11 @@ const CoordinatorHome: React.FC = () => {
     if (!email) return;
 
     axios
-      .get(`https://api-rim6ljimuq-uc.a.run.app/co-ordinator/summary/${email}`)
+      .get(
+        `https://api-rim6ljimuq-uc.a.run.app/co-ordinator/summary/${wingId}`
+        // `  http://localhost:5000/co-ordinator/summary/${wingId}`
+
+      )
       .then((res) => {
         setSummary(res.data.stats);
         setLoading(false);

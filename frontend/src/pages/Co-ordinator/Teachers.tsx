@@ -10,22 +10,24 @@ const { useBreakpoint } = Grid;
 const CoordinatorTeachers = () => {
   const [teachers, setTeachers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const email = localStorage.getItem("email");
+  const wingId = localStorage.getItem("wingId");
+  const name = localStorage.getItem('UserName')
   const screens = useBreakpoint();
 
   const isMobile = !screens.md;
 
   useEffect(() => {
     const fetchTeachers = async () => {
-      if (!email) {
-        message.error("No coordinator email found in localStorage");
+      if (!wingId) {
+        message.error("No coordinator wingId found in localStorage");
         setLoading(false);
         return;
       }
 
       try {
         const response = await axios.get(
-          `https://api-rim6ljimuq-uc.a.run.app/co-ordinator/teachers/${email}`
+          // ` http://localhost:5000/co-ordinator/teachers/${wingId}`
+              `https://api-rim6ljimuq-uc.a.run.app/co-ordinator/teachers/${wingId}`
         );
         setTeachers(response.data.teachers || []);
       } catch (err: any) {
@@ -37,7 +39,7 @@ const CoordinatorTeachers = () => {
     };
 
     fetchTeachers();
-  }, [email]);
+  }, [wingId]);
 
   const columns: ColumnsType<any> = [
     {
@@ -140,7 +142,7 @@ const CoordinatorTeachers = () => {
         }}
       >
         Teachers under Coordinator:{" "}
-        <span style={{ color: "#333" }}>{email || "Unknown"}</span>
+        <span style={{ color: "#333" }}>{name || "Unknown"}</span>
       </Title>
 
       {/* Loading */}

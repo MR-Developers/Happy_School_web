@@ -4,73 +4,95 @@ import dotenv from "dotenv";
 
 dotenv.config();
 const db = admin.firestore();
-
 export const getCoordinatorDashboardSummary = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const email = req.params.email;
+  const { wingId } = req.params;
 
-  if (!email) {
-    res.status(400).json({ error: "Coordinator email is required" });
+  if (!wingId) {
+    res.status(400).json({ error: "wingId is required" });
     return;
   }
 
   try {
-    // 1️⃣ Verify coordinator exists and get school
-    const coordinatorSnap = await db
-      .collection("Users")
-      .doc(email)
-      .collection("userinfo")
-      .doc("userinfo")
-      .get();
-
-    if (!coordinatorSnap.exists) {
-      res.status(404).json({ error: "Coordinator not found in Firestore" });
-      return;
-    }
-
-    const coordinatorData = coordinatorSnap.data();
-    const school = coordinatorData?.school;
-
-    if (!school) {
-      res.status(404).json({ error: "School not found for this coordinator" });
-      return;
-    }
-
-    // 2️⃣ Fetch all teachers under this coordinator
-    const teacherQuerySnap = await db
+    /**
+     * 1️⃣ Fetch teachers for this wing
+     */
+    const teacherSnap = await db
       .collectionGroup("userinfo")
-      .where("coordinator", "==", email)
       .where("role", "==", "teacher")
+      .where("wingId", "==", wingId)
       .get();
+
+    if (teacherSnap.empty) {
+      res.status(200).json({
+        message: "No teachers found for this wing",
+        stats: {
+          totalTeachers: 0,
+          totalTickets: 0,
+          earlyAdopterCount: 0,
+          totalSessions: 0,
+          postCount: 0,
+          taskCount: 0,
+        },
+        teachers: [],
+        teacherTickets: [],
+      });
+      return;
+    }
 
     const teachers: any[] = [];
-    teacherQuerySnap.forEach((doc) => {
+    const teacherEmails: string[] = [];
+    let school: string | undefined;
+
+    teacherSnap.forEach((doc) => {
+      const data = doc.data();
+      const teacherEmail = doc.ref.parent.parent?.id;
+
+      if (!school && data.school) {
+        school = data.school;
+      }
+
+      if (teacherEmail) {
+        teacherEmails.push(teacherEmail.toLowerCase());
+      }
+
       teachers.push({
-        id: doc.ref.parent.parent?.id, // teacher's document ID (email)
-        ...doc.data(),
+        id: teacherEmail,
+        ...data,
       });
     });
 
-    // 3️⃣ Fetch all tickets for this school
-    const ticketsRef = db.collection("Tickets").doc(school).collection(school);
-    const [earlyAdopterCountSnap, allTicketsSnap] = await Promise.all([
-      ticketsRef.where("category", "==", "Early Adopter").count().get(),
-      ticketsRef.get(),
-    ]);
+    if (!school) {
+      res.status(404).json({ error: "School not found for wing teachers" });
+      return;
+    }
 
-    // 4️⃣ Calculate total one-on-one sessions and filter tickets related to these teachers
+    /**
+     * 2️⃣ Fetch tickets for this school
+     */
+    const ticketsRef = db.collection("Tickets").doc(school).collection(school);
+    const allTicketsSnap = await ticketsRef.get();
+
     let totalSessionsValue = 0;
-    const teacherEmails = teachers.map((t) => t.email?.toLowerCase());
+    let earlyAdopterCount = 0;
     const teacherTickets: any[] = [];
 
-    allTicketsSnap.docs.forEach((doc) => {
+    allTicketsSnap.forEach((doc) => {
       const data = doc.data();
-      if (data.oneononesessions && typeof data.oneononesessions === "number") {
+
+      // Sum one-on-one sessions
+      if (typeof data.oneononesessions === "number") {
         totalSessionsValue += data.oneononesessions;
       }
 
+      // Early adopter count
+      if (data.category === "Early Adopter") {
+        earlyAdopterCount++;
+      }
+
+      // Tickets belonging to wing teachers
       if (
         data.email &&
         teacherEmails.includes(String(data.email).toLowerCase())
@@ -82,40 +104,41 @@ export const getCoordinatorDashboardSummary = async (
       }
     });
 
-    // 5️⃣ Get school data from Schools collection (like in dashboard summary)
-    const schoolQueryRef = db
+    /**
+     * 3️⃣ Fetch school-level stats
+     */
+    const schoolSnap = await db
       .collection("Schools")
       .where("SchoolName", "==", school)
-      .limit(1);
+      .limit(1)
+      .get();
 
-    const schoolSnapshot = await schoolQueryRef.get();
-    if (schoolSnapshot.empty) {
-      res.status(404).json({ error: "School not found in Schools collection" });
-      return;
-    }
+    const schoolData = schoolSnap.empty ? {} : schoolSnap.docs[0].data();
 
-    const schoolData = schoolSnapshot.docs[0].data();
-
-    // 6️⃣ Final response
+    /**
+     * 4️⃣ Final response
+     */
     res.status(200).json({
       message: "Coordinator dashboard summary fetched successfully",
-      coordinator: {
-        email,
-        school,
-      },
+      wingId,
+      school,
       stats: {
         totalTeachers: teachers.length,
-        totalTickets: allTicketsSnap.size,
-        earlyAdopterCount: earlyAdopterCountSnap.data().count,
+        totalTickets: teacherTickets.length,
+        earlyAdopterCount,
         totalSessions: totalSessionsValue,
-        postCount: schoolData.Posts ?? 0,
-        taskCount: schoolData.Tasks ?? 0,
+        postCount: schoolData?.Posts ?? 0,
+        taskCount: schoolData?.Tasks ?? 0,
       },
       teachers,
       teacherTickets,
     });
   } catch (error: any) {
-    console.error("Error in getCoordinatorDashboardSummary:", error.message || error);
+    console.error(
+      "Error in getCoordinatorDashboardSummary:",
+      error.message || error
+    );
     res.status(500).json({ error: "Internal server error" });
   }
 };
+

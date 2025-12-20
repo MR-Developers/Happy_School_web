@@ -5,6 +5,6 @@ import {fetchteachers} from "../../controllers/Co-ordinator/Fetchteachers";
 
 const router = express.Router();
 
-router.get("/:email", fetchteachers);
+router.get("/:wingId", fetchteachers);
 
 export default router;

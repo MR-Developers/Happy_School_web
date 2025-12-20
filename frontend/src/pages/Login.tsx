@@ -20,6 +20,7 @@ function Login() {
         setLoading(true);
         const response = await fetch(
           "https://api-rim6ljimuq-uc.a.run.app/auth/login",
+          // "http://localhost:5000/auth/login",
           {
             method: "POST",
             headers: {
@@ -66,7 +67,7 @@ function Login() {
             localStorage.setItem("role", data.role);
             localStorage.setItem("email", data.email);
             localStorage.setItem("school", data.school);
-            console.log('oii responce ', data)
+        localStorage.setItem("wingId",data.wingId)
             setTimeout(() => {
               nav("/co-ordinator");
             }, 1200);
