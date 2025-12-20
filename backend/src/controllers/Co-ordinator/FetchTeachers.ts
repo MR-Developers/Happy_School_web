@@ -7,55 +7,38 @@ export const FetchTeachers = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const { email } = req.params;
+  const { wingId } = req.params;
 
-  if (!email) {
-    res.status(400).json({ error: "Coordinator email is required" });
+  if (!wingId) {
+    res.status(400).json({ error: "Wing ID is required" });
     return;
   }
 
   try {
-    // 1️⃣ Verify that this coordinator exists
-    const coordinatorSnap = await db
-      .collection("Users")
-      .doc(email)
-      .collection("userinfo")
-      .doc("userinfo")
-      .get();
-
-    if (!coordinatorSnap.exists) {
-      res
-        .status(404)
-        .json({ error: "Coordinator not found in Firestore" });
-      return;
-    }
-
-    // 2️⃣ Query all teachers whose coordinator matches this email
-    const teacherQuerySnap = await db
+    // 1️⃣ Query all teacher userinfo docs by wingId
+    const teachersSnap = await db
       .collectionGroup("userinfo")
-      .where("coordinator", "==", email)
       .where("role", "==", "teacher")
+      .where("wingId", "==", wingId)
       .get();
 
-    if (teacherQuerySnap.empty) {
-      res
-        .status(404)
-        .json({ error: "No teachers found for the given coordinator" });
+    if (teachersSnap.empty) {
+      res.status(404).json({
+        error: "No teachers found for this wing",
+      });
       return;
     }
 
-    // 3️⃣ Collect teacher info
-    const teachers: any[] = [];
-    teacherQuerySnap.forEach((doc) => {
-      teachers.push({
-        id: doc.ref.parent.parent?.id, // teacher's user doc ID (email)
-        ...doc.data(),
-      });
-    });
+    // 2️⃣ Build response
+    const teachers = teachersSnap.docs.map((doc) => ({
+      userId: doc.ref.parent.parent?.id, // Users/{userId}
+      ...doc.data(),
+    }));
 
-    // 4️⃣ Send response
+    // 3️⃣ Response
     res.status(200).json({
       message: "Teachers fetched successfully",
+      wingId,
       totalTeachers: teachers.length,
       teachers,
     });

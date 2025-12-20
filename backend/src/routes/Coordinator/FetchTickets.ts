@@ -3,5 +3,5 @@ import { FetchTickets } from "../../controllers/Co-ordinator/FetchTickets";
 
 const router = express.Router();
 
-router.get("/:email", FetchTickets);
+router.get("/:wingId", FetchTickets);
 export default router;

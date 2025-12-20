@@ -31,6 +31,7 @@ const CoordinatorUnanswered = () => {
   const [unansweredTeachers, setUnansweredTeachers] = useState<Teacher[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const wingId = localStorage.getItem('wingId');
 
   useEffect(() => {
     const email = localStorage.getItem("email");
@@ -41,7 +42,8 @@ const CoordinatorUnanswered = () => {
     const fetchData = async () => {
       try {
         const teacherRes = await axios.get(
-          `https://api-rim6ljimuq-uc.a.run.app/co-ordinator/teachers/${email}`
+          // `http://localhost:5000/co-ordinator/teachers/${wingId}`
+              `https://api-rim6ljimuq-uc.a.run.app/co-ordinator/teachers/${wingId}`
         );
 
         const allTeachers: Teacher[] = teacherRes.data.teachers || [];

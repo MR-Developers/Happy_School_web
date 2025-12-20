@@ -5,5 +5,5 @@ import {getcoordinatordashboardsummary} from "../../controllers/Co-ordinator/Coo
 
 const router = express.Router();
 
-router.get("/summary/:email", getcoordinatordashboardsummary);
+router.get("/summary/:wingId", getcoordinatordashboardsummary);
 export default router;

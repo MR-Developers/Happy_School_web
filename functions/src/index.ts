@@ -2,11 +2,11 @@
 /* eslint-disable max-len */
 
 import express from "express";
-import { setGlobalOptions } from "firebase-functions/v2";
-import { onRequest } from "firebase-functions/v2/https";
+import {setGlobalOptions} from "firebase-functions/v2";
+import {onRequest} from "firebase-functions/v2/https";
 import cors from "cors";
 import loginRoutes from "./routers/loginroute";
-import { WEB_API_KEY, JWT_SECRET } from "./controllers/login"; // <- Import secrets
+import {WEB_API_KEY, JWT_SECRET} from "./controllers/login"; // <- Import secrets
 import dashboardroute from "./routers/dashboard";
 import ticketroutes from "./routers/ticket";
 import teacherroutes from "./routers/teacher";
@@ -32,7 +32,7 @@ import coordinatordashboard from "./routers/Co-ordinator/Coordinatordashboard";
 import Fetchtickets from "./routers/Co-ordinator/Fetchtickets";
 import Fetchteacher from "./routers/Co-ordinator/Fetchteachers";
 
-setGlobalOptions({ maxInstances: 10 });
+setGlobalOptions({maxInstances: 10});
 
 const app = express();
 
@@ -75,4 +75,4 @@ app.use("/co-ordinator", coordinatordashboard);
 // Optional test endpoint
 
 // ✅ Inject secrets into entire Express app
-export const api = onRequest({ secrets: [WEB_API_KEY, JWT_SECRET] }, app);
+export const api = onRequest({secrets: [WEB_API_KEY, JWT_SECRET]}, app);

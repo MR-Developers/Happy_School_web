@@ -5,5 +5,5 @@ import {fetchtickets} from "../../controllers/Co-ordinator/Fetchtickets";
 
 const router = express.Router();
 
-router.get("/:email", fetchtickets);
+router.get("/:wingId", fetchtickets);
 export default router;

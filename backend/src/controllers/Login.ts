@@ -1,14 +1,26 @@
 import { Request, Response } from "express";
 import axios from "axios";
 import jwt from "jsonwebtoken";
-import admin from "../config/firebaseAdmin"; // Firebase Admin initialized
+import admin from "../config/firebaseAdmin";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-const db = admin.firestore(); // Firestore instance
+const db = admin.firestore();
 
-export const loginUser = async (req: Request, res: Response): Promise<void> => {
+interface FirebaseAuthResponse {
+  idToken: string;
+  email: string;
+  refreshToken: string;
+  expiresIn: string;
+  localId: string;
+  registered?: boolean;
+}
+
+export const loginUser = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -18,40 +30,49 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
 
   try {
     const firebaseAPIKey = process.env.firebaseAPIKey;
-    if (!firebaseAPIKey) {
-      throw new Error("Firebase API key is not defined");
-    }
+    if (!firebaseAPIKey) throw new Error("Firebase API key is not defined");
 
-    // Firebase Auth REST API login
-    const response = await axios.post(
+    const response = await axios.post<FirebaseAuthResponse>(
       `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${firebaseAPIKey}`,
-      {
-        email,
-        password,
-        returnSecureToken: true,
-      }
+      { email, password, returnSecureToken: true }
     );
 
-    const idToken = (response.data as { idToken: string }).idToken;
+    const idToken = response.data.idToken;
 
-    // Get Firestore user info
-    const snapshot = await db
+    const userSnap = await db
       .collection("Users")
       .doc(email)
       .collection("userinfo")
       .doc("userinfo")
       .get();
 
-    if (!snapshot.exists) {
+    if (!userSnap.exists) {
       res.status(404).json({ error: "User info not found in Firestore" });
       return;
     }
 
-    const userData = snapshot.data();
-    const userName = userData?.Name || "Unknown";
+    const userData = userSnap.data();
     const role = userData?.role || "User";
+    const userName = userData?.Name || "Unknown";
     const school = userData?.school || "Unknown";
-    // Create JWT token
+
+    let coordinatorWingInfo: any = null;
+
+    if (role === "co-ordinator") {
+      const wingsQuery = await db
+        .collection("Wings")
+        .where("coordinatorEmail", "==", email)
+        .get();
+
+      if (!wingsQuery.empty) {
+        const wingDoc = wingsQuery.docs[0];
+        coordinatorWingInfo = {
+          wingDocId: wingDoc.id,
+          wingData: wingDoc.data(),
+        };
+      }
+    }
+
     const jwtSecret = process.env.JWT_SECRET || "your_jwt_secret";
     const token = jwt.sign({ email, role }, jwtSecret, { expiresIn: "1h" });
 
@@ -63,6 +84,8 @@ export const loginUser = async (req: Request, res: Response): Promise<void> => {
       role,
       email,
       school,
+      wingId: coordinatorWingInfo?.wingDocId || null,
+      ...(coordinatorWingInfo && { coordinatorWingInfo }),
     });
   } catch (error: any) {
     console.error("Login error:", error.message);
