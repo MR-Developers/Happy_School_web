@@ -54,6 +54,7 @@ app.use("/tasks", tasks);
 app.use("/answers", UserAnswerRoutes);
 app.use("/oneonone", OneOnOne);
 app.use("/reports", links);
+// Counselor Routes
 app.use("/counselordashboard", counselorDashboard);
 app.use("/counselortickets", couselorTickets);
 app.use("/counselorteachers", counselorTeachers);

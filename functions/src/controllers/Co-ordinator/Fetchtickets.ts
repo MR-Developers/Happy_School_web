@@ -62,6 +62,7 @@ export const fetchtickets = async (req: Request, res: Response): Promise<void> =
       .collection("Tickets")
       .doc(school)
       .collection(school)
+      .where("privacy", "==", false)
       .get();
 
     let tickets = ticketQuerySnap.docs

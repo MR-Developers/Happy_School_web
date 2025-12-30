@@ -78,7 +78,7 @@ const CoordinatorTickets = () => {
 
         const res = await axios.get(
           // `http://localhost:5000/co-ordinator/tickets/${wingId}`,
-            `https://api-rim6ljimuq-uc.a.run.app/co-ordinator/tickets/${wingId}`,
+          `https://api-rim6ljimuq-uc.a.run.app/co-ordinator/tickets/${wingId}`,
           { params }
         );
 
@@ -208,8 +208,8 @@ const CoordinatorTickets = () => {
                     t.status === "Resolved"
                       ? "green"
                       : t.status === "Ticket Raised"
-                      ? "orange"
-                      : "blue"
+                        ? "orange"
+                        : "blue"
                   }
                 >
                   {t.status || "Pending"}
@@ -253,8 +253,8 @@ const CoordinatorTickets = () => {
                     status === "Resolved"
                       ? "green"
                       : status === "Ticket Raised"
-                      ? "orange"
-                      : "blue"
+                        ? "orange"
+                        : "blue"
                   }
                 >
                   {status || "Pending"}
