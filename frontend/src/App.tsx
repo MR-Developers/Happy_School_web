@@ -39,10 +39,11 @@ import CoordinatorTasks from "./pages/Co-ordinator/Tasks";
 import CoordinatorUnanswered from "./pages/Co-ordinator/CoordinatorUnanswered";
 import CoordinatorOneonOne from "./pages/Co-ordinator/CoordinatorOneonOne";
 import PasswordReset from "./pages/PasswordReset";
+import NewPassword from "./components/newPassword";
 
 function LayoutWrapper() {
   const location = useLocation();
-  const hideNavOnRoutes = ["/", "/addticket", "/showticket"];
+  const hideNavOnRoutes = ["/", "/addticket", "/showticket", "/auth/passwordreset"];
   const counselorRoutes = [
     "/counselordashboard",
     "/counselorteachers",
@@ -169,6 +170,7 @@ function LayoutWrapper() {
           />
           <Route path="/co-ordinator/one-on-one" element={<ProtectedRoute element={<CoordinatorOneonOne />} />} />
           <Route path="/auth/password-reset" element={<PasswordReset />} />
+          <Route path="/auth/passwordReset" element={<NewPassword />} />
         </Routes>
       </div>
     </div>
