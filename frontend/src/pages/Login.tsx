@@ -57,7 +57,7 @@ function Login() {
             setTimeout(() => {
               nav("/counselordashboard");
             }, 1200);
-            
+
           }
           else if (data.role.toString().toLowerCase() === "co-ordinator") {
             toast.success("Login successful");
@@ -67,14 +67,14 @@ function Login() {
             localStorage.setItem("role", data.role);
             localStorage.setItem("email", data.email);
             localStorage.setItem("school", data.school);
-        localStorage.setItem("wingId",data.wingId)
+            localStorage.setItem("wingId", data.wingId)
             setTimeout(() => {
               nav("/co-ordinator");
             }, 1200);
-            
+
           }
-          
-           else {
+
+          else {
             toast.error("Access denied. Only principals can log in.");
           }
         } else {
@@ -134,12 +134,21 @@ function Login() {
 
             {/* Password */}
             <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Password
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Password
+                </label>
+                <button
+                  type="button"
+                  onClick={() => nav("/auth/passwordReset")}
+                  className="text-sm font-medium text-orange-500 hover:text-orange-600 transition-colors"
+                >
+                  Forgot Password?
+                </button>
+              </div>
               <div className="relative">
                 <input
                   id="password"

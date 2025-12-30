@@ -38,10 +38,12 @@ import CoordinatorChallges from "./pages/Co-ordinator/CoordinatorChallges";
 import CoordinatorTasks from "./pages/Co-ordinator/Tasks";
 import CoordinatorUnanswered from "./pages/Co-ordinator/CoordinatorUnanswered";
 import CoordinatorOneonOne from "./pages/Co-ordinator/CoordinatorOneonOne";
+import PasswordReset from "./pages/PasswordReset";
+import NewPassword from "./components/newPassword";
 
 function LayoutWrapper() {
   const location = useLocation();
-  const hideNavOnRoutes = ["/", "/addticket", "/showticket"];
+  const hideNavOnRoutes = ["/", "/addticket", "/showticket", "/auth/passwordreset"];
   const counselorRoutes = [
     "/counselordashboard",
     "/counselorteachers",
@@ -152,21 +154,23 @@ function LayoutWrapper() {
           />
 
           <Route path="/co-ordinator" element={<ProtectedRoute
-             element={ <CoordinatorHome/>}/>}/>
+            element={<CoordinatorHome />} />} />
           <Route path="/co-ordinator/teachers" element={<ProtectedRoute
-             element={ <CoordinatorTeachers/>}/>}/>
+            element={<CoordinatorTeachers />} />} />
 
-            <Route path="/co-ordinator/tickets" element={<ProtectedRoute element={<CoordinatorTickets/>} />}/>
-            <Route path = "/co-ordinator/challenges" element= {<ProtectedRoute element= {<CoordinatorChallges/>}/>}/>
-              <Route
+          <Route path="/co-ordinator/tickets" element={<ProtectedRoute element={<CoordinatorTickets />} />} />
+          <Route path="/co-ordinator/challenges" element={<ProtectedRoute element={<CoordinatorChallges />} />} />
+          <Route
             path="/co-ordinator/tasks/:challengeName/:challengeId"
-            element={<ProtectedRoute element={<CoordinatorTasks/>} />}
+            element={<ProtectedRoute element={<CoordinatorTasks />} />}
           />
-           <Route
+          <Route
             path="/co-ordinator/useranswers/:challengeId/:taskName"
-            element={<CoordinatorUnanswered/>}
+            element={<CoordinatorUnanswered />}
           />
           <Route path="/co-ordinator/one-on-one" element={<ProtectedRoute element={<CoordinatorOneonOne />} />} />
+          <Route path="/auth/password-reset" element={<PasswordReset />} />
+          <Route path="/auth/passwordReset" element={<NewPassword />} />
         </Routes>
       </div>
     </div>
