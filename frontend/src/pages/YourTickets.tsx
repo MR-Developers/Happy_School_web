@@ -124,6 +124,7 @@ function YourTickets() {
 
         const response = await axios.get(
           `https://api-rim6ljimuq-uc.a.run.app/sesson/all-tickets/${email}`,
+          // `http://localhost:5000/getTickets/alltickets/${email}`,
           { params }
         );
         const fetched = response.data.tickets || [];
@@ -180,8 +181,8 @@ function YourTickets() {
           status === "Ticket Raised"
             ? "orange"
             : status === "Resolved"
-            ? "green"
-            : "blue";
+              ? "green"
+              : "blue";
         return <Tag color={color}>{status || "Pending"}</Tag>;
       },
     },
@@ -273,8 +274,8 @@ function YourTickets() {
       return status === "Ticket Raised"
         ? "orange"
         : status === "Resolved"
-        ? "green"
-        : "blue";
+          ? "green"
+          : "blue";
     };
 
     const getRaisedOnTag = () => {

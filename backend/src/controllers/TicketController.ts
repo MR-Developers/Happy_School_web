@@ -37,7 +37,8 @@ export const TicketController = async (
     const ticketSubColRef = db
       .collection("Tickets")
       .doc(school)
-      .collection(school);
+      .collection(school)
+      .where("privacy", "==", false);
     const ticketsSnap = await ticketSubColRef.get();
 
     let tickets = ticketsSnap.docs.map((doc) => ({

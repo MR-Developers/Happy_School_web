@@ -119,7 +119,7 @@ router.get("/all-tickets/:email", async (req: Request, res: Response) => {
     const ticketSubColRef = db
       .collection("Tickets")
       .doc(school)
-      .collection(school);
+      .collection(school).where("privacy", "==", false);
 
     // Fetch all tickets without ordering first (to handle mixed timestamp formats)
     const ticketsSnap = await ticketSubColRef.get();
