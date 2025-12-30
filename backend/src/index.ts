@@ -28,6 +28,7 @@ import links from "./routes/GetReports";
 import Fetchteacher from "./routes/Coordinator/FetchTeacher";
 import FetchTickets from "./routes/Coordinator/FetchTickets";
 import coordinatordashboard from "./routes/Coordinator/CoordinatorDashboard";
+import passwordrest from "./controllers/passwordreset";
 
 const app = express();
 const db = admin.firestore();
@@ -69,6 +70,7 @@ app.use("/counselorschools", schools);
 app.use("/co-ordinator/teachers", Fetchteacher);
 app.use("/co-ordinator/tickets", FetchTickets);
 app.use("/co-ordinator", coordinatordashboard);
+app.use("/auth", passwordrest);
 
 app.get("/", async (req: Request, res: Response) => {
   try {

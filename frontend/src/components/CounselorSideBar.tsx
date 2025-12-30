@@ -8,6 +8,7 @@ import {
   faVideoCamera,
   faBars,
   faTimes,
+  faChartLine,
 } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -31,6 +32,7 @@ function CounselorSideBar() {
       icon: faVideoCamera,
       path: "/counseloroneonone",
     },
+    { name: "Password Reset", icon: faChartLine, path: "/auth/password-reset" },
     { name: "Logout", icon: faSignOutAlt, isLogout: true },
   ];
 
@@ -86,9 +88,8 @@ function CounselorSideBar() {
 
       {/* Sidebar */}
       <div
-        className={`fixed lg:static inset-y-0 left-0 z-40 w-[280px] lg:w-[250px] h-screen bg-[#454545] flex flex-col p-4 overflow-hidden transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed lg:static inset-y-0 left-0 z-40 w-[280px] lg:w-[250px] h-screen bg-[#454545] flex flex-col p-4 overflow-hidden transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         {/* Header (Profile) */}
         <div className="flex flex-row items-center shrink-0 mt-2 lg:mt-0">
@@ -112,9 +113,8 @@ function CounselorSideBar() {
             <li
               key={item.name}
               onClick={() => handleItemClick(item)}
-              className={`flex items-center h-10 pl-4 pr-2 rounded-xl cursor-pointer ${
-                pathname === item.path ? "bg-black" : "bg-[#454545]"
-              } text-white hover:bg-black transition-all duration-150`}
+              className={`flex items-center h-10 pl-4 pr-2 rounded-xl cursor-pointer ${pathname === item.path ? "bg-black" : "bg-[#454545]"
+                } text-white hover:bg-black transition-all duration-150`}
             >
               <FontAwesomeIcon icon={item.icon} className="mr-3" />
               <span className="whitespace-nowrap">{item.name}</span>

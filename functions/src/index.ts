@@ -31,6 +31,7 @@ import counselorreports from "./routers/counselorroutes/counselorreportsroute";
 import coordinatordashboard from "./routers/Co-ordinator/Coordinatordashboard";
 import Fetchtickets from "./routers/Co-ordinator/Fetchtickets";
 import Fetchteacher from "./routers/Co-ordinator/Fetchteachers";
+import passwordreset from "./controllers/passwordreset";
 
 setGlobalOptions({maxInstances: 10});
 
@@ -73,6 +74,6 @@ app.use("/co-ordinator/teachers", Fetchteacher);
 app.use("/co-ordinator/tickets", Fetchtickets);
 app.use("/co-ordinator", coordinatordashboard);
 // Optional test endpoint
+app.use("/auth", passwordreset);
 
-// ✅ Inject secrets into entire Express app
 export const api = onRequest({secrets: [WEB_API_KEY, JWT_SECRET]}, app);

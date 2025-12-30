@@ -1,50 +1,83 @@
 import express, { Request, Response } from "express";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import dotenv from "dotenv";
+import { auth } from "firebase-admin";
 
 dotenv.config();
 
 const router = express.Router();
 
-router.post("/send-reset-email", async (req: Request, res: Response): Promise<void> => {
-    const { email } = req.body;
+interface SendResetEmailBody {
+    email: string;
+}
 
-    try {
+router.post(
+    "/send-reset-email",
+    async (
+        req: Request<{}, {}, SendResetEmailBody>,
+        res: Response
+    ): Promise<void> => {
+        const { email } = req.body;
 
-        const apiKey = process.env.firebaseAPIKey;
-        if (!apiKey) {
-            res.status(500).json({ error: "Firebase API key is missing in environment variables" });
+        if (!email) {
+            res.status(400).json({ error: "Email is required" });
             return;
         }
 
-        const response = await axios.post(
-            `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${apiKey}`,
-            {
-                requestType: "PASSWORD_RESET",
-                email,
-            }
-        );
+        const apiKey = process.env.firebaseAPIKey;
 
-        res.status(200).json({
-            message: "Password reset email sent successfully",
-            response: response.data,
-        });
-
-    } catch (error: unknown) {
-        // ✅ Type guard for Axios errors
-        if (axios.isAxiosError(error)) {
-            console.error("Axios error:", error.response?.data || error.message);
-            res.status(400).json({
-                error: error.response?.data?.error?.message || error.message,
+        if (!apiKey) {
+            res.status(500).json({
+                error: "Firebase API key is missing in environment variables",
             });
             return;
         }
 
-        // ✅ Fallback for non-Axios errors
-        const err = error as Error;
-        console.error("Unexpected error:", err.message);
-        res.status(500).json({ error: err.message });
+        try {
+            // 🔍 STEP 1: Check if user exists in Firebase
+            let userRecord;
+            try {
+                userRecord = await auth().getUserByEmail(email);
+            } catch (err: any) {
+                if (err.code === "auth/user-not-found") {
+                    res.status(404).json({ error: "No account found with this email" });
+                    return;
+                }
+                throw err;
+            }
+
+            // 📧 STEP 2: Send password reset email
+            const resetResponse = await axios.post(
+                `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${apiKey}`,
+                {
+                    requestType: "PASSWORD_RESET",
+                    email,
+                }
+            );
+
+            res.status(200).json({
+                message: "Password reset email sent successfully",
+                uid: userRecord.uid,
+            });
+        } catch (error: unknown) {
+            if (error instanceof AxiosError) {
+                const errorMessage =
+                    (error.response?.data as any)?.error?.message ||
+                    error.message ||
+                    "Firebase request failed";
+
+                res.status(400).json({ error: errorMessage });
+                return;
+            }
+
+            if (error instanceof Error) {
+                res.status(500).json({ error: error.message });
+                return;
+            }
+
+            res.status(500).json({ error: "Unknown error occurred" });
+        }
     }
-});
+);
 
 export default router;
