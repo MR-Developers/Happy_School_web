@@ -290,7 +290,7 @@ function CounselorOneOnOneSessions() {
 
   const MobileTicketCard = ({ ticket }: { ticket: Ticket }) => (
     <div
-      onClick={() => navigate("/showticket", { state: { ticket } })}
+      onClick={() => navigate(`/showticket/${ticket.id}?school=${typeof (ticket as any).school === 'object' ? (ticket as any).school.SchoolName : (ticket as any).school}`, { state: { ticket } })}
       className="bg-white rounded-lg shadow-md p-4 mb-4 border border-gray-200 cursor-pointer hover:shadow-lg transition-shadow"
     >
       <div className="mb-3">
@@ -533,7 +533,7 @@ function CounselorOneOnOneSessions() {
               bordered
               onRow={(record) => ({
                 onClick: () => {
-                  navigate("/showticket", { state: { ticket: record } });
+                  navigate(`/showticket/${record.id}?school=${typeof (record as any).school === 'object' ? (record as any).school.SchoolName : (record as any).school}`, { state: { ticket: record } });
                 },
               })}
               className="cursor-pointer rounded-xl shadow-md bg-white"

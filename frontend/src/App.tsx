@@ -93,7 +93,7 @@ function LayoutWrapper() {
           />
 
           <Route
-            path="/showticket"
+            path="/showticket/:ticketId"
             element={<ProtectedRoute element={<ShowTicket />} />}
           />
 

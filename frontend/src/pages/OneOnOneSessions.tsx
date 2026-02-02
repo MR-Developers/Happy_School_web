@@ -238,7 +238,7 @@ function OneOnOneSessions() {
   // Mobile Card View Component
   const MobileTicketCard = ({ ticket }: { ticket: Ticket }) => (
     <div
-      onClick={() => navigate("/showticket", { state: { ticket } })}
+      onClick={() => navigate(`/showticket/${ticket.id}?school=${typeof ticket.school === 'object' ? ticket.school?.SchoolName : ticket.school}`, { state: { ticket } })}
       className="bg-white rounded-lg shadow-md p-4 mb-4 border border-gray-200 cursor-pointer hover:shadow-lg transition-shadow"
     >
       <div className="mb-3">
@@ -467,7 +467,7 @@ function OneOnOneSessions() {
               bordered
               onRow={(record) => ({
                 onClick: () => {
-                  navigate("/showticket", { state: { ticket: record } });
+                  navigate(`/showticket/${record.id}?school=${typeof record.school === 'object' ? record.school?.SchoolName : record.school}`, { state: { ticket: record } });
                 },
               })}
               className="cursor-pointer rounded-xl shadow-md bg-white"

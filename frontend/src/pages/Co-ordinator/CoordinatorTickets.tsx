@@ -193,7 +193,7 @@ const CoordinatorTickets = () => {
               key={t.id}
               className="mb-3 cursor-pointer"
               onClick={() =>
-                navigate("/showticket", { state: { ticket: t } })
+                navigate(`/showticket/${t.id}?school=${typeof (t as any).school === 'object' ? (t as any).school.SchoolName : (t as any).school}`, { state: { ticket: t } })
               }
             >
               <div className="font-semibold text-blue-600">
@@ -283,7 +283,7 @@ const CoordinatorTickets = () => {
           loading={loading}
           onRow={(record) => ({
             onClick: () =>
-              navigate("/showticket", { state: { ticket: record } }),
+              navigate(`/showticket/${record.id}?school=${typeof (record as any).school === 'object' ? (record as any).school.SchoolName : (record as any).school}`, { state: { ticket: record } }),
           })}
         />
       )}

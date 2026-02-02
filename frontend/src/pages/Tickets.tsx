@@ -44,7 +44,7 @@ function Tickets() {
   );
 
   const handleTicketClick = (ticket: Ticket) => {
-    navigate("/showticket", { state: { ticket } });
+    navigate(`/showticket/${ticket.id}?school=${typeof ticket.school === 'object' ? ticket.school.SchoolName : ticket.school}`, { state: { ticket } });
   };
 
   return (

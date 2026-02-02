@@ -1,14 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useLocation, useNavigate } from "react-router-dom";
-import { MessageCircle, ArrowLeft } from "lucide-react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { MessageCircle, ArrowLeft, Plus, Minus, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 
 function ShowTicket() {
   const { state } = useLocation();
   const navigate = useNavigate();
+  const { ticketId } = useParams();
   const [ticket, setTicket] = useState(state?.ticket || null);
   const [loading, setLoading] = useState(!state?.ticket);
   const [error, setError] = useState("");
+  const [updatingSession, setUpdatingSession] = useState(false);
 
   // Helper function to get teacher display info
   const getTeacherInfo = () => {
@@ -33,20 +35,51 @@ function ShowTicket() {
     return null;
   };
 
-  // Fetch ticket if not in state but ID is available
-  useEffect(() => {
-    if (!state?.ticket) {
-      console.log("No ticket found in navigation state");
-      // Option 1: Redirect back to tickets list
-      // navigate("/one-on-one-sessions", { replace: true });
+  // Fetch ticket function
+  const fetchTicket = async (showLoader = true) => {
+    if (!ticketId) return;
 
-      // Option 2: Show error and let user navigate back manually
-      setLoading(false);
-    } else {
-      setTicket(state.ticket);
-      setLoading(false);
+    if (showLoader) setLoading(true);
+    try {
+      // Try to get school from query param, local storage, or ticket state
+      const queryParams = new URLSearchParams(location.search);
+      const schoolParam =
+        queryParams.get("school") ||
+        localStorage.getItem("school") ||
+        (ticket &&
+          (typeof ticket.school === "string"
+            ? ticket.school
+            : ticket.school?.SchoolName));
+
+      let url = `https://api-rim6ljimuq-uc.a.run.app/counselortickets/details?ticketId=${ticketId}`;
+      // let url = `http://localhost:5000/counselortickets/details?ticketId=${ticketId}`;
+      if (schoolParam) {
+        url += `&school=${schoolParam}`;
+      }
+
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error("Failed to fetch ticket");
+      }
+      const data = await response.json();
+      setTicket(data.ticket);
+    } catch (err) {
+      console.error("Error fetching ticket:", err);
+      if (showLoader) setError("Failed to load ticket details.");
+    } finally {
+      if (showLoader) setLoading(false);
     }
-  }, [state, navigate]);
+  };
+
+  // Initial fetch
+  useEffect(() => {
+    if (state?.ticket) {
+        setTicket(state.ticket);
+        setLoading(false);
+    } else {
+        fetchTicket();
+    }
+  }, [state, ticketId]);
 
   if (loading) {
     return (
@@ -304,6 +337,109 @@ function ShowTicket() {
               </div>
             </div>
           </div>
+
+
+          {/* One-on-One Sessions Control for Counselors */}
+          {localStorage.getItem("role") === "counselor" && (
+            <div>
+              <h2 className="text-lg font-semibold text-gray-800 mb-2">
+                One-on-One Sessions
+              </h2>
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">Session Count</p>
+                  <p className="text-2xl font-bold text-gray-800 mt-1">
+                    {ticket.oneononesessions || 0}
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={async () => {
+                      if (!ticket.oneononesessions || ticket.oneononesessions <= 0 || updatingSession) return;
+                      setUpdatingSession(true);
+                      try {
+                        const response = await fetch(
+                          "https://api-rim6ljimuq-uc.a.run.app/counselortickets/session-count",
+                          {
+                            method: "POST",
+                            headers: {
+                              "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({
+                              school: localStorage.getItem("school") || (typeof ticket.school === 'string' ? ticket.school : ticket.school?.SchoolName) || "",
+                              ticketId: ticket.id,
+                              action: "decrement",
+                            }),
+                          }
+                        );
+                        if (response.ok) {
+                          await fetchTicket(false);
+                        }
+                      } catch (error) {
+                        console.error("Failed to decrement session", error);
+                      } finally {
+                        setUpdatingSession(false);
+                      }
+                    }}
+                    disabled={!ticket.oneononesessions || ticket.oneononesessions <= 0 || updatingSession}
+                    className={`p-2 rounded-full text-white transition-colors ${
+                       !ticket.oneononesessions || ticket.oneononesessions <= 0 || updatingSession
+                        ? "bg-gray-300 cursor-not-allowed" 
+                        : "bg-red-500 hover:bg-red-600"
+                    }`}
+                    title="Decrease Sessions"
+                  >
+                    <Minus className="w-5 h-5" />
+                  </button>
+                  
+                  {updatingSession && (
+                    <Loader2 className="w-5 h-5 animate-spin text-orange-500" />
+                  )}
+
+                  <button
+                    onClick={async () => {
+                      if (updatingSession) return;
+                      setUpdatingSession(true);
+                      try {
+                        const response = await fetch(
+                          "https://api-rim6ljimuq-uc.a.run.app/counselortickets/session-count",
+                          {
+                            method: "POST",
+                            headers: {
+                              "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({
+                              school: localStorage.getItem("school") || (typeof ticket.school === 'string' ? ticket.school : ticket.school?.SchoolName) || "",
+                              ticketId: ticket.id,
+                              action: "increment",
+                            }),
+                          }
+                        );
+                        if (response.ok) {
+                          await fetchTicket(false);
+                        }
+                      } catch (error) {
+                        console.error("Failed to increment session", error);
+                      } finally {
+                        setUpdatingSession(false);
+                      }
+                    }}
+                    disabled={updatingSession}
+                    className={`p-2 rounded-full text-white transition-colors ${
+                      updatingSession
+                       ? "bg-gray-300 cursor-not-allowed" 
+                       : "bg-green-500 hover:bg-green-600"
+                   }`}
+                    title="Increase Sessions"
+                  >
+                    <Plus className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+
         </div>
       </div>
 
