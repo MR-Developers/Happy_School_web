@@ -82,7 +82,7 @@ export const loginUser = async (
       jwtToken: token,
       name: userName,
       role,
-      email,
+      email:email.toLowerCase(),
       school,
       wingId: coordinatorWingInfo?.wingDocId || null,
       ...(coordinatorWingInfo && { coordinatorWingInfo }),
