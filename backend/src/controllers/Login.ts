@@ -41,7 +41,7 @@ export const loginUser = async (
 
     const userSnap = await db
       .collection("Users")
-      .doc(email)
+      .doc(email.toLowerCase())
       .collection("userinfo")
       .doc("userinfo")
       .get();

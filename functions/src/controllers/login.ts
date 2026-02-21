@@ -42,7 +42,7 @@ export const loginuser = async (req: Request, res: Response): Promise<void> => {
 
     const userSnap = await db
       .collection("Users")
-      .doc(email)
+      .doc(email.toLowerCase())
       .collection("userinfo")
       .doc("userinfo")
       .get();
